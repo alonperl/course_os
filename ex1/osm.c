@@ -82,6 +82,31 @@ double averageGettingTimeTime(unsigned int iterations)
 	return calculateTimeDifference(startTime, stopTime) / iterations;
 }
 
+double averageForLoopRuntime(unsigned int iterations)
+{
+	struct timeval startTime;
+	struct timeval stopTime;
+
+	unsigned int i;
+	
+	if (gettimeofday(&startTime, NULL))
+	{
+		return DEFAULT_BAD_RESULT;
+	}
+
+	for (i = 0; i < iterations; i+=10)
+	{
+
+	}
+
+	if (gettimeofday(&stopTime, NULL))
+	{
+		return DEFAULT_BAD_RESULT;
+	}
+
+	return  calculateTimeDifference(startTime, stopTime) / iterations;
+}
+
 /**
  *  @brief Empty function
  */
@@ -130,8 +155,17 @@ double osm_function_time(unsigned int osm_iterations)
 		return DEFAULT_BAD_RESULT;
 	}
 	
-	for (i = 0; i < osm_iterations; i++)
+	for (i = 0; i < osm_iterations; i+=10)
 	{
+		empty();
+		empty();
+		empty();
+		empty();
+		empty();
+		empty();
+		empty();
+		empty();
+		empty();
 		empty();
 	}
 
@@ -175,8 +209,17 @@ double osm_syscall_time(unsigned int osm_iterations)
 		return DEFAULT_BAD_RESULT;
 	}
 
-	for (i = 0; i < osm_iterations; i++)
+	for (i = 0; i < osm_iterations; i+=10)
 	{
+		OSM_NULLSYSCALL;
+		OSM_NULLSYSCALL;
+		OSM_NULLSYSCALL;
+		OSM_NULLSYSCALL;
+		OSM_NULLSYSCALL;
+		OSM_NULLSYSCALL;
+		OSM_NULLSYSCALL;
+		OSM_NULLSYSCALL;
+		OSM_NULLSYSCALL;
 		OSM_NULLSYSCALL;
 	}
 
@@ -226,9 +269,18 @@ double osm_operation_time(unsigned int osm_iterations)
 		return DEFAULT_BAD_RESULT;
 	}
 
-	for (i = 0; i < osm_iterations; i++)
+	for (i = 0; i < osm_iterations; i+=10)
 	{
-		resultOperand = firstOperand + secondOperand;
+		1+2;
+		1+2;
+		1+2;
+		1+2;
+		1+2;
+                1+2;
+                1+2;
+                1+2;
+                1+2;
+                1+2;
 	}
 
 	// if (clock_gettime(CLOCK_REALTIME, &stopTime))
@@ -257,8 +309,6 @@ timeMeasurmentStructure measureTimes (unsigned int osm_iterations)
 {
 	timeMeasurmentStructure results;
 
-	double averageGettingTime = averageGettingTimeTime(TERA);
-
 	// Get machine data
 	int successGetHostName = gethostname(results.machineName, HOST_NAME_MAX);
 	if (successGetHostName != 0)
@@ -272,13 +322,16 @@ timeMeasurmentStructure measureTimes (unsigned int osm_iterations)
 		osm_iterations = DEFAULT_ITERATION_NUMBER;
 	}
 
+        double averageGettingTime = averageGettingTimeTime(osm_iterations);
+        double averageForLoopTime = averageForLoopRuntime(GIGA); 
+
 	// Set iteration number
 	results.numberOfIterations = osm_iterations;
 
 	// Run measurements
-	results.instructionTimeNanoSecond = osm_operation_time(osm_iterations) - averageGettingTime;
-	results.functionTimeNanoSecond = osm_function_time(osm_iterations) - averageGettingTime;
-	results.trapTimeNanoSecond = osm_syscall_time(osm_iterations) - averageGettingTime;
+	results.instructionTimeNanoSecond = osm_operation_time(osm_iterations);// - averageGettingTime - averageForLoopTime;
+	results.functionTimeNanoSecond = osm_function_time(osm_iterations);// - averageGettingTime - averageForLoopTime;
+	results.trapTimeNanoSecond = osm_syscall_time(osm_iterations);// - averageGettingTime - averageForLoopTime;
 
 	// Calculate ratios
 	if (results.functionTimeNanoSecond != DEFAULT_BAD_RESULT && results.instructionTimeNanoSecond != DEFAULT_BAD_RESULT)

@@ -141,7 +141,7 @@ the result will not be printed until next round hour.
 The idea of blocking all interrupts under certain circumstances is not a very 
 good one. Even though there would be no collisions (e.g. in the file write and 
 other side effects), but the system will freeze (as for user) entirely until the
-process is complete. Furthermore, crutial interrupts (e.g. cooling system) will 
+process is complete. Furthermore, crucial interrupts (e.g. cooling system) will 
 be put on hold and may cause entire system crashes, etc.
 
 --------------------------------------------------

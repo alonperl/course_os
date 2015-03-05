@@ -12,6 +12,8 @@ REMARKS:
 ANSWERS:
 Task 1.
 
+Running WhatIDo without parameters:
+
 dup(2) duplicates stderr file descriptor to a new file descriptor that gets 
 lowest numbered unused descriptor (3 in our case). Now if we print something to 
 3 it will output to stderr.
@@ -58,9 +60,63 @@ write(3, ": Success\n", 10) - same here.
 close(3) closes fd=3 file.
 
 munmap(0x7ff722910000, 4096) unmaps the mapped memory from given address of 
-given length.
+given length. Returns 0 if succeeds.
 
 exit_group(0) exits all threads of the process.
+
+Running WhatIDo with an arbitrary argument:
+
+mkdir("os", 0775) creates a folder “os” (first arg) in current folder and gives it 
+775 permissions (second arg) (rwxrwxr-x). Returned 0 on success.
+
+mkdir("os/2015", 0775) creates a folder “2015” inside the folder “os” which should 
+be in current folder (first arg) and gives it 775 permissions (second arg) (rwxrwxr-x). 
+Returned 0 on success.
+
+brk(0) tries to change current break value to the argument but since it is 0 it
+is not valid at any time so the brk(0) returns the current break value.
+
+brk(0x12df000) (the argument in your program is relative to current break) tries
+to change current break value to the argument and succeeds and thus returns new 
+break value.
+
+open("os/2015/info", O_WRONLY|O_CREAT|O_TRUNC, 0666) opens file named “info” that 
+should be in the folder “os/2015” relatively to current folder, for write only (O_WRONLY), 
+if the file does not exist creates it, if it exists and is regular file and is writable - 
+truncates it (deletes all the content), if new file created - sets its permissions to 666 
+(rw-rw-rw-). Returns file descriptor (lowest available) (3 in this case).
+
+fstat(3, {st_mode=S_IFREG|0644, st_size=0, ...}) gets file status 
+by descriptor (first arg) and puts the result in the second arg (special 
+struct), where we explicitly set the st_mode (IFREG = regular file) and 
+st_size fields. Returns zero if succeed.
+
+mmap(NULL, 65536, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) - a new mapping 
+in the virtual address space of the calling process. First 
+argument is NULL therefore the kernel chooses the starting address of the 
+mapping. Second arg is the desired length of the mapping. Third arg is the 
+memory protection which is read/write in our case. Fourth arg sets the mapping 
+to be invisible to other processes (MAP_PRIVATE) and also sets it to be not 
+backed up by any file and is initialized to zeros (MAP_ANONYMOUS). Fifth -1 is 
+just a required settlement for such an anonimity. Seventh arg 0 is ignored in 
+the case of anonimity, but in other cases specifies offset. Returns the address 
+of the new mapping.
+
+write(3, "                                "..., 120) writes into file by descriptor given in 
+first arg (3 in our case is the file “os/2015/info” a given in second arg sequence of given 
+in thrid arg length, returns the length of written sequence if succeeds.
+
+close(3) closes fd=3 file.
+
+munmap(0x7f02e299a000, 65536)  unmaps the mapped memory from given address of 
+given length. Returns 0 if succeeds.
+
+unlink("os/2015/info") tries to remove a file by given path. Returns 0 if succeeds.
+
+rmdir("os/2015/"), rmdir("os/") both try to remove a folder by given path. 
+Returns 0 if succeeds.
+
+exit_group(0) exits all process threads.
 
 We concluded the above using manpages and google.
 
@@ -85,7 +141,7 @@ the result will not be printed until next round hour.
 The idea of blocking all interrupts under certain circumstances is not a very 
 good one. Even though there would be no collisions (e.g. in the file write and 
 other side effects), but the system will freeze (as for user) entirely until the
-process is complete. Furthermore, crutial interrupts (e.g. cooling system) will 
+process is complete. Furthermore, crucial interrupts (e.g. cooling system) will 
 be put on hold and may cause entire system crashes, etc.
 
 --------------------------------------------------
@@ -143,3 +199,4 @@ Trap:				250.360000
 Instruction			2.160000
 Function/Instruction Ratio:	1.027778
 Trap/Instruction Ratio:		115.907407
+

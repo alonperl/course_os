@@ -66,12 +66,12 @@ exit_group(0) exits all threads of the process.
 
 Running WhatIDo with an arbitrary argument:
 
-mkdir("os", 0775) creates a folder “os” (first arg) in current folder and gives it 
-775 permissions (second arg) (rwxrwxr-x). Returned 0 on success.
+mkdir("os", 0775) creates a folder “os” (first arg) in current folder and gives 
+it 775 permissions (second arg) (rwxrwxr-x). Returned 0 on success.
 
-mkdir("os/2015", 0775) creates a folder “2015” inside the folder “os” which should 
-be in current folder (first arg) and gives it 775 permissions (second arg) (rwxrwxr-x). 
-Returned 0 on success.
+mkdir("os/2015", 0775) creates a folder “2015” inside the folder “os” which 
+should be in current folder (first arg) and gives it 775 permissions (second 
+arg) (rwxrwxr-x). Returned 0 on success.
 
 brk(0) tries to change current break value to the argument but since it is 0 it
 is not valid at any time so the brk(0) returns the current break value.
@@ -80,19 +80,20 @@ brk(0x12df000) (the argument in your program is relative to current break) tries
 to change current break value to the argument and succeeds and thus returns new 
 break value.
 
-open("os/2015/info", O_WRONLY|O_CREAT|O_TRUNC, 0666) opens file named “info” that 
-should be in the folder “os/2015” relatively to current folder, for write only (O_WRONLY), 
-if the file does not exist creates it, if it exists and is regular file and is writable - 
-truncates it (deletes all the content), if new file created - sets its permissions to 666 
-(rw-rw-rw-). Returns file descriptor (lowest available) (3 in this case).
+open("os/2015/info", O_WRONLY|O_CREAT|O_TRUNC, 0666) opens file named “info” 
+that should be in the folder “os/2015” relatively to current folder, for write 
+only (O_WRONLY), if the file does not exist creates it, if it exists and is 
+regular file and is writable - truncates it (deletes all the content), if new 
+file created - sets its permissions to 666 (rw-rw-rw-). Returns file descriptor 
+(lowest available) (3 in this case).
 
 fstat(3, {st_mode=S_IFREG|0644, st_size=0, ...}) gets file status 
 by descriptor (first arg) and puts the result in the second arg (special 
 struct), where we explicitly set the st_mode (IFREG = regular file) and 
 st_size fields. Returns zero if succeed.
 
-mmap(NULL, 65536, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) - a new mapping 
-in the virtual address space of the calling process. First 
+mmap(NULL, 65536, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) - a 
+new mapping in the virtual address space of the calling process. First 
 argument is NULL therefore the kernel chooses the starting address of the 
 mapping. Second arg is the desired length of the mapping. Third arg is the 
 memory protection which is read/write in our case. Fourth arg sets the mapping 
@@ -102,16 +103,18 @@ just a required settlement for such an anonimity. Seventh arg 0 is ignored in
 the case of anonimity, but in other cases specifies offset. Returns the address 
 of the new mapping.
 
-write(3, "                                "..., 120) writes into file by descriptor given in 
-first arg (3 in our case is the file “os/2015/info” a given in second arg sequence of given 
-in thrid arg length, returns the length of written sequence if succeeds.
+write(3, "                                "..., 120) writes into file by 
+descriptor given in first arg (3 in our case is the file “os/2015/info” given in
+second arg sequence of given in thrid arg length, returns the length of written 
+sequence if succeeds.
 
 close(3) closes fd=3 file.
 
 munmap(0x7f02e299a000, 65536)  unmaps the mapped memory from given address of 
 given length. Returns 0 if succeeds.
 
-unlink("os/2015/info") tries to remove a file by given path. Returns 0 if succeeds.
+unlink("os/2015/info") tries to remove a file by given path. Returns 0 if 
+succeeds.
 
 rmdir("os/2015/"), rmdir("os/") both try to remove a folder by given path. 
 Returns 0 if succeeds.
@@ -120,7 +123,7 @@ exit_group(0) exits all process threads.
 
 We concluded the above using manpages and google.
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 Task 2.
 1)
@@ -144,58 +147,60 @@ other side effects), but the system will freeze (as for user) entirely until the
 process is complete. Furthermore, crucial interrupts (e.g. cooling system) will 
 be put on hold and may cause entire system crashes, etc.
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 Task 3.
 
 Results: 
 
+The measureTime function initializes its struct, gets system vars (hostname),
+and then runs the below functions and saves results to the appropriate field in 
+struct.
+
 The three function of different operations time measurement (osm_function_time,
 osm_syscall_time, osm_operation_time) are built in very similar manner: 
 We begin with some initializations, input validation, then in the loop we:
-1) get current time (A)
-2) run the operation
-3) get current time again (B)
-4) calculate difference between A, B and add it to total runtime.
+	- get current time (A)
+	- run the operation
+	- get current time again (B)
+	- calculate difference between A, B and add it to total runtime.
 After the loop we calculate and return the average runtime for single operation
 by dividing total runtime by total number of iterations.
 
-The results we got are:
+The approximate results we got are:
 Option 1 (measuring one operation at a time):
-Hostname:			hup-01
+Hostname:					hup-01
 Number of iterations:		50000
-Function:			21.320000
-Trap:				289.540000
-Instruction			20.860000
+Function:					21.320000
+Trap:						289.540000
+Instruction					20.860000
 Function/Instruction Ratio:	1.022052
 Trap/Instruction Ratio:		13.880153
 
-
-The measureTime function initializes its struct, gets system vars (hostname),
-and then run the above functions and saves results to the appropriate field in 
-struct.
-
-How can we tell if the measurements are good enough?
-We measured a time of time measurement by running two gettimeofday() 
-calls one right after the other and calculate the difference of the two, and
-substructing this time from measured time of the operation (with its own pair of
-gettimeofday() calls).
-In addition we calculated
+* How can we tell if the measurements are good enough?
+We tried to measure the time of actually "getting time", by running two 
+gettimeofday() calls one right after the other in the loop and calculating the
+average difference of the two.
+In addition we calculated the time that takes for
+the loop counter to increment itself, i.e. empty for-loop, and also averaging
+that time. The problem we faced is when given small number of iterations, the
+measurement precision goes up drastically (e.g. 1000 iterations gave us the
+precision of only 1ns (one nanosecond) which is a lot comparing to instruction 
+time).
 
 To minimize the overhead of the time of time measurement, we have chosen to 
 refactor the loop in every function as follows:
-1) get current time (A)
-2) run the operation in loop osm_iterations times
-3) get current time again (B)
-4) calculate difference between A, B and divide by number of iterations.
+	- get current time (A) before the loop
+	- run the operation in loop osm_iterations times with loop unrolling (10 
+		times each iteration)
+	- get current time again (B) after the loop
+	- calculate difference between A, B and divide by number of iterations.
 
-Now the results are:
-Hostname:			hup-05
+Now the approximate results are:
+Hostname:					hup-05
 Number of iterations:		50000
-Function:			1.487000
-Trap:				264.587000
-Instruction			0.107000
+Function:					1.487000
+Trap:						264.587000
+Instruction					0.107000
 Function/Instruction Ratio:	13.897196
 Trap/Instruction Ratio:		2472.775701
-
-

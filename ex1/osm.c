@@ -62,59 +62,6 @@ double calculateTimeDifference(struct timeval startTime,
 }
 
 /**
- *  @brief Calculates average time of double gettimeofday call.
- *  @param iterations number of iterations
- *  @return average time of one iteration in nanoseconds
- */
-double avgGettimeofdayCallTime(unsigned int iterations)
-{
-	struct timeval startTime;
-	struct timeval stopTime;
-
-	unsigned int i;
-	for (i = 0; i < iterations; ++i)
-	{
-		if (gettimeofday(&startTime, NULL))
-		{
-			return DEFAULT_BAD_RESULT;
-		}
-		if (gettimeofday(&stopTime, NULL))
-		{
-			return DEFAULT_BAD_RESULT;
-		}
-	}
-
-	return calculateTimeDifference(startTime, stopTime) / iterations;
-}
-
-/**
- *  @brief Calculates average time of incrementing a loop counter variable.
- *  @param iterations number of iterations
- *  @return average time of one iteration in nanoseconds
- */
-double avgForLoopRuntime(unsigned int iterations)
-{
-	struct timeval startTime;
-	struct timeval stopTime;
-
-	unsigned int i;
-	
-	if (gettimeofday(&startTime, NULL))
-	{
-		return DEFAULT_BAD_RESULT;
-	}
-
-	for (i = 0; i < iterations; i += DEFAULT_ITER_OPERATIONS_NUMBER);
-
-	if (gettimeofday(&stopTime, NULL))
-	{
-		return DEFAULT_BAD_RESULT;
-	}
-
-	return  calculateTimeDifference(startTime, stopTime) / iterations;
-}
-
-/**
  *  @brief Empty function
  */
 void emptyFunc()
@@ -327,27 +274,20 @@ timeMeasurmentStructure measureTimes (unsigned int osm_iterations)
 	// Round up the iterations if needed
 	osm_iterations = normalizeIterationsNumber(osm_iterations);
 
-	// Calculate utilities time
-	double avgGettingTime = avgGettimeofdayCallTime(GIGA);
-	double avgForLoopTime = avgForLoopRuntime(GIGA); 
-
 	// Save iteration number to the output struct
 	results.numberOfIterations = osm_iterations;
 
-	// Run measurements and substract avg. time of (1) adding to loop counter 
-	// and (2) avg. time of gettimeofday() call
-	results.instructionTimeNanoSecond = osm_operation_time(osm_iterations) 
-										- avgGettingTime - avgForLoopTime;
+	// Run measurements
+	results.instructionTimeNanoSecond = osm_operation_time(osm_iterations);
 	
-	results.functionTimeNanoSecond = osm_function_time(osm_iterations) 
-									 - avgGettingTime - avgForLoopTime;
+	results.functionTimeNanoSecond = osm_function_time(osm_iterations);
 
-	results.trapTimeNanoSecond = osm_syscall_time(osm_iterations) 
-								 - avgGettingTime - avgForLoopTime;
+	results.trapTimeNanoSecond = osm_syscall_time(osm_iterations);
 
 	// Calculate ratios, set defaults in case of an error
 	if (results.functionTimeNanoSecond != DEFAULT_BAD_RESULT && 
-		results.instructionTimeNanoSecond != DEFAULT_BAD_RESULT)
+		results.instructionTimeNanoSecond != DEFAULT_BAD_RESULT &&
+		results.instructionTimeNanoSecond != 0)
 	{
 		results.functionInstructionRatio = results.functionTimeNanoSecond / 
 										   results.instructionTimeNanoSecond;
@@ -358,7 +298,8 @@ timeMeasurmentStructure measureTimes (unsigned int osm_iterations)
 	}
 
 	if (results.trapTimeNanoSecond != DEFAULT_BAD_RESULT && 
-		results.instructionTimeNanoSecond != DEFAULT_BAD_RESULT)
+		results.instructionTimeNanoSecond != DEFAULT_BAD_RESULT &&
+		results.instructionTimeNanoSecond != 0)
 	{
 		results.trapInstructionRatio = results.trapTimeNanoSecond / 
 									   results.instructionTimeNanoSecond;

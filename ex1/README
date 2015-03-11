@@ -1,6 +1,6 @@
 griffonn, ednussi
 Gregory Pasternak (327148417), Eran Nussinovitch (302186408)
-EX: 1
+Ex: 1
 
 FILES:
 README
@@ -176,13 +176,11 @@ and then run the above functions and saves results to the appropriate field in
 struct.
 
 How can we tell if the measurements are good enough?
-We tried to measure a time of time measurement by running two gettimeofday() 
+We measured a time of time measurement by running two gettimeofday() 
 calls one right after the other and calculate the difference of the two, and
 substructing this time from measured time of the operation (with its own pair of
 gettimeofday() calls).
-But it seems like there are some optimizations or limitations in the precision
-of the measurement and thuis we got negative time, which is highly unlogical.
-Therefore we left only the operation measurement time.
+In addition we calculated
 
 To minimize the overhead of the time of time measurement, we have chosen to 
 refactor the loop in every function as follows:
@@ -192,11 +190,12 @@ refactor the loop in every function as follows:
 4) calculate difference between A, B and divide by number of iterations.
 
 Now the results are:
-Hostname:			hup-01
+Hostname:			hup-05
 Number of iterations:		50000
-Function:			2.220000
-Trap:				250.360000
-Instruction			2.160000
-Function/Instruction Ratio:	1.027778
-Trap/Instruction Ratio:		115.907407
+Function:			1.487000
+Trap:				264.587000
+Instruction			0.107000
+Function/Instruction Ratio:	13.897196
+Trap/Instruction Ratio:		2472.775701
+
 

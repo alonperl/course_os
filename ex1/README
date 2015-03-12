@@ -12,7 +12,7 @@ REMARKS:
 ANSWERS:
 Task 1.
 
-Running WhatIDo without parameters:
+	- Running WhatIDo without parameters:
 
 dup(2) duplicates stderr file descriptor to a new file descriptor that gets 
 lowest numbered unused descriptor (3 in our case). Now if we print something to 
@@ -64,7 +64,7 @@ given length. Returns 0 if succeeds.
 
 exit_group(0) exits all threads of the process.
 
-Running WhatIDo with an arbitrary argument:
+	- Running WhatIDo with an arbitrary argument:
 
 mkdir("os", 0775) creates a folder “os” (first arg) in current folder and gives 
 it 775 permissions (second arg) (rwxrwxr-x). Returned 0 on success.
@@ -186,7 +186,8 @@ the loop counter to increment itself, i.e. empty for-loop, and also averaging
 that time. The problem we faced is when given small number of iterations, the
 measurement precision goes up drastically (e.g. 1000 iterations gave us the
 precision of only 1ns (one nanosecond) which is a lot comparing to instruction 
-time).
+time). If we were allowed to use functions other then gettimeofday, for example 
+clock_gettime which gives better precision, we could possibly make it better.
 
 To minimize the overhead of the time of time measurement, we have chosen to 
 refactor the loop in every function as follows:

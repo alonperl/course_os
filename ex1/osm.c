@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <stdio.h>
+#include <limits.h>
 
 #define DEFAULT_ITERATION_NUMBER 50000
 #define DEFAULT_ITER_OPERATIONS_NUMBER 10
@@ -27,10 +28,13 @@
 #define DEFAULT_BAD_RESULT -1
 #define WORKING_PROPERLY 0
 
-int main()
-{	
+#define OSM_ADD_INSTRUCTION __asm__("movl $1, %eax;" "movl $2, %ebx;" "addl \
+ 		%ebx, %eax;");
+
+/*int main()
+{
 	return WORKING_PROPERLY;
-}
+}*/
 
 /**
  * Initialization function that the user must call
@@ -57,7 +61,7 @@ double calculateTimeDifference(struct timeval startTime,
 	double sec_diff = stopTime.tv_sec - startTime.tv_sec;
 	double msec_diff = stopTime.tv_usec - startTime.tv_usec;
 
-	// We need in nanoseconds
+	// Turn into nanoseconds
 	return MEGA * (sec_diff * GIGA + msec_diff);
 }
 
@@ -82,9 +86,9 @@ int isValidIterationsNumber(unsigned int osm_iterations)
 /** 
  *  @brief Rounds up the osm_interations number to fit unrolling defaults.
  *  @param osm_iterations number of iterations
- *  @return 0 if the osm_iteration is valid
+ *  @return normalized number of iterations
  */
-int normalizeIterationsNumber(unsigned int osm_iterations)
+unsigned int normalizeIterationsNumber(unsigned int osm_iterations)
 {
 	int remaider = osm_iterations % DEFAULT_ITER_OPERATIONS_NUMBER;
 
@@ -223,17 +227,17 @@ double osm_operation_time(unsigned int osm_iterations)
 
 	for (i = 0; i < osm_iterations; i += DEFAULT_ITER_OPERATIONS_NUMBER)
 	{
-		__asm__("movl $1, %eax;" "movl $2, %ebx;" "addl %ebx, %eax;");
-		__asm__("movl $1, %eax;" "movl $2, %ebx;" "addl %ebx, %eax;");
-		__asm__("movl $1, %eax;" "movl $2, %ebx;" "addl %ebx, %eax;");
-		__asm__("movl $1, %eax;" "movl $2, %ebx;" "addl %ebx, %eax;");
-		__asm__("movl $1, %eax;" "movl $2, %ebx;" "addl %ebx, %eax;");
-
-		__asm__("movl $1, %eax;" "movl $2, %ebx;" "addl %ebx, %eax;");
-		__asm__("movl $1, %eax;" "movl $2, %ebx;" "addl %ebx, %eax;");
-		__asm__("movl $1, %eax;" "movl $2, %ebx;" "addl %ebx, %eax;");
-		__asm__("movl $1, %eax;" "movl $2, %ebx;" "addl %ebx, %eax;");
-		__asm__("movl $1, %eax;" "movl $2, %ebx;" "addl %ebx, %eax;");
+		OSM_ADD_INSTRUCTION;
+		OSM_ADD_INSTRUCTION;
+		OSM_ADD_INSTRUCTION;
+		OSM_ADD_INSTRUCTION;
+		OSM_ADD_INSTRUCTION;
+		
+		OSM_ADD_INSTRUCTION;
+		OSM_ADD_INSTRUCTION;
+		OSM_ADD_INSTRUCTION;
+		OSM_ADD_INSTRUCTION;
+		OSM_ADD_INSTRUCTION;
 	}
 
 	if (gettimeofday(&stopTime, NULL))
@@ -253,7 +257,7 @@ double osm_operation_time(unsigned int osm_iterations)
  *	@param osm_iterations number of iterations to perform (positive integer)
  *	@return structure with results
  */
-timeMeasurmentStructure measureTimes (unsigned int osm_iterations)
+timeMeasurmentStructure measureTimes(unsigned int osm_iterations)
 {
 	timeMeasurmentStructure results;
 
@@ -279,9 +283,7 @@ timeMeasurmentStructure measureTimes (unsigned int osm_iterations)
 
 	// Run measurements
 	results.instructionTimeNanoSecond = osm_operation_time(osm_iterations);
-	
 	results.functionTimeNanoSecond = osm_function_time(osm_iterations);
-
 	results.trapTimeNanoSecond = osm_syscall_time(osm_iterations);
 
 	// Calculate ratios, set defaults in case of an error

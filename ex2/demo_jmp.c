@@ -104,6 +104,11 @@ void f(void)
   while(1){
     ++i;
     printf("in f (%d)\n",i);
+    if (gotit)
+    {
+      gotit = 0;
+      switchThreads();
+    }
     usleep(SECOND);
   }
 }

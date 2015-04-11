@@ -129,11 +129,16 @@ void setup(void)
 
 }
 
+void th(int s)
+{
+  printf("Two seconds\n");
+}
+
 int main(void)
 {
-  setup();
+  // setup();
 
-  signal(SIGVTALRM, switchThreads);
+  signal(SIGVTALRM, th);
 
   struct itimerval tv;
   tv.it_value.tv_sec = 2;  /* first time interval, seconds part */
@@ -142,8 +147,8 @@ int main(void)
   tv.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
 
   setitimer(ITIMER_VIRTUAL, &tv, NULL);
-
-  siglongjmp(env[0], 1);
+while(1);
+  // siglongjmp(env[0], 1);
   return 0;
 }
 

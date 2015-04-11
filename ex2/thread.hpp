@@ -11,7 +11,7 @@
 #define SUCCESS 0;
 #define FAIL -1;
 
-typedef enum State { READY, RUNNING, BLOCKED, TERMINATED } State;
+typedef enum State { READY, RUNNING, BLOCKED, TERMINATED, NEW } State;
 
 typedef unsigned long address_t;
 

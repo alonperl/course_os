@@ -58,6 +58,8 @@ Thread::Thread(void (*f)(void), Priority pr, unsigned int newTid)
 	(threadEnv->__jmpbuf)[JB_SP] = translate_address(stackPointer);
 	(threadEnv->__jmpbuf)[JB_PC] = translate_address(programCounter);
 	sigemptyset(&threadEnv->__saved_mask);
+
+	state = NEW;
 }
 
 Priority Thread::getPriority()

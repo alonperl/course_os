@@ -131,6 +131,7 @@ void setup(void)
 
 void timer_handler(int sog)
 {
+  printf("Signal catched!\n");
   switchThreads();
 }
 

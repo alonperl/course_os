@@ -2,6 +2,8 @@
 #include "uthreads.h"
 #include "statesManager.hpp"
 
+#include <cunistd>
+
 #define CONTINUING 1
 #define MAIN 0
 

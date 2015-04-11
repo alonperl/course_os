@@ -12,7 +12,7 @@
 
 #define SECOND 1000000
 #define STACK_SIZE 4096
-
+struct itimerval tv;
 char stack1[STACK_SIZE];
 char stack2[STACK_SIZE];
 char stack3[STACK_SIZE];
@@ -136,7 +136,7 @@ void th(int s)
   printf("Two seconds\n");
 }
 
-struct itimerval tv;
+
 
 int main(void)
 {

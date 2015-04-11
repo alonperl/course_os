@@ -3,6 +3,7 @@
 #include "statesManager.hpp"
 
 #define CONTINUING 1
+#define MAIN 0
 
 StatesManager *statesManager;
 
@@ -57,6 +58,8 @@ int uthread_init(int quantum_usecs)
 
 	signal(SIGVTALRM, StatesManager::staticSignalHandler);
 	setitimer(ITIMER_VIRTUAL, statesManager->getQuantum(), NULL);
+
+	statesManager->run(MAIN);
 
 	return 0;
 }

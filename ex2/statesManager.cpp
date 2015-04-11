@@ -55,9 +55,9 @@ Thread *StatesManager::getThread(int tid)
 
 int StatesManager::run(Thread *thread)
 {
-	thread.setState(RUNNING);
+	thread->setState(RUNNING);
 	// TODO: problems expected
-	running = &thread;
+	running = thread;
 	printf("Thread %d should now be running\n", thread->getTid());
 	//TODO: what else?
 }

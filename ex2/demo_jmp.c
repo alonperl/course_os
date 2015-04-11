@@ -25,7 +25,7 @@ sigjmp_buf env[3];
 typedef unsigned long address_t;
 #define JB_SP 6
 #define JB_PC 7
-int gotit = 0;
+
 /* A translation is required when using an address of a variable.
    Use this as a black box in your code. */
 address_t translate_address(address_t addr)
@@ -59,15 +59,7 @@ address_t translate_address(address_t addr)
 
 #endif
 
-
-void th(int sig)
-{
-  printf("enter th\n");
-  gotit = 1;
-}
-
-
-void switchThreads()
+void switchThreads(void)
 {
   static int currentThread = 0;
 
@@ -81,32 +73,22 @@ void switchThreads()
   siglongjmp(env[currentThread],1);
 }
 
+int gotit = 0;
+
+void timer_handler(int sig)
+{
+  gotit = 1;
+  printf("Using timer_handler\n", sig);
+}
+
 void f(void)
 {
-  struct itimerval tv0;
-  tv0.it_value.tv_sec = 0;  /* first time interval, seconds part */
-  tv0.it_value.tv_usec = 0; /* first time interval, microseconds part */
-  tv0.it_interval.tv_sec = 0;  /* following time intervals, seconds part */
-  tv0.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
-  
-  struct itimerval tv;
-  tv.it_value.tv_sec = 2;  /* first time interval, seconds part */
-  tv.it_value.tv_usec = 0; /* first time interval, microseconds part */
-  tv.it_interval.tv_sec = 2;  /* following time intervals, seconds part */
-  tv.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
-  
-  signal(SIGVTALRM, th);
-
-  setitimer(ITIMER_VIRTUAL, &tv0, NULL);
-  setitimer(ITIMER_VIRTUAL, &tv, NULL);
-
   int i = 0;
   while(1){
     ++i;
     printf("in f (%d)\n",i);
-    if (gotit)
-    {
-      gotit = 0;
+    if (gotit) {
+      printf("f: switching\n");
       switchThreads();
     }
     usleep(SECOND);
@@ -157,16 +139,19 @@ void setup(void)
 
 int main(void)
 {
-  setup();
-  siglongjmp(env[0], 1);
+  setup();		
 
-  for(;;) {
-    if (gotit) {
-      printf("switching?\n");
-      switchThreads();
-      gotit = 0;
-    }
-  }
+  signal(SIGVTALRM, timer_handler);
+
+  struct itimerval tv;
+  tv.it_value.tv_sec = 2;  /* first time interval, seconds part */
+  tv.it_value.tv_usec = 0; /* first time interval, microseconds part */
+  tv.it_interval.tv_sec = 2;  /* following time intervals, seconds part */
+  tv.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
+
+  setitimer(ITIMER_VIRTUAL, &tv, NULL);
+  
+  siglongjmp(env[0], 1);
   return 0;
 }
 

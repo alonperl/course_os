@@ -89,7 +89,7 @@ void f(void)
     if (got) {
       got = 0;
       printf("f: switching\n");
-      switchThreads();
+      switchThreads(26);
     }
     usleep(SECOND);
   }

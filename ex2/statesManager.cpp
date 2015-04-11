@@ -41,6 +41,7 @@ int StatesManager::run(Thread *thread)
 
 int StatesManager::ready(Thread *thread)
 {
+	printf("%d: entered ready function\n", thread->getTid());
 	if (thread->getState() == READY)
 	{
 		return SUCCESS;

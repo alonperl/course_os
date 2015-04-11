@@ -15,12 +15,9 @@ void signalHandler(int sig)
 
 void work()
 {
-	int i = 0;
-	while(1)
-	{
-		printf("%d\n", uthread_get_tid());
-		printf("%d\n", i++);
-	}
+	printf("%d\n", uthread_get_tid());
+	usleep(4);
+	kill(0, 26);
 }
 
 int main(int argc, char const *argv[])

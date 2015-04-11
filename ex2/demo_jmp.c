@@ -153,7 +153,7 @@ while(1)
   if (got)
   {
     got = 0;
-    switchThreads();    
+    switchThreads(2);    
   }
 }
   // siglongjmp(env[0], 1);

@@ -2,6 +2,8 @@
 #include "uthreads.h"
 #include "statesManager.hpp"
 
+#define CONTINUING 1
+
 StatesManager *statesManager;
 
 void signalHandler(int sig)
@@ -145,7 +147,7 @@ int uthread_suspend(int tid)
 		if (oldState == RUNNING)
 		{
 			// TODO: code repetition from switchThreads
-			Thread nextThread = readyQueue.top();
+			Thread nextThread = statesManager->readyQueue.top();
 			statesManager->readyQueue.pop();
 
 			nextThread.setState(RUNNING);

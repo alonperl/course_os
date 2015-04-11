@@ -75,6 +75,7 @@ void switchThreads(int sig)
 
 void f(void)
 {
+  // setitimer(ITIMER_VIRTUAL, &tv, NULL);
   int i = 0;
   while(1){
     ++i;
@@ -135,13 +136,14 @@ void th(int s)
   printf("Two seconds\n");
 }
 
+struct itimerval tv;
+
 int main(void)
 {
   setup();
 
   signal(SIGVTALRM, th);
 
-  struct itimerval tv;
   tv.it_value.tv_sec = 2;  /* first time interval, seconds part */
   tv.it_value.tv_usec = 0; /* first time interval, microseconds part */
   tv.it_interval.tv_sec = 2;  /* following time intervals, seconds part */

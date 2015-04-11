@@ -77,8 +77,8 @@ int gotit = 0;
 
 void timer_handler(int sig)
 {
-  gotit = 1;
   printf("Using timer_handler\n", sig);
+  switchThreads();
 }
 
 void f(void)
@@ -141,7 +141,7 @@ int main(void)
 {
   setup();		
 
-  signal(SIGVTALRM, switchThreads);
+  signal(SIGVTALRM, timer_handler);
 
   struct itimerval tv;
   tv.it_value.tv_sec = 2;  /* first time interval, seconds part */

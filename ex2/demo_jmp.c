@@ -59,6 +59,14 @@ address_t translate_address(address_t addr)
 
 #endif
 
+
+void th(int sig)
+{
+  printf("enter th\n");
+  gotit = 1;
+}
+
+
 void switchThreads()
 {
   static int currentThread = 0;
@@ -140,12 +148,6 @@ void setup(void)
   (env[2]->__jmpbuf)[JB_PC] = translate_address(pc);
   sigemptyset(&env[2]->__saved_mask);         
 
-}
-
-void th(int sig)
-{
-  printf("enter th\n");
-  gotit = 1;
 }
 
 int main(void)

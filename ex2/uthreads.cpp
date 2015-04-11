@@ -35,7 +35,7 @@ int main(int argc, char const *argv[])
 	uthread_spawn(work, ORANGE);
 	printf("Spawned 3\n");
 
-	work();
+	// work();
 
 	printf("Finished main\n");
 	return 0;

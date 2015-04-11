@@ -92,7 +92,7 @@ void f(void)
   tv.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
 
   setitimer(ITIMER_VIRTUAL, &tv, NULL);
-  
+
   int i = 0;
   while(1){
     ++i;
@@ -151,8 +151,7 @@ int main(void)
 {
   setup();		
 
-  // siglongjmp(env[0], 1);
-  while(1);
+  siglongjmp(env[0], 1);
   return 0;
 }
 

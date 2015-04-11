@@ -151,7 +151,7 @@ int main(void)
 
   setitimer(ITIMER_VIRTUAL, &tv, NULL);
   
-  siglongjmp(env[0], 1);
+  // siglongjmp(env[0], 1);
   return 0;
 }
 

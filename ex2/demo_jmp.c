@@ -151,7 +151,7 @@ int main(void)
       gotit = 0;
     }
   }
-  // siglongjmp(env[0], 1);
+  siglongjmp(env[0], 1);
   return 0;
 }
 

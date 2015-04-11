@@ -137,7 +137,7 @@ void th(int s)
 
 int main(void)
 {
-  // setup();
+  setup();
 
   signal(SIGVTALRM, th);
 

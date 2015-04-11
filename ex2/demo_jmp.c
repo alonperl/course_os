@@ -59,7 +59,7 @@ address_t translate_address(address_t addr)
 
 #endif
 
-void switchThreads(void)
+void switchThreads(int sig)
 {
   static int currentThread = 0;
 

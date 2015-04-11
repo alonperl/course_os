@@ -77,7 +77,7 @@ unsigned int StatesManager::getMinTid() // TODO: make it O(1)
 		return newTid;
 	}
 
-	return totalThreadsNum++;
+	return totalThreadsNum;
 }
 
 int StatesManager::getTotalQuantums()

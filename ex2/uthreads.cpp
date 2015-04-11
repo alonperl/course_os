@@ -83,7 +83,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 
 	if (thread != NULL)
 	{
-		printf("Thread not null\n");
+		printf("Thread not null and its state is %d\n", thread->getState());
 		statesManager->ready(thread);
 	}
 

@@ -117,8 +117,7 @@ int uthread_terminate(int tid)
 	statesManager->terminatedTids.push(thread->getTid());
 
 	// TODO: how to properly remove object?
-	delete *thread;
-	thread = NULL;
+	delete thread;
 
 	statesManager->decrementTotalThreadsNum();
 

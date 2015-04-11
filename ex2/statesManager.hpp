@@ -13,9 +13,9 @@ struct ThreadComparator
 
 class StatesManager
 {
-	std::priority_queue<unsigned int, std::vector<unsigned int>, std::greater<unsigned int> > terminatedTids;
 
 	public:
+		std::priority_queue<unsigned int, std::vector<unsigned int>, std::greater<unsigned int> > terminatedTids;
 		static StatesManager *getInstance();
 
 		static void staticSignalHandler(int sig);

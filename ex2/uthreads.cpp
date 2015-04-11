@@ -24,12 +24,18 @@ void work()
 
 int main(int argc, char const *argv[])
 {
+	printf("Entering main\n");
 	uthread_init(1000000);
+	printf("Inited\n");
 
 	uthread_spawn(work, ORANGE);
+	printf("Spawned 1\n");
 	uthread_spawn(work, ORANGE);
+	printf("Spawned 2\n");
 	uthread_spawn(work, ORANGE);
+	printf("Spawned 3\n");
 	
+	printf("Finished main\n");
 	return 0;
 }
 

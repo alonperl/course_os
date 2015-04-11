@@ -48,6 +48,7 @@ int StatesManager::ready(Thread *thread)
 
 	thread->setState(READY);
 	readyQueue.push(*thread);
+	printf("%d entered ready queue\n", thread->getTid());
 	// TODO: if running, should we wait till end of cycle
 	// TODO: When readying running thread - need to reset timer, save its pos etc
 	return SUCCESS;

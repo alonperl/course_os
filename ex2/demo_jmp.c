@@ -138,7 +138,12 @@ int main(void)
   tv.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
 
   setitimer(ITIMER_VIRTUAL, &tv, NULL);
-
+  for(;;) {
+    if (gotit) {
+      signal(SIGVTALRM, th2);
+      gotit = 0;
+    }
+  }
   // siglongjmp(env[0], 1);
   return 0;
 }

@@ -12,8 +12,8 @@
 
 #define SECOND 1000000
 #define STACK_SIZE 4096
-struct itimerval tv;
 
+struct itimerval tv;
 
 int got =0;
 void th(int s)
@@ -80,13 +80,14 @@ void switchThreads(int sig)
   }
   currentThread = (currentThread + 1) % 3;
   printf("Thread %d\n", currentThread);
+  signal(SIGVTALRM, th);
+  setitimer(ITIMER_VIRTUAL, &tv, NULL);
+  
   siglongjmp(env[currentThread],1);
 }
 
 void f(void)
 {
-  signal(SIGVTALRM, th);
-  setitimer(ITIMER_VIRTUAL, &tv, NULL);
   int i = 0;
   while(1){
     ++i;

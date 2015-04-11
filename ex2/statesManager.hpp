@@ -16,6 +16,9 @@ class StatesManager
 
 	public:
 		std::priority_queue<unsigned int, std::vector<unsigned int>, std::greater<unsigned int> > terminatedTids;
+		std::priority_queue<Thread, std::vector<Thread>, ThreadComparator> readyQueue;
+	  	std::map<unsigned int, Thread*> blockedMap;
+	  	
 		static StatesManager *getInstance();
 
 		static void staticSignalHandler(int sig);
@@ -60,9 +63,6 @@ class StatesManager
 
 		int totalQuantums;
 		int totalThreadsNum;
-
-	  	std::priority_queue<Thread, std::vector<Thread>, ThreadComparator> readyQueue;
-	  	std::map<unsigned int, Thread*> blockedMap;
 };
 
 #endif

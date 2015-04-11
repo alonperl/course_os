@@ -130,7 +130,7 @@ int uthread_suspend(int tid)
 
 	// If got invalid tid or if there if only one existing thread, cannot suspend
 	if (tid > statesManager->getTotalThreadsNum() || tid < 0 
-		|| statesManager->getTotalThreadsNum == 1)
+		|| statesManager->getTotalThreadsNum() == 1)
 	{
 		return FAIL;
 	}
@@ -146,7 +146,7 @@ int uthread_suspend(int tid)
 		{
 			// TODO: code repetition from switchThreads
 			Thread nextThread = readyQueue.top();
-			readyQueue.pop();
+			statesManager->readyQueue.pop();
 
 			nextThread.setState(RUNNING);
 			// TODO: problems expected
@@ -162,7 +162,7 @@ int uthread_suspend(int tid)
 	statesManager->unblockSignals();
 
 	// If the quantum has ended till now, switch threads now.
-	if statesManager->hasTimerSignalTriggered()
+	if (statesManager->hasTimerSignalTriggered())
 	{
 		statesManager->switchThreads(READY);
 	}

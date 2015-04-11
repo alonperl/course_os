@@ -166,7 +166,7 @@ void StatesManager::switchThreads(State destination)
 	nextThread.setState(RUNNING);
 	// TODO: problems expected
 	running = &nextThread;
-
+// refi resets the timer here
 	siglongjmp(*(running->getEnv()), CONTINUING);
 }
 
@@ -189,36 +189,36 @@ bool ThreadComparator::operator()(Thread &t1, Thread &t2)
     return t1.getPriority() < t2.getPriority();
 }
 
-void ignoreSignals()
+void StatesManager::ignoreSignals()
 {
 	signal(SIGVTALRM, SIG_IGN);
 }
 
-void postponeSignals()
+void StatesManager::postponeSignals()
 {
 	sigprocmask(SIG_BLOCK, &blockedSignals, NULL);
 }
 
-void unblockSignals()
+void StatesManager::unblockSignals()
 {
 	sigprocmask(SIG_UNBLOCK, &blockedSignals, NULL);
 }
 
-bool hasTimerSignalTriggered()
+bool StatesManager::hasTimerSignalTriggered()
 {
 	sigemptyset(&pendingSignals);
 	sigpending(&pendingSignals);
 	return sigismember(&pendingSignals, SIGVTALRM);
 }
 
-void stopTimer()
+void StatesManager::stopTimer()
 {
 	ignoreSignals();
 	struct itimerval reset = {0, 0};
     setitimer(ITIMER_VIRTUAL, &reset, NULL);
 }
 
-void startTimer()
+void StatesManager::startTimer()
 {
 	signal(SIGVTALRM, staticSignalHandler);
 	setitimer(ITIMER_VIRTUAL, getQuantum(), NULL);

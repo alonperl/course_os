@@ -87,6 +87,8 @@ void f(void)
   tv.it_interval.tv_sec = 2;  /* following time intervals, seconds part */
   tv.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
   
+  signal(SIGVTALRM, th);
+
   setitimer(ITIMER_VIRTUAL, &tv0, NULL);
   setitimer(ITIMER_VIRTUAL, &tv, NULL);
 
@@ -148,10 +150,7 @@ void th(int sig)
 
 int main(void)
 {
-  setup();		
-
-  signal(SIGVTALRM, th);
-
+  setup();
   siglongjmp(env[0], 1);
 
   for(;;) {

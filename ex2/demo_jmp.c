@@ -79,10 +79,6 @@ void f(void)
   while(1){
     ++i;
     printf("in f (%d)\n",i);
-    if (i % 3 == 0) {
-      printf("f: switching\n");
-      switchThreads();
-    }
     usleep(SECOND);
   }
 }
@@ -132,7 +128,18 @@ void setup(void)
 int main(void)
 {
   setup();		
-  siglongjmp(env[0], 1);
+
+  signal(SIGVTALRM, switchThreads);
+
+  struct itimerval tv;
+  tv.it_value.tv_sec = 2;  /* first time interval, seconds part */
+  tv.it_value.tv_usec = 0; /* first time interval, microseconds part */
+  tv.it_interval.tv_sec = 2;  /* following time intervals, seconds part */
+  tv.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
+
+  setitimer(ITIMER_VIRTUAL, &tv, NULL);
+
+  // siglongjmp(env[0], 1);
   return 0;
 }
 

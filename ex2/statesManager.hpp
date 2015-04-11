@@ -18,7 +18,9 @@ class StatesManager
 		std::priority_queue<unsigned int, std::vector<unsigned int>, std::greater<unsigned int> > terminatedTids;
 		std::priority_queue<Thread, std::vector<Thread>, ThreadComparator> readyQueue;
 	  	std::map<unsigned int, Thread*> blockedMap;
-	  	
+
+	  	std::map<unsigned int, Thread*> threadsMap;
+
 		static StatesManager *getInstance();
 
 		static void staticSignalHandler(int sig);

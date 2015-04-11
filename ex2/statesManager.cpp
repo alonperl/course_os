@@ -14,6 +14,14 @@ StatesManager::StatesManager()
 	sigaddset(&blockedSignals, SIGVTALRM);
 }
 
+bool StatesManager::isValidTid(int tid)
+{
+	if (tid > statesManager->getTotalThreadsNum() || tid < 0)
+	{
+		return FAIL;
+	}
+}
+
 StatesManager *StatesManager::getInstance()
 {
 	if (!instanceFlag)
@@ -29,9 +37,20 @@ StatesManager *StatesManager::getInstance()
 }
 
 
+/**
+ * @brief Finds thread by tid wherever it is
+ * 
+ * @param tid 
+ * @return pointer to the thread or NULL if such thread does not exist
+ */
 Thread *StatesManager::getThread(int tid)
 {
-	return NULL;
+	if (!isValidTid(tid))
+	{
+		return NULL;
+	}
+
+	return threadsMap[tid];
 }
 
 int StatesManager::run(Thread *thread)
@@ -128,6 +147,7 @@ void StatesManager::signalHandler(int sig)
 
 void StatesManager::switchThreads(State destination)
 {
+	printf("Entered switchTThreads\n");
 	if (totalThreadsNum == 1)
 	{
 		return;

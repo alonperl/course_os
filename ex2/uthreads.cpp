@@ -85,6 +85,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 	{
 		printf("Thread not null and its state is %d\n", thread->getState());
 		statesManager->ready(thread);
+		statesManager[newTid] = thread;
 	}
 
 	statesManager->incrementTotalThreadsNum();
@@ -123,6 +124,7 @@ int uthread_terminate(int tid)
 		break;
 	}
 
+	statesManager->threadsMap.erase(thread->getTid());
 	statesManager->terminatedTids.push(thread->getTid());
 
 	// TODO: how to properly remove object?
@@ -193,6 +195,7 @@ int uthread_resume(int tid)
 	if (thread->getState() == BLOCKED)
 	{
 		statesManager->ready(thread);
+		statesManager->blockedMap.erase(tid);
 	}
 
 	thread = NULL;

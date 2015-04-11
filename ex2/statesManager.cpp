@@ -189,7 +189,7 @@ void StatesManager::switchThreads(State destination)
 	Thread nextThread = readyQueue.top();
 	readyQueue.pop();
 
-	run(nextThread);
+	run(&nextThread);
 // refi resets the timer here
 	siglongjmp(*(running->getEnv()), CONTINUING);
 }

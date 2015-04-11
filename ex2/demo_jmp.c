@@ -75,6 +75,21 @@ void switchThreads()
 
 void f(void)
 {
+  struct itimerval tv0;
+  tv.it_value.tv_sec = 0;  /* first time interval, seconds part */
+  tv.it_value.tv_usec = 0; /* first time interval, microseconds part */
+  tv.it_interval.tv_sec = 0;  /* following time intervals, seconds part */
+  tv.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
+  
+  struct itimerval tv;
+  tv.it_value.tv_sec = 2;  /* first time interval, seconds part */
+  tv.it_value.tv_usec = 0; /* first time interval, microseconds part */
+  tv.it_interval.tv_sec = 2;  /* following time intervals, seconds part */
+  tv.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
+  
+  setitimer(ITIMER_VIRTUAL, &tv0, NULL);
+  setitimer(ITIMER_VIRTUAL, &tv, NULL);
+  
   int i = 0;
   while(1){
     ++i;
@@ -137,14 +152,8 @@ int main(void)
 
   signal(SIGVTALRM, th);
 
-  struct itimerval tv;
-  tv.it_value.tv_sec = 2;  /* first time interval, seconds part */
-  tv.it_value.tv_usec = 0; /* first time interval, microseconds part */
-  tv.it_interval.tv_sec = 2;  /* following time intervals, seconds part */
-  tv.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
-
-  setitimer(ITIMER_VIRTUAL, &tv, NULL);
   siglongjmp(env[0], 1);
+
   for(;;) {
     if (gotit) {
       printf("switching?\n");

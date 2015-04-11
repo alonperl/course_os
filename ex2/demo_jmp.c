@@ -13,12 +13,6 @@
 #define SECOND 1000000
 #define STACK_SIZE 4096
 
-int got = 0;
-void timer_handler(int sig)
-{
-  got = 1;
-}
-
 char stack1[STACK_SIZE];
 char stack2[STACK_SIZE];
 char stack3[STACK_SIZE];
@@ -65,10 +59,8 @@ address_t translate_address(address_t addr)
 
 #endif
 
-void switchThreads(int sig)
+void switchThreads(void)
 {
-  signal(SIGVTALRM, SIG_IGN);
-
   static int currentThread = 0;
 
   int ret_val = sigsetjmp(env[currentThread],0);
@@ -78,33 +70,18 @@ void switchThreads(int sig)
   }
   currentThread = (currentThread + 1) % 3;
   printf("Thread %d\n", currentThread);
-
-  signal(SIGVTALRM, timer_handler);
-
   siglongjmp(env[currentThread],1);
 }
 
 void f(void)
 {
-  signal(SIGVTALRM, timer_handler);
-
-  struct itimerval tv;
-  tv.it_value.tv_sec = 2;  /* first time interval, seconds part */
-  tv.it_value.tv_usec = 0; /* first time interval, microseconds part */
-  tv.it_interval.tv_sec = 2;  /* following time intervals, seconds part */
-  tv.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
-
-  setitimer(ITIMER_VIRTUAL, &tv, NULL);
-
   int i = 0;
   while(1){
     ++i;
     printf("in f (%d)\n",i);
-    // if (i % 3 == 0) {
-    if (got) {
-      got = 0;
+    if (i % 3 == 0) {
       printf("f: switching\n");
-      switchThreads(26);
+      kill(0, 26);
     }
     usleep(SECOND);
   }
@@ -152,9 +129,24 @@ void setup(void)
 
 }
 
+void timer_handler(int sog)
+{
+  switchThreads();
+}
+
 int main(void)
 {
   setup();
+
+  signal(SIGVTALRM, timer_handler);
+
+  struct itimerval tv;
+  tv.it_value.tv_sec = 2;  /* first time interval, seconds part */
+  tv.it_value.tv_usec = 0; /* first time interval, microseconds part */
+  tv.it_interval.tv_sec = 2;  /* following time intervals, seconds part */
+  tv.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
+
+  setitimer(ITIMER_VIRTUAL, &tv, NULL);
 
   siglongjmp(env[0], 1);
   return 0;

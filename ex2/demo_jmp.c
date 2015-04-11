@@ -140,7 +140,7 @@ int main(void)
   setitimer(ITIMER_VIRTUAL, &tv, NULL);
   for(;;) {
     if (gotit) {
-      signal(SIGVTALRM, th2);
+      printf("switching?\n");
       gotit = 0;
     }
   }

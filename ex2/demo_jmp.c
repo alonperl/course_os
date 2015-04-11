@@ -75,7 +75,7 @@ void switchThreads(int sig)
 
 void f(void)
 {
-  // setitimer(ITIMER_VIRTUAL, &tv, NULL);
+  setitimer(ITIMER_VIRTUAL, &tv, NULL);
   int i = 0;
   while(1){
     ++i;

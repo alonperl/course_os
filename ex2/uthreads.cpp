@@ -34,8 +34,8 @@ int main(int argc, char const *argv[])
 	printf("Spawned 2\n");
 	uthread_spawn(work, ORANGE);
 	printf("Spawned 3\n");
-	
-	while(1);
+
+	siglongjmp(statesManager->getThread(MAIN)->getEnv(), 1);
 
 	printf("Finished main\n");
 	return 0;

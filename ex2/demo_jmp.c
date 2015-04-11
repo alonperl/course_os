@@ -141,7 +141,7 @@ int main(void)
 {
   setup();		
 
-  signal(SIGVTALRM, timer_handler);
+  signal(SIGVTALRM, switchThreads);
 
   struct itimerval tv;
   tv.it_value.tv_sec = 2;  /* first time interval, seconds part */

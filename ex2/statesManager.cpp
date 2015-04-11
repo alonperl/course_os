@@ -55,9 +55,7 @@ Thread *StatesManager::getThread(int tid)
 
 int StatesManager::run(Thread *thread)
 {
-	thread->setState(RUNNING);
-	// TODO: problems expected
-	running = thread;
+	thread->state = RUNNING;
 	printf("Thread %d should now be running\n", thread->getTid());
 	//TODO: what else?
 }
@@ -189,7 +187,9 @@ void StatesManager::switchThreads(State destination)
 	Thread nextThread = readyQueue.top();
 	readyQueue.pop();
 
-	run(&nextThread);
+	nextThread.setState(RUNNING);
+	// TODO: problems expected
+	running = &nextThread;
 // refi resets the timer here
 	siglongjmp(*(running->getEnv()), CONTINUING);
 }

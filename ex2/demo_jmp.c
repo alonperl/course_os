@@ -25,7 +25,7 @@ sigjmp_buf env[3];
 typedef unsigned long address_t;
 #define JB_SP 6
 #define JB_PC 7
-
+int gotit = 0;
 /* A translation is required when using an address of a variable.
    Use this as a black box in your code. */
 address_t translate_address(address_t addr)
@@ -61,6 +61,7 @@ address_t translate_address(address_t addr)
 
 void switchThreads(int sig)
 {
+  gotit = 1;
   static int currentThread = 0;
 
   int ret_val = sigsetjmp(env[currentThread],0);

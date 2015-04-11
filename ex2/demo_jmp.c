@@ -67,7 +67,7 @@ address_t translate_address(address_t addr)
 
 void switchThreads(int sig)
 {
-  signal(SIGVTALRM, SIG_IGN*);
+  signal(SIGVTALRM, SIG_IGN);
 
   static int currentThread = 0;
 

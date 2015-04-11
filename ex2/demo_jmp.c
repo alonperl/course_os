@@ -67,6 +67,8 @@ address_t translate_address(address_t addr)
 
 void switchThreads(int sig)
 {
+  signal(SIGVTALRM, SIG_IGN*);
+
   static int currentThread = 0;
 
   int ret_val = sigsetjmp(env[currentThread],0);
@@ -76,11 +78,24 @@ void switchThreads(int sig)
   }
   currentThread = (currentThread + 1) % 3;
   printf("Thread %d\n", currentThread);
+
+  signal(SIGVTALRM, timer_handler);
+
   siglongjmp(env[currentThread],1);
 }
 
 void f(void)
 {
+  signal(SIGVTALRM, timer_handler);
+
+  struct itimerval tv;
+  tv.it_value.tv_sec = 2;  /* first time interval, seconds part */
+  tv.it_value.tv_usec = 0; /* first time interval, microseconds part */
+  tv.it_interval.tv_sec = 2;  /* following time intervals, seconds part */
+  tv.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
+
+  setitimer(ITIMER_VIRTUAL, &tv, NULL);
+
   int i = 0;
   while(1){
     ++i;
@@ -140,16 +155,6 @@ void setup(void)
 int main(void)
 {
   setup();
-
-  signal(SIGVTALRM, timer_handler);
-
-  struct itimerval tv;
-  tv.it_value.tv_sec = 2;  /* first time interval, seconds part */
-  tv.it_value.tv_usec = 0; /* first time interval, microseconds part */
-  tv.it_interval.tv_sec = 2;  /* following time intervals, seconds part */
-  tv.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
-
-  setitimer(ITIMER_VIRTUAL, &tv, NULL);
 
   siglongjmp(env[0], 1);
   return 0;

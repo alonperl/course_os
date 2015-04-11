@@ -128,9 +128,10 @@ void setup(void)
   sigemptyset(&env[2]->__saved_mask);         
 
 }
-
+int got =0;
 void th(int s)
 {
+  got = 1;
   printf("Two seconds\n");
 }
 
@@ -147,7 +148,14 @@ int main(void)
   tv.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
 
   setitimer(ITIMER_VIRTUAL, &tv, NULL);
-while(1);
+while(1)
+{
+  if (got)
+  {
+    got = 0;
+    switchThreads();    
+  }
+}
   // siglongjmp(env[0], 1);
   return 0;
 }

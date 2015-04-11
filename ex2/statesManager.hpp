@@ -13,6 +13,8 @@ struct ThreadComparator
 
 class StatesManager
 {
+	std::priority_queue<unsigned int, std::vector<unsigned int>, std::greater<unsigned int> > terminatedTids;
+
 	public:
 		static StatesManager *getInstance();
 
@@ -43,8 +45,6 @@ class StatesManager
 		void setQuantum(int quantum);
 		void incrementTotalThreadsNum();
 		void decrementTotalThreadsNum();
-
-		std::priority_queue<unsigned int, std::vector<unsigned int>, std::greater<unsigned int> > terminatedTids;
 	private:
 		StatesManager();
 

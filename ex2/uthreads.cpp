@@ -10,20 +10,37 @@ void signalHandler(int sig)
 	statesManager->switchThreads(READY);
 }
 
+void work()
+{
+	int i = 0;
+	while(1)
+	{
+		printf("%d\n", uthread_get_tid());
+		printf("%d\n", i++);
+	}
+}
+
 int main(int argc, char const *argv[])
 {
-	uthread_init(80);
+	uthread_init(1000000);
+
+	uthread_spawn(work, ORANGE);
+	uthread_spawn(work, ORANGE);
+	uthread_spawn(work, ORANGE);
 	
 	return 0;
 }
-void f(){};
+
+// TODO: what is the entry point for main thread?
+void f(){while(1);}
+
 int uthread_init(int quantum_usecs)
 {
 	statesManager = StatesManager::getInstance();
 
 	if (statesManager->getTotalQuantums() != 0)//TODO: null and not 0
 	{
-		return -1;
+		return FAIL;
 	}
 
 	statesManager->setQuantum(quantum_usecs);
@@ -53,7 +70,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 	}
 	catch (int e)
 	{
-		return -1;
+		return FAIL;
 	}
 
 	if (thread != NULL)
@@ -71,24 +88,27 @@ int uthread_terminate(int tid)
 {
 	if (tid > statesManager->getTotalThreadsNum() || tid < 0)
 	{
-		return -1;
+		return FAIL;
 	}
 
 	if (tid == 0)
 	{
-		// cleaning
+		// TODO: cleaning
 		exit(0);
 	}
 
 	Thread *thread = statesManager->getThread(tid);
+	
 	switch(thread->getState())
 	{
 	case READY:
 		//pq.fuck_it(tid);
 		break;
+
 	case RUNNING:
-		//stop it or wait till quantum stop?
+		// Stop current thread and get next ready thread to running without waiting till quantum end
 		break;
+
 	case BLOCKED:
 		//blocked.remove(tid);
 		break;
@@ -96,7 +116,9 @@ int uthread_terminate(int tid)
 
 	statesManager->terminatedTids.push(thread->getTid());
 
-	delete thread;
+	// TODO: how to properly remove object?
+	delete *thread;
+	thread = NULL;
 
 	statesManager->decrementTotalThreadsNum();
 
@@ -107,12 +129,15 @@ int uthread_suspend(int tid)
 {
 	statesManager->postponeSignals();
 
-	if (tid > statesManager->getTotalThreadsNum() || tid < 0)
+	// If got invalid tid or if there if only one existing thread, cannot suspend
+	if (tid > statesManager->getTotalThreadsNum() || tid < 0 
+		|| statesManager->getTotalThreadsNum == 1)
 	{
-		return -1;
+		return FAIL;
 	}
 
 	Thread *thread = statesManager->getThread(tid);
+
 	if (thread->getState() != BLOCKED)
 	{
 		State oldState = thread->getState();
@@ -126,14 +151,18 @@ int uthread_suspend(int tid)
 
 			nextThread.setState(RUNNING);
 			// TODO: problems expected
-			running = &nextThread;
+			statesManager->running = &nextThread;
 
-			siglongjmp(*(running->getEnv()), CONTINUING);
+			statesManager->unblockSignals();
+			siglongjmp(*(statesManager->running->getEnv()), CONTINUING);
 		}
 		//TODO what to do if running
 	}
 
+	// Set handler back
 	statesManager->unblockSignals();
+
+	// If the quantum has ended till now, switch threads now.
 	if statesManager->hasTimerSignalTriggered()
 	{
 		statesManager->switchThreads(READY);
@@ -147,15 +176,18 @@ int uthread_resume(int tid)
 {
 	if (tid > statesManager->getTotalThreadsNum() || tid < 0)
 	{
-		return -1;
+		return FAIL;
 	}
 
 	Thread *thread = statesManager->getThread(tid);
+
+	// If the thread is not blocked, do nothing.
 	if (thread->getState() == BLOCKED)
 	{
-		//TODO what to do if running
 		statesManager->ready(thread);
 	}
+
+	thread = NULL;
 
 	return 0;
 }

@@ -13,6 +13,16 @@
 #define SECOND 1000000
 #define STACK_SIZE 4096
 struct itimerval tv;
+
+
+int got =0;
+void th(int s)
+{
+  got = 1;
+  printf("Two seconds\n");
+}
+
+
 char stack1[STACK_SIZE];
 char stack2[STACK_SIZE];
 char stack3[STACK_SIZE];
@@ -75,6 +85,7 @@ void switchThreads(int sig)
 
 void f(void)
 {
+  signal(SIGVTALRM, th);
   setitimer(ITIMER_VIRTUAL, &tv, NULL);
   int i = 0;
   while(1){
@@ -129,13 +140,6 @@ void setup(void)
   sigemptyset(&env[2]->__saved_mask);         
 
 }
-int got =0;
-void th(int s)
-{
-  got = 1;
-  printf("Two seconds\n");
-}
-
 
 
 int main(void)

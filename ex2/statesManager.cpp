@@ -16,7 +16,7 @@ StatesManager::StatesManager()
 
 bool StatesManager::isValidTid(int tid)
 {
-	if (tid > statesManager->getTotalThreadsNum() || tid < 0)
+	if (tid > getTotalThreadsNum() || tid < 0)
 	{
 		return FAIL;
 	}

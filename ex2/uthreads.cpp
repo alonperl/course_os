@@ -85,7 +85,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 	{
 		printf("Thread not null and its state is %d\n", thread->getState());
 		statesManager->ready(thread);
-		statesManager[newTid] = thread;
+		statesManager->threadsMap[newTid] = thread;
 	}
 
 	statesManager->incrementTotalThreadsNum();

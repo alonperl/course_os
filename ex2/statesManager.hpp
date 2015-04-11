@@ -50,6 +50,8 @@ class StatesManager
 		void setQuantum(int quantum);
 		void incrementTotalThreadsNum();
 		void decrementTotalThreadsNum();
+
+		bool isValidTid(int tid);
 	private:
 		StatesManager();
 

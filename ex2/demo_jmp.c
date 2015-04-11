@@ -61,7 +61,6 @@ address_t translate_address(address_t addr)
 
 void switchThreads(int sig)
 {
-  gotit = 1;
   static int currentThread = 0;
 
   int ret_val = sigsetjmp(env[currentThread],0);
@@ -126,11 +125,16 @@ void setup(void)
 
 }
 
+void th(int sig)
+{
+  gotit = 1;
+}
+
 int main(void)
 {
   setup();		
 
-  signal(SIGVTALRM, switchThreads);
+  signal(SIGVTALRM, th);
 
   struct itimerval tv;
   tv.it_value.tv_sec = 2;  /* first time interval, seconds part */
@@ -142,6 +146,7 @@ int main(void)
   for(;;) {
     if (gotit) {
       printf("switching?\n");
+      switchThreads();
       gotit = 0;
     }
   }

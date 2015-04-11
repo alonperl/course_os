@@ -144,6 +144,7 @@ int main(void)
   tv.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
 
   setitimer(ITIMER_VIRTUAL, &tv, NULL);
+  siglongjmp(env[0], 1);
   for(;;) {
     if (gotit) {
       printf("switching?\n");
@@ -151,7 +152,6 @@ int main(void)
       gotit = 0;
     }
   }
-  siglongjmp(env[0], 1);
   return 0;
 }
 

@@ -127,6 +127,7 @@ void setup(void)
 
 void th(int sig)
 {
+  printf("enter th\n");
   gotit = 1;
 }
 

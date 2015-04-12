@@ -8,7 +8,7 @@
 
 struct ThreadComparator
 {
-	bool operator()(Thread &t1, Thread &t2);
+	bool operator()(Thread *t1, Thread *t2);
 };
 
 class StatesManager
@@ -16,7 +16,7 @@ class StatesManager
 
 	public:
 		std::priority_queue<unsigned int, std::vector<unsigned int>, std::greater<unsigned int> > terminatedTids;
-		std::priority_queue<Thread, std::vector<Thread>, ThreadComparator> readyQueue;
+		std::priority_queue<Thread*, std::vector<Thread*>, ThreadComparator> readyQueue;
 	  	std::map<unsigned int, Thread*> blockedMap;
 
 	  	std::map<unsigned int, Thread*> threadsMap;
@@ -43,6 +43,9 @@ class StatesManager
 		void ignoreSignals();
 		void postponeSignals();
 		void unblockSignals();
+
+		void runNext();
+
 		bool hasTimerSignalTriggered();
 		void stopTimer();
 		void startTimer();

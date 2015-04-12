@@ -13,6 +13,8 @@
 #define SECOND 1000000
 #define STACK_SIZE 4096
 
+void timer_handler(int sog);
+
 char stack1[STACK_SIZE];
 char stack2[STACK_SIZE];
 char stack3[STACK_SIZE];
@@ -59,19 +61,36 @@ address_t translate_address(address_t addr)
 
 #endif
 
+struct itimerval tv;
+int currentThread = 0;
+
 void switchThreads(void)
 {
-  static int currentThread = 0;
+  signal(SIGVTALRM, SIG_IGN);
 
   int ret_val = sigsetjmp(env[currentThread],0);
+
   printf("SWITCH: ret_val=%d\n", ret_val); 
   if (ret_val == 1) {
-      return;
+    signal(SIGVTALRM, timer_handler);
+    setitimer(ITIMER_VIRTUAL, &tv, NULL);
+    return;
   }
   currentThread = (currentThread + 1) % 3;
   printf("Thread %d\n", currentThread);
+
+  signal(SIGVTALRM, timer_handler);
+  setitimer(ITIMER_VIRTUAL, &tv, NULL);
+
   siglongjmp(env[currentThread],1);
 }
+
+void timer_handler(int sog)
+{
+  printf("Signal catched!\n");
+  switchThreads();
+}
+
 
 void f(void)
 {
@@ -79,11 +98,7 @@ void f(void)
   while(1){
     ++i;
     printf("in f (%d)\n",i);
-    if (i % 3 == 0) {
-      printf("f: switching\n");
-      kill(0, 26);
-    }
-    usleep(SECOND);
+    usleep(100000);
   }
 }
 
@@ -129,27 +144,20 @@ void setup(void)
 
 }
 
-void timer_handler(int sog)
-{
-  printf("Signal catched!\n");
-  switchThreads();
-}
-
 int main(void)
 {
   setup();
 
   signal(SIGVTALRM, timer_handler);
 
-  struct itimerval tv;
-  tv.it_value.tv_sec = 2;  /* first time interval, seconds part */
-  tv.it_value.tv_usec = 0; /* first time interval, microseconds part */
-  tv.it_interval.tv_sec = 2;  /* following time intervals, seconds part */
-  tv.it_interval.tv_usec = 0; /* following time intervals, microseconds part */
+  tv.it_value.tv_sec = 0;  /* first time interval, seconds part */
+  tv.it_value.tv_usec = 500; /* first time interval, microseconds part */
+  tv.it_interval.tv_sec = 0;  /* following time intervals, seconds part */
+  tv.it_interval.tv_usec = 500; /* following time intervals, microseconds part */
 
   setitimer(ITIMER_VIRTUAL, &tv, NULL);
 
-  siglongjmp(env[0], 1);
+  while(1);
   return 0;
 }
 

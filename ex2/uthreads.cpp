@@ -17,15 +17,18 @@ void signalHandler(int sig)
 
 void work()
 {
-	printf("%d\n", uthread_get_tid());
-	usleep(4);
-	kill(0, 26);
+	printf("WORK OF TID %d\n", uthread_get_tid());
+	int i = 0;
+	for(;;i++)
+	{
+		printf("%d\n", i);
+	}
 }
 
 int main(int argc, char const *argv[])
 {
 	printf("Entering main\n");
-	uthread_init(1000000);
+	uthread_init(500);
 	printf("Inited\n");
 
 	uthread_spawn(work, ORANGE);
@@ -35,7 +38,12 @@ int main(int argc, char const *argv[])
 	uthread_spawn(work, ORANGE);
 	printf("Spawned 3\n");
 
-	// work();
+	printf("%d\n", statesManager->getQuantum()->it_value.tv_sec);
+	printf("%d\n", statesManager->getQuantum()->it_value.tv_usec);
+	printf("%d\n", statesManager->getQuantum()->it_interval.tv_sec);
+	printf("%d\n", statesManager->getQuantum()->it_interval.tv_usec);
+
+	while(1){};
 
 	printf("Finished main\n");
 	return 0;
@@ -55,12 +63,12 @@ int uthread_init(int quantum_usecs)
 
 	statesManager->setQuantum(quantum_usecs);
 
-	uthread_spawn(f, ORANGE);
+	uthread_spawn(work, ORANGE);
+
+	statesManager->runNext();
 
 	signal(SIGVTALRM, StatesManager::staticSignalHandler);
 	setitimer(ITIMER_VIRTUAL, statesManager->getQuantum(), NULL);
-
-	statesManager->run(MAIN);
 
 	return 0;
 }
@@ -91,7 +99,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 		statesManager->ready(thread);
 		statesManager->threadsMap[newTid] = thread;
 	}
-
+Thread *t = statesManager->readyQueue.top();
 	statesManager->incrementTotalThreadsNum();
 
 	return 0;
@@ -160,12 +168,12 @@ int uthread_suspend(int tid)
 		if (oldState == RUNNING)
 		{
 			// TODO: code repetition from switchThreads
-			Thread nextThread = statesManager->readyQueue.top();
+			Thread *nextThread = statesManager->readyQueue.top();
 			statesManager->readyQueue.pop();
 
-			nextThread.setState(RUNNING);
+			nextThread->setState(RUNNING);
 			// TODO: problems expected
-			statesManager->running = &nextThread;
+			statesManager->running = nextThread;
 
 			statesManager->unblockSignals();
 			siglongjmp(*(statesManager->running->getEnv()), CONTINUING);

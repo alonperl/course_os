@@ -16,9 +16,8 @@ TARFLAGS=-cvf
 TARNAME=ex2.tar
 TARSRCS=$(LIBSRC) Makefile README
 
-all: uthreads.cpp
-	gcc -o uthreads uthreads.cpp
-#all: $(TARGETS)
+all: thread.cpp statesManager.cpp uthreads.cpp
+	g++ -g -o uthreads uthreads.cpp thread.cpp statesManager.cpp
 
 $(TARGETS): $(LIBOBJ)
 	$(AR) $(ARFLAGS) $@ $^

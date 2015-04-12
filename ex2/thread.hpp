@@ -38,7 +38,7 @@ public:
 
 private:
 	sigjmp_buf threadEnv;
-	int stack[STACK_SIZE];
+	char stack[STACK_SIZE];
 	address_t programCounter;
 	Priority priority;
 	State state;

@@ -1,4 +1,5 @@
 #include "statesManager.hpp"
+#include <setjmp.h>
 
 #define MEGA 100000
 #define CONTINUING 1
@@ -18,8 +19,10 @@ bool StatesManager::isValidTid(int tid)
 {
 	if (tid > getTotalThreadsNum() || tid < 0)
 	{
-		return FAIL;
+		return false;
 	}
+
+	return true;
 }
 
 StatesManager *StatesManager::getInstance()
@@ -53,21 +56,19 @@ Thread *StatesManager::getThread(int tid)
 	return threadsMap[tid];
 }
 
-int StatesManager::run(Thread *thread)
-{
-	return 0;
-}
-
 int StatesManager::ready(Thread *thread)
 {
-	printf("%d: entered ready function\n", thread->getTid());
+	printf("TID %d: entered ready function\n", thread->getTid());
 	if (thread->getState() == READY)
 	{
 		return SUCCESS;
 	}
 
 	thread->setState(READY);
-	readyQueue.push(*thread);
+	thread->setReadyFrom();
+
+	readyQueue.push(thread);
+
 	printf("%d entered ready queue\n", thread->getTid());
 	// TODO: if running, should we wait till end of cycle
 	// TODO: When readying running thread - need to reset timer, save its pos etc
@@ -145,18 +146,31 @@ void StatesManager::signalHandler(int sig)
 	switchThreads(READY);
 }
 
+void StatesManager::runNext()
+{
+	Thread *nextThread = readyQueue.top();
+	nextThread->setState(RUNNING);
+	running = nextThread;
+	readyQueue.pop();
+}
+
 void StatesManager::switchThreads(State destination)
 {
+	stopTimer();
 	printf("Entered switchTThreads\n");
+
 	if (totalThreadsNum == 1)
 	{
+		startTimer();
 		return;
 	}
 
-	stopTimer();
+	//TODO: check if is the only one of its pripority - and is the highest one - if it's the highest just increase number of quantom running
 
 	// Save current thread
+	printf("Trying...\n");
 	int retVal = sigsetjmp(*(running->getEnv()), 1);
+	printf("OK\n");
 	if (retVal == CONTINUING)
 	{
 		// Reset timer
@@ -181,34 +195,30 @@ void StatesManager::switchThreads(State destination)
 			running->incrementQuantums();
 			break;
 	}
-	// Run next ready thread
-	Thread nextThread = readyQueue.top();
-	readyQueue.pop();
 
-	nextThread.setState(RUNNING);
-	// TODO: problems expected
-	running = &nextThread;
-// refi resets the timer here
+	runNext();
+
+	startTimer();
 	siglongjmp(*(running->getEnv()), CONTINUING);
 }
 
-bool ThreadComparator::operator()(Thread &t1, Thread &t2)
+bool ThreadComparator::operator()(Thread *t1, Thread *t2)
 {
-    if (t1.getPriority() == t2.getPriority())
+    if (t1->getPriority() == t2->getPriority())
     {
-    	if (t1.getReadyFrom().tv_sec < t2.getReadyFrom().tv_sec)
+    	if (t1->getReadyFrom().tv_sec < t2->getReadyFrom().tv_sec)
     	        return true;				/* Less than. */
-    	    else if (t1.getReadyFrom().tv_sec > t2.getReadyFrom().tv_sec)
+    	    else if (t1->getReadyFrom().tv_sec > t2->getReadyFrom().tv_sec)
     	        return false;				/* Greater than. */
-    	    else if (t1.getReadyFrom().tv_usec < t2.getReadyFrom().tv_usec)
+    	    else if (t1->getReadyFrom().tv_usec < t2->getReadyFrom().tv_usec)
     	        return true;				/* Less than. */
-    	    else if (t1.getReadyFrom().tv_usec > t2.getReadyFrom().tv_usec)
+    	    else if (t1->getReadyFrom().tv_usec > t2->getReadyFrom().tv_usec)
     	        return false;				/* Greater than. */
     	    else
     	        return false;				/* Equal. Cannot happen. */ 
     }
 
-    return t1.getPriority() < t2.getPriority();
+    return t1->getPriority() < t2->getPriority();
 }
 
 void StatesManager::ignoreSignals()

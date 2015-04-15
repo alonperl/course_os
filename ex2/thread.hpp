@@ -32,6 +32,7 @@ public:
 	sigjmp_buf *getEnv();
 
 	void setReadyFrom();
+	void resetReadyFrom();
 	void setState(State st);
 
 	void incrementQuantums();

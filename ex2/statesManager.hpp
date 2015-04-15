@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <map>
 #include "thread.hpp"
+#include "signalManager.hpp"
 
 struct ThreadComparator
 {
@@ -19,7 +20,11 @@ class StatesManager
 		std::priority_queue<Thread*, std::vector<Thread*>, ThreadComparator> readyQueue;
 	  	std::map<unsigned int, Thread*> blockedMap;
 
+	  	// General threads map
 	  	std::map<unsigned int, Thread*> threadsMap;
+
+	  	// Current running thread
+		Thread *running;
 
 		static StatesManager *getInstance();
 
@@ -33,20 +38,14 @@ class StatesManager
 
 		Thread *getThread(int tid);
 
-		Thread *running;
 
 		int getTotalQuantums();
-		itimerval *getQuantum();
 		int getTotalThreadsNum();
 		unsigned int getMinTid();
-
-		void ignoreSignals();
-		void postponeSignals();
-		void unblockSignals();
+		itimerval *getQuantum();
 
 		void runNext();
 
-		bool hasTimerSignalTriggered();
 		void stopTimer();
 		void startTimer();
 
@@ -57,9 +56,6 @@ class StatesManager
 		bool isValidTid(int tid);
 	private:
 		StatesManager();
-
-		sigset_t blockedSignals;
-		sigset_t pendingSignals;
 
 		void signalHandler(int sig);
 

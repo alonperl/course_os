@@ -49,9 +49,6 @@ Thread::Thread(void (*f)(void), Priority pr, unsigned int newTid)
 		throw FAIL;
 	}
 
-	priority = pr;
-	quantums = 0;
-
 	address_t stackPointer = (address_t)stack + STACK_SIZE - sizeof(address_t);
 	programCounter = (address_t)f;
 	sigsetjmp(threadEnv, 1);
@@ -59,6 +56,8 @@ Thread::Thread(void (*f)(void), Priority pr, unsigned int newTid)
 	(threadEnv->__jmpbuf)[JB_PC] = translate_address(programCounter);
 	sigemptyset(&threadEnv->__saved_mask);
 
+	priority = pr;
+	quantums = 0;
 	state = NEW;
 }
 
@@ -132,6 +131,13 @@ void Thread::setReadyFrom()
 	}
 	
 	readyFrom = ts;
+}
+
+// TODO: This is pretty dirty
+void Thread::resetReadyFrom()
+{
+	readyFrom.tv_sec = 0;
+	readyFrom.tv_usec = 0;
 }
 
 Thread::~Thread()

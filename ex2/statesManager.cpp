@@ -1,5 +1,5 @@
-#include "statesManager.hpp"
 #include <setjmp.h>
+#include "statesManager.hpp"
 
 #define MEGA 100000
 #define CONTINUING 1
@@ -11,8 +11,6 @@ StatesManager::StatesManager()
 {
 	totalThreadsNum = 0;
 	totalQuantums = 0;
-
-	sigaddset(&blockedSignals, SIGVTALRM);
 }
 
 bool StatesManager::isValidTid(int tid)
@@ -49,8 +47,8 @@ StatesManager *StatesManager::getInstance()
 Thread *StatesManager::getThread(int tid)
 {
 	if (!isValidTid(tid))
-	{
-		return NULL;
+	
+{		return NULL;
 	}
 
 	return threadsMap[tid];
@@ -58,7 +56,6 @@ Thread *StatesManager::getThread(int tid)
 
 int StatesManager::ready(Thread *thread)
 {
-	printf("TID %d: entered ready function\n", thread->getTid());
 	if (thread->getState() == READY)
 	{
 		return SUCCESS;
@@ -152,29 +149,28 @@ void StatesManager::runNext()
 	nextThread->setState(RUNNING);
 	running = nextThread;
 	readyQueue.pop();
+
 }
 
 void StatesManager::switchThreads(State destination)
 {
-	stopTimer();
-	printf("Entered switchTThreads\n");
+	SignalManager::stopTimer();
+	printf("Switching...\n");
 
 	if (totalThreadsNum == 1)
 	{
-		startTimer();
+		SignalManager::startTimer(staticSignalHandler, getQuantum());
 		return;
 	}
 
 	//TODO: check if is the only one of its pripority - and is the highest one - if it's the highest just increase number of quantom running
 
 	// Save current thread
-	printf("Trying...\n");
 	int retVal = sigsetjmp(*(running->getEnv()), 1);
-	printf("OK\n");
 	if (retVal == CONTINUING)
 	{
 		// Reset timer
-		startTimer();
+		SignalManager::startTimer(staticSignalHandler, getQuantum());
 		return;
 	}
 
@@ -198,7 +194,7 @@ void StatesManager::switchThreads(State destination)
 
 	runNext();
 
-	startTimer();
+	SignalManager::startTimer(staticSignalHandler, getQuantum());
 	siglongjmp(*(running->getEnv()), CONTINUING);
 }
 
@@ -206,52 +202,18 @@ bool ThreadComparator::operator()(Thread *t1, Thread *t2)
 {
     if (t1->getPriority() == t2->getPriority())
     {
-    	if (t1->getReadyFrom().tv_sec < t2->getReadyFrom().tv_sec)
+    	if (t1->getReadyFrom().tv_sec > t2->getReadyFrom().tv_sec)
     	        return true;				/* Less than. */
-    	    else if (t1->getReadyFrom().tv_sec > t2->getReadyFrom().tv_sec)
+    	    else if (t1->getReadyFrom().tv_sec < t2->getReadyFrom().tv_sec)
     	        return false;				/* Greater than. */
-    	    else if (t1->getReadyFrom().tv_usec < t2->getReadyFrom().tv_usec)
-    	        return true;				/* Less than. */
     	    else if (t1->getReadyFrom().tv_usec > t2->getReadyFrom().tv_usec)
+    	        return true;				/* Less than. */
+    	    else if (t1->getReadyFrom().tv_usec < t2->getReadyFrom().tv_usec)
     	        return false;				/* Greater than. */
     	    else
     	        return false;				/* Equal. Cannot happen. */ 
     }
 
-    return t1->getPriority() < t2->getPriority();
-}
-
-void StatesManager::ignoreSignals()
-{
-	signal(SIGVTALRM, SIG_IGN);
-}
-
-void StatesManager::postponeSignals()
-{
-	sigprocmask(SIG_BLOCK, &blockedSignals, NULL);
-}
-
-void StatesManager::unblockSignals()
-{
-	sigprocmask(SIG_UNBLOCK, &blockedSignals, NULL);
-}
-
-bool StatesManager::hasTimerSignalTriggered()
-{
-	sigemptyset(&pendingSignals);
-	sigpending(&pendingSignals);
-	return sigismember(&pendingSignals, SIGVTALRM);
-}
-
-void StatesManager::stopTimer()
-{
-	ignoreSignals();
-	struct itimerval reset = {0, 0};
-    setitimer(ITIMER_VIRTUAL, &reset, NULL);
-}
-
-void StatesManager::startTimer()
-{
-	signal(SIGVTALRM, staticSignalHandler);
-	setitimer(ITIMER_VIRTUAL, getQuantum(), NULL);
+	// TODO: Recheck conditions:
+    return t1->getPriority() > t2->getPriority();
 }

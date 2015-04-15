@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include "uthreads.h"
 #include "statesManager.hpp"
+#include "signalManager.hpp"
 
 #include <unistd.h>
 
@@ -17,11 +18,49 @@ void signalHandler(int sig)
 
 void work()
 {
-	printf("WORK OF TID %d\n", uthread_get_tid());
 	int i = 0;
-	for(;;i++)
+	// for(i = 0; i < 10000; i++)
+	for(;; i++)
 	{
-		printf("%d\n", i);
+		if (i == 0)
+		{
+			printf("Thread %d starts its work.\n", uthread_get_tid());
+		}
+		if (i % 1000 == 0)
+		{
+			printf(".", i);
+		}
+	 	 if (i == 1000000)
+	 	 {
+	 	 	printf("Thread %d finished.\n", uthread_get_tid());
+	 	 	printf("Gonna Fucking Termintae\n");
+	 	 	printf("TID: %d\n",uthread_get_tid() );
+	 	 	uthread_terminate(uthread_get_tid());
+	 	 	return;
+	 	 }
+	}
+}
+
+void workMain()
+{
+	int i = 0;
+	// for(i = 0; i < 10000; i++)
+	for(;; i++)
+	{
+		if (i == 0)
+		{
+			printf("Main thread 0 starts its work.\n", uthread_get_tid());
+		}
+		if (i % 1000 == 0)
+		{
+			printf(",", i);
+		}
+	 	 if (i == 10000000)
+	 	 {
+	 	 	printf("Thread %d finished.\n", uthread_get_tid());
+	 	 	uthread_terminate(uthread_get_tid());
+	 	 	return;
+	 	 }
 	}
 }
 
@@ -31,19 +70,13 @@ int main(int argc, char const *argv[])
 	uthread_init(500);
 	printf("Inited\n");
 
-	uthread_spawn(work, ORANGE);
-	printf("Spawned 1\n");
-	uthread_spawn(work, ORANGE);
-	printf("Spawned 2\n");
-	uthread_spawn(work, ORANGE);
-	printf("Spawned 3\n");
+	int i;
+	for (i = 0; i < 30; ++i)
+	{
+		uthread_spawn(work, ORANGE);
+	}
 
-	printf("%d\n", statesManager->getQuantum()->it_value.tv_sec);
-	printf("%d\n", statesManager->getQuantum()->it_value.tv_usec);
-	printf("%d\n", statesManager->getQuantum()->it_interval.tv_sec);
-	printf("%d\n", statesManager->getQuantum()->it_interval.tv_usec);
-
-	while(1){};
+	while(1);
 
 	printf("Finished main\n");
 	return 0;
@@ -63,7 +96,7 @@ int uthread_init(int quantum_usecs)
 
 	statesManager->setQuantum(quantum_usecs);
 
-	uthread_spawn(work, ORANGE);
+	uthread_spawn(workMain, ORANGE);
 
 	statesManager->runNext();
 
@@ -76,6 +109,8 @@ int uthread_init(int quantum_usecs)
 /* Create a new thread whose entry point is f */
 int uthread_spawn(void (*f)(void), Priority pr)
 {
+	SignalManager::postponeSignals();
+
 	if (statesManager->getTotalThreadsNum() >= MAX_THREAD_NUM)
 	{
 		return FAIL;
@@ -95,12 +130,20 @@ int uthread_spawn(void (*f)(void), Priority pr)
 
 	if (thread != NULL)
 	{
-		printf("Thread not null and its state is %d\n", thread->getState());
 		statesManager->ready(thread);
 		statesManager->threadsMap[newTid] = thread;
 	}
-Thread *t = statesManager->readyQueue.top();
+
 	statesManager->incrementTotalThreadsNum();
+
+	// Set handler back
+	SignalManager::unblockSignals();
+
+	// If the quantum has ended till now, switch threads now.
+	if (SignalManager::hasTimerSignalTriggered())
+	{
+		statesManager->switchThreads(READY);
+	}
 
 	return 0;
 }
@@ -108,8 +151,13 @@ Thread *t = statesManager->readyQueue.top();
 /* Terminate a thread */
 int uthread_terminate(int tid)
 {
+	printf("FUCKING ENTERED TERMINATE\n");
+	SignalManager::postponeSignals();
+	printf("HOPE TO DELETE THREAD %d\n", tid);
+
 	if (tid > statesManager->getTotalThreadsNum() || tid < 0)
 	{
+		SignalManager::unblockSignals();
 		return FAIL;
 	}
 
@@ -119,20 +167,29 @@ int uthread_terminate(int tid)
 		exit(0);
 	}
 
+
 	Thread *thread = statesManager->getThread(tid);
+	printf("Got pointer to TID: %d\n", tid);
 	
+	bool selfDestroy = false;
+
 	switch(thread->getState())
 	{
 	case READY:
-		//pq.fuck_it(tid);
+		// Remove from Ready queue
+		thread->resetReadyFrom();
+		statesManager->readyQueue.pop();
 		break;
 
 	case RUNNING:
-		// Stop current thread and get next ready thread to running without waiting till quantum end
+		// Stop current thread and run next ready thread
+		selfDestroy = true;
+		statesManager->runNext();
 		break;
 
 	case BLOCKED:
-		//blocked.remove(tid);
+		// Remove from blocked
+		statesManager->blockedMap.erase(tid);
 		break;
 	}
 
@@ -140,16 +197,30 @@ int uthread_terminate(int tid)
 	statesManager->terminatedTids.push(thread->getTid());
 
 	// TODO: how to properly remove object?
+	printf("DELETING THREAD %d\n", tid);
 	delete thread;
 
 	statesManager->decrementTotalThreadsNum();
 
+	// Set handler back
+	SignalManager::unblockSignals();
+
+	// If the quantum has ended till now and thread did not kill itself
+	// , switch threads now.
+	if (SignalManager::hasTimerSignalTriggered() && !selfDestroy)
+	{
+		statesManager->switchThreads(READY);
+	}
+
+	printf("Gonna do siglongjmp to TID: %d \n", statesManager->running->getTid());
+	siglongjmp(*(statesManager->running->getEnv()), 1);
+	return 0;
 }
 
 /* Suspend a thread */
 int uthread_suspend(int tid)
 {
-	statesManager->postponeSignals();
+	SignalManager::postponeSignals();
 
 	// If got invalid tid or if there if only one existing thread, cannot suspend
 	if (tid > statesManager->getTotalThreadsNum() || tid < 0 
@@ -175,17 +246,17 @@ int uthread_suspend(int tid)
 			// TODO: problems expected
 			statesManager->running = nextThread;
 
-			statesManager->unblockSignals();
+			SignalManager::unblockSignals();
 			siglongjmp(*(statesManager->running->getEnv()), CONTINUING);
 		}
 		//TODO what to do if running
 	}
 
 	// Set handler back
-	statesManager->unblockSignals();
+	SignalManager::unblockSignals();
 
 	// If the quantum has ended till now, switch threads now.
-	if (statesManager->hasTimerSignalTriggered())
+	if (SignalManager::hasTimerSignalTriggered())
 	{
 		statesManager->switchThreads(READY);
 	}
@@ -196,6 +267,8 @@ int uthread_suspend(int tid)
 /* Resume a thread */
 int uthread_resume(int tid)
 {
+	SignalManager::postponeSignals();
+
 	if (tid > statesManager->getTotalThreadsNum() || tid < 0)
 	{
 		return FAIL;
@@ -211,6 +284,15 @@ int uthread_resume(int tid)
 	}
 
 	thread = NULL;
+
+	// Set handler back
+	SignalManager::unblockSignals();
+
+	// If the quantum has ended till now, switch threads now.
+	if (SignalManager::hasTimerSignalTriggered())
+	{
+		statesManager->switchThreads(READY);
+	}
 
 	return 0;
 }

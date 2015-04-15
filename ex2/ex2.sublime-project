@@ -1,0 +1,16 @@
+{
+	"folders":
+	[
+		{
+			"path": "/cs/stud/griffonn/safe/os/ex2"
+		},
+		{
+			"path": "/cs/stud/griffonn/Downloads"
+		}
+	],
+	"settings":
+	{
+		"sublimegdb_commandline": "gdb -nx -readnow -fullname --interpreter=mi -args ./test",
+		"sublimegdb_workingdir": "${folder:${project_path:/test}}"
+	}
+}

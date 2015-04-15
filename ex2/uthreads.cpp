@@ -10,12 +10,6 @@
 
 StatesManager *statesManager;
 
-void signalHandler(int sig)
-{
-	// TODO: what to do with sig?
-	statesManager->switchThreads(READY);
-}
-
 void work()
 {
 	int i = 0;
@@ -36,7 +30,7 @@ void work()
 	 	 	printf("Gonna Fucking Termintae\n");
 	 	 	printf("TID: %d\n",uthread_get_tid() );
 	 	 	uthread_terminate(uthread_get_tid());
-	 	 	return;
+//	 	 	return;
 	 	 }
 	}
 }
@@ -67,7 +61,7 @@ void workMain()
 int main(int argc, char const *argv[])
 {
 	printf("Entering main\n");
-	uthread_init(500);
+	uthread_init(10000);
 	printf("Inited\n");
 
 	int i;
@@ -154,8 +148,11 @@ int uthread_terminate(int tid)
 	printf("FUCKING ENTERED TERMINATE\n");
 	SignalManager::postponeSignals();
 	printf("HOPE TO DELETE THREAD %d\n", tid);
-
-	if (tid > statesManager->getTotalThreadsNum() || tid < 0)
+	printf("tid %d, total %d", tid, statesManager->getTotalThreadsNum());
+	printf("in map ? %d\n", statesManager->threadsMap[tid] == NULL);
+	printf("getID: %d\n", statesManager->threadsMap[tid]->getTid());
+//TODO HERE IS THE PROBLEM
+	if (statesManager->threadsMap[tid] == NULL || tid < 0)
 	{
 		SignalManager::unblockSignals();
 		return FAIL;
@@ -185,6 +182,7 @@ int uthread_terminate(int tid)
 		// Stop current thread and run next ready thread
 		selfDestroy = true;
 		statesManager->runNext();
+		printf("Next thread to run is %d\n", statesManager->running->getTid());
 		break;
 
 	case BLOCKED:

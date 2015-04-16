@@ -58,12 +58,16 @@ int main(int argc, char const *argv[])
 		uthread_suspend(i);
 	}
 
+	Thread *t;
 	std::map<unsigned int, Thread*>::iterator threadsIterator = statesManager->threadsMap.begin();
 	for (; threadsIterator != statesManager->threadsMap.end(); ++threadsIterator)
 	{
 		if (threadsIterator->first != 0)// threadsIterator->second->getState() == BLOCKED)
 		{
 			printf("Tid %d\tState %d\n", threadsIterator->second->getTid(), threadsIterator->second->getState());
+			t = statesManager->readyQueue.top();
+			readyQueue.pop();
+			printf("Tid %d\tState %d\n", t->getTid(), t->getState());
 		}
 	}
 

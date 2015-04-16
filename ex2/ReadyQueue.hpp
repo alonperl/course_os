@@ -4,6 +4,8 @@
 class ReadyQueue
 {
 public:
+	void ReadyQueue::size()
+
 	void pop();
 	Thread *top();
 	void push(Thread *thread);

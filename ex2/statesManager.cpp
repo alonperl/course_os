@@ -161,8 +161,6 @@ int prevtid = running->getTid();
 	switch (destination) {
 	case READY:
 		// Move running to ready queue
-		prevThread->setState(destination);
-		prevThread->setReadyFrom();
 		ready(prevThread);
 		break;
 

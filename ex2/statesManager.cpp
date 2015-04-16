@@ -133,7 +133,7 @@ void StatesManager::runNext() {
 }
 
 void StatesManager::switchThreads(State destination) {
-TODO: somehow suspended threads are in ready???
+// TODO: somehow suspended threads are in ready???
 	SignalManager::stopTimer();
 printf("Last one %d. its current quantum count %d\n", running->getTid(), running->getQuantums());	if (totalThreadsNum == 1) {
 		running->incrementQuantums();

@@ -119,7 +119,7 @@ void g (void)
 	int j = 0;
 	while(1)
 	{
-		printf("i: %d, gq: %d\n", i, uthread_get_quantums(uthread_get_tid()));
+		// printf("i: %d, gq: %d\n", i, uthread_get_quantums(uthread_get_tid()));
 		if (i == uthread_get_quantums(uthread_get_tid()))
 		{
 			cout << "g" << "  q:  " << i << endl;
@@ -431,13 +431,13 @@ int uthread_resume(int tid)
 /* Get the id of the calling thread */
 int uthread_get_tid()
 {
-	SignalManager::postponeSignals();
+	// SignalManager::postponeSignals();
 	return statesManager->running->getTid();
-	SignalManager::unblockSignals();
-	if (SignalManager::hasTimerSignalTriggered())
-	{
-		statesManager->switchThreads(READY);
-	}
+	// SignalManager::unblockSignals();
+	// if (SignalManager::hasTimerSignalTriggered())
+	// {
+	// 	statesManager->switchThreads(READY);
+	// }
 }
 
 /* Get the total number of library quantums */
@@ -449,13 +449,13 @@ int uthread_get_total_quantums()
 /* Get the number of thread quantums */
 int uthread_get_quantums(int tid)
 {
-	SignalManager::postponeSignals();
+	// SignalManager::postponeSignals();
 	return statesManager->getThread(tid)->getQuantums();
-	SignalManager::unblockSignals();
-	if (SignalManager::hasTimerSignalTriggered())
-	{
-		statesManager->switchThreads(READY);
-	}
+	// SignalManager::unblockSignals();
+	// if (SignalManager::hasTimerSignalTriggered())
+	// {
+	// 	statesManager->switchThreads(READY);
+	// }
 }
 
 unsigned int getMinTid()

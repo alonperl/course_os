@@ -11,7 +11,5 @@ public:
 	void push(Thread *thread);
 	void erase(Thread *thread);
 
-	// std::list<Thread*>::iterator iterator(Priority priority);
-
 	std::list<Thread*> ready;
 };

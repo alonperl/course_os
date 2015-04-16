@@ -119,6 +119,7 @@ void g (void)
 	int j = 0;
 	while(1)
 	{
+		printf("i: %d, gq: %d\n", i, uthread_get_quantums(uthread_get_tid()));
 		if (i == uthread_get_quantums(uthread_get_tid()))
 		{
 			cout << "g" << "  q:  " << i << endl;
@@ -328,20 +329,19 @@ int uthread_terminate(int tid)
 
 	statesManager->decrementTotalThreadsNum();
 
-	// Set handler back
-	SignalManager::unblockSignals();
-
 	// If it is the main thread, exit
 	if (tid == 0)
 	{
 		exit(0);
 	}
 
+	// Set handler back
+	SignalManager::unblockSignals();
+
 	// If the quantum has ended till now and thread did not kill itself
 	// , switch threads now.
 	if (SignalManager::hasTimerSignalTriggered() && !selfDestroy)
 	{
-		printf("TERMINATE:: timer expired\n");
 		statesManager->switchThreads(READY);
 	}
 

@@ -10,6 +10,7 @@
 #ifndef _SIGNAL_MANAGER
 #include "signalManager.hpp"
 #endif
+#include "ReadyQueue.hpp"
 
 struct ThreadComparator
 {
@@ -21,7 +22,8 @@ class StatesManager
 
 	public:
 		std::priority_queue<unsigned int, std::vector<unsigned int>, std::greater<unsigned int> > terminatedTids;
-		std::priority_queue<Thread*, std::vector<Thread*>, ThreadComparator> readyQueue;
+		
+		ReadyQueue readyQueue;
 	  	std::map<unsigned int, Thread*> blockedMap;
 
 	  	// General threads map

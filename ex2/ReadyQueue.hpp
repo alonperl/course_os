@@ -4,7 +4,7 @@
 class ReadyQueue
 {
 public:
-	void ReadyQueue::size()
+	void size();
 
 	void pop();
 	Thread *top();

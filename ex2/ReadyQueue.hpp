@@ -1,11 +1,6 @@
 #include <list>
 #include "thread.hpp"
 
-struct ThreadComparator
-{
-	bool operator()(Thread *t1, Thread *t2);
-};
-
 class ReadyQueue
 {
 public:

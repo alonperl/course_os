@@ -5,7 +5,7 @@ void ReadyQueue::pop()
 	if (!ready.empty())
 	{
 		ready.pop_front();
-		ready.sort(ThreadComparator);
+		ready.sort(compareThreads);
 	}
 }
 
@@ -20,7 +20,7 @@ Thread *ReadyQueue::top()
 void ReadyQueue::push(Thread *thread)
 {
 	ready.push_back(thread);
-	ready.sort(ThreadComparator);
+	ready.sort(compareThreads);
 }
 
 int ReadyQueue::size()
@@ -35,13 +35,13 @@ void ReadyQueue::erase(Thread *thread)
 		if ((*it)->getTid() == thread->getTid())
 		{
 			ready.erase(it);
-			ready.sort(ThreadComparator);
+			ready.sort(compareThreads);
 			break;
 		}
 	}
 }
 
-bool ThreadComparator::operator()(Thread *t1, Thread *t2) {
+bool compareThreads(Thread *t1, Thread *t2) {
 	if (t1->getPriority() == t2->getPriority()) {
 		if (t1->getReadyFrom().tv_sec > t2->getReadyFrom().tv_sec)
 			return true; /* Less than. */

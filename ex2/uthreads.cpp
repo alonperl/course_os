@@ -1,15 +1,23 @@
-#include <cstdlib>
+#include <stdio.h>
+#include <setjmp.h>
+#include <signal.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <stdlib.h>
+#include <deque>
+#include <list>
+#include <assert.h>
+#include <iostream>
+
 #include "uthreads.h"
 #include "statesManager.hpp"
 #include "signalManager.hpp"
-
-#include <unistd.h>
 
 #define CONTINUING 1
 #define MAIN 0
 
 StatesManager *statesManager;
-
+using namespace std;
 void work()
 {
 	int i = 0;
@@ -24,43 +32,28 @@ void work()
 		{
 			printf(".", i);
 		}
-	 	 if (i == 1000000)
+	 	 if (i == 1000000000)
 	 	 {
 	 	 	printf("Thread %d finished.\n", uthread_get_tid());
-	 	 	printf("Gonna Fucking Termintae\n");
-	 	 	printf("TID: %d\n",uthread_get_tid() );
 	 	 	uthread_terminate(uthread_get_tid());
-//	 	 	return;
 	 	 }
 	}
 }
 
-void workMain()
+/*int main(int argc, char const *argv[])
 {
-	int i = 0;
-	// for(i = 0; i < 10000; i++)
-	for(;; i++)
+	if (uthread_init(100) == -1)
 	{
-		if (i == 0)
-		{
-			printf("Main thread 0 starts its work.\n", uthread_get_tid());
-		}
-		if (i % 1000 == 0)
-		{
-			printf(",", i);
-		}
-	 	 if (i == 10000000)
-	 	 {
-	 	 	printf("Thread %d finished.\n", uthread_get_tid());
-	 	 	uthread_terminate(uthread_get_tid());
-	 	 	return;
-	 	 }
+		return 0;
 	}
-}
 
-int main(int argc, char const *argv[])
-{
-	printf("Entering main\n");
+	int i = 1;
+	int j = 0;
+	while(1)
+	{
+		cout << uthread_get_quantums(uthread_get_tid()) << "\n";
+	}
+	/*printf("Entering main\n");
 	uthread_init(10000);
 	printf("Inited\n");
 
@@ -70,27 +63,159 @@ int main(int argc, char const *argv[])
 		uthread_spawn(work, ORANGE);
 	}
 
-	while(1);
+	for (i = 1; i <= 30; ++i)
+	{
+		printf("suspending %d from main\n", i);
+		uthread_suspend(i);
+	}
+
+	for (i = 1; i <= 30; ++i)
+	{
+		printf("resuming %d from main\n", i);
+		uthread_resume(i);
+	}
+
+	uthread_terminate(MAIN);
 
 	printf("Finished main\n");
-	return 0;
+	return 0;*/
+// }
+
+void f (void)
+{
+	int i = 1;
+	int j = 0;
+	while(1)
+	{
+		if (i == uthread_get_quantums(uthread_get_tid()))
+		{
+			cout << "f" << "  q:  " << i << endl;
+			if (i == 3 && j == 0)
+			{
+				j++;
+				cout << "          f suspend by f" << endl;
+				uthread_suspend(uthread_get_tid());
+			}
+			if (i == 6 && j == 1)
+			{
+				j++;
+				cout << "          g resume by f" << endl;
+				uthread_resume(2);
+			}
+			if (i == 8 && j == 2)
+			{
+				j++;
+				cout << "          **f end**" << endl;
+				uthread_terminate(uthread_get_tid());
+				return;
+			}
+			i++;
+		}
+	}
 }
 
-// TODO: what is the entry point for main thread?
-void f(){while(1);}
+void g (void)
+{
+	int i = 1;
+	int j = 0;
+	while(1)
+	{
+		if (i == uthread_get_quantums(uthread_get_tid()))
+		{
+			cout << "g" << "  q:  " << i << endl;
+			if (i == 11 && j == 0)
+			{
+				j++;
+				cout << "          **g end**" << endl;
+				uthread_terminate(uthread_get_tid());
+				return;
+			}
+			i++;
+		}
+	}
+}
+
+int main(void)
+{
+	if (uthread_init(100) == -1)
+	{
+		return 0;
+	}
+
+	int i = 1;
+	int j = 0;
+	while(1)
+	{
+		if (i == uthread_get_quantums(uthread_get_tid()))
+		{
+			cout << "m" << "  q:  " << i << endl;
+			if (i == 3 && j == 0)
+			{
+				j++;
+				cout << "          spawn f at (1) " << uthread_spawn(f, RED) << endl;
+				cout << "          spawn g at (2) " << uthread_spawn(g, RED) << endl;
+			}
+			if (i == 6 && j == 1)
+			{
+				j++;
+				cout << "          g suspend by main" << endl;
+				uthread_suspend(2);
+				cout << "          g suspend again by main" << endl;
+				uthread_suspend(2);
+			}
+			if (i == 9 && j == 2)
+			{
+				j++;
+				cout << "          f resume by main" << endl;
+				uthread_resume(1);
+				cout << "          f resume again by main" << endl;
+				uthread_resume(1);
+			}
+			if (i == 13 && j == 3)
+			{
+				j++;
+				cout << "          spawn f at (1) " << uthread_spawn(f, RED) << endl;
+				cout << "          f suspend by main" << endl;
+				uthread_suspend(1);
+			}
+			if (i == 17 && j == 4)
+			{
+				j++;
+				cout << "          spawn g at (2) " << uthread_spawn(g, RED) << endl;
+				cout << "          f terminate by main" << endl;
+				uthread_terminate(1);
+				cout << "          spawn f at (1) " << uthread_spawn(f, RED) << endl;
+				cout << "          f suspend by main" << endl;
+				uthread_suspend(1);
+			}
+			if (i == 20 && j == 5)
+			{
+				j++;
+				cout << "          ******end******" << endl;
+				cout << "total quantums:  " << uthread_get_total_quantums() << endl;
+				uthread_terminate(0);
+				return 0;
+			}
+			i++;
+		}
+	}
+	cout << "end" << endl;
+	return 0;
+}
 
 int uthread_init(int quantum_usecs)
 {
 	statesManager = StatesManager::getInstance();
 
-	if (statesManager->getTotalQuantums() != 0)//TODO: null and not 0
+	// If init was called before, statesManager will contain at least main thread
+	if (statesManager->getTotalThreadsNum() > 0)
 	{
 		return FAIL;
 	}
 
 	statesManager->setQuantum(quantum_usecs);
 
-	uthread_spawn(workMain, ORANGE);
+	uthread_spawn(NULL, ORANGE);
 
 	statesManager->runNext();
 
@@ -115,7 +240,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 
 	try
 	{
-		thread = new Thread(f, pr, newTid);//TODO: make sure to delete
+		thread = new Thread(f, pr, newTid);
 	}
 	catch (int e)
 	{
@@ -145,29 +270,37 @@ int uthread_spawn(void (*f)(void), Priority pr)
 /* Terminate a thread */
 int uthread_terminate(int tid)
 {
-	printf("FUCKING ENTERED TERMINATE\n");
 	SignalManager::postponeSignals();
-	printf("HOPE TO DELETE THREAD %d\n", tid);
-	printf("tid %d, total %d", tid, statesManager->getTotalThreadsNum());
-	printf("in map ? %d\n", statesManager->threadsMap[tid] == NULL);
-	printf("getID: %d\n", statesManager->threadsMap[tid]->getTid());
-//TODO HERE IS THE PROBLEM
-	if (statesManager->threadsMap[tid] == NULL || tid < 0)
+
+	if (!statesManager->isValidTid(tid))
 	{
 		SignalManager::unblockSignals();
 		return FAIL;
 	}
-
 	if (tid == 0)
 	{
-		// TODO: cleaning
-		exit(0);
+		int totalThreadNum = statesManager->getTotalThreadsNum();
+		unsigned int existingThreads[totalThreadNum - 1];
+		int counter = 0;
+
+		std::map<unsigned int, Thread*>::iterator threadsIterator = statesManager->threadsMap.begin();
+		for (; threadsIterator != statesManager->threadsMap.end(); ++threadsIterator)
+		{
+			if (threadsIterator->first != 0)
+			{
+				existingThreads[counter++] = threadsIterator->first;
+			}
+		}
+
+		counter = 0;
+		for (; counter  < totalThreadNum - 1; counter ++)
+		{
+			uthread_terminate(existingThreads[counter]);
+		}
 	}
 
-
 	Thread *thread = statesManager->getThread(tid);
-	printf("Got pointer to TID: %d\n", tid);
-	
+
 	bool selfDestroy = false;
 
 	switch(thread->getState())
@@ -182,7 +315,6 @@ int uthread_terminate(int tid)
 		// Stop current thread and run next ready thread
 		selfDestroy = true;
 		statesManager->runNext();
-		printf("Next thread to run is %d\n", statesManager->running->getTid());
 		break;
 
 	case BLOCKED:
@@ -194,14 +326,18 @@ int uthread_terminate(int tid)
 	statesManager->threadsMap.erase(thread->getTid());
 	statesManager->terminatedTids.push(thread->getTid());
 
-	// TODO: how to properly remove object?
-	printf("DELETING THREAD %d\n", tid);
 	delete thread;
 
 	statesManager->decrementTotalThreadsNum();
 
 	// Set handler back
 	SignalManager::unblockSignals();
+
+	// If it is the main thread, exit
+	if (tid == 0)
+	{
+		exit(0);
+	}
 
 	// If the quantum has ended till now and thread did not kill itself
 	// , switch threads now.
@@ -210,8 +346,12 @@ int uthread_terminate(int tid)
 		statesManager->switchThreads(READY);
 	}
 
-	printf("Gonna do siglongjmp to TID: %d \n", statesManager->running->getTid());
-	siglongjmp(*(statesManager->running->getEnv()), 1);
+	if (selfDestroy)
+	{
+		// Terminated last running thread, must switch to next
+		siglongjmp(*(statesManager->running->getEnv()), 1);
+	}
+
 	return 0;
 }
 
@@ -236,18 +376,12 @@ int uthread_suspend(int tid)
 
 		if (oldState == RUNNING)
 		{
-			// TODO: code repetition from switchThreads
-			Thread *nextThread = statesManager->readyQueue.top();
-			statesManager->readyQueue.pop();
-
-			nextThread->setState(RUNNING);
-			// TODO: problems expected
-			statesManager->running = nextThread;
+			// Get next ready thread and set it as current
+			statesManager->runNext();
 
 			SignalManager::unblockSignals();
 			siglongjmp(*(statesManager->running->getEnv()), CONTINUING);
 		}
-		//TODO what to do if running
 	}
 
 	// Set handler back
@@ -311,6 +445,7 @@ int uthread_get_total_quantums()
 /* Get the number of thread quantums */
 int uthread_get_quantums(int tid)
 {
+	// SignalManager::postponeSignals();
 	return statesManager->getThread(tid)->getQuantums();
 }
 

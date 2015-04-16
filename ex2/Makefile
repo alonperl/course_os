@@ -19,7 +19,7 @@ TARNAME=ex2.tar
 TARSRCS=$(LIBSRC) Makefile README
 
 all: thread.cpp statesManager.cpp uthreads.cpp signalManager.cpp
-	g++ -g -o uthreads thread.cpp statesManager.cpp uthreads.cpp signalManager.cpp
+	g++ -std=c++11 -g -o uthreads thread.cpp statesManager.cpp uthreads.cpp signalManager.cpp
 
 $(TARGETS): $(LIBOBJ)
 	$(AR) $(ARFLAGS) $@ $^

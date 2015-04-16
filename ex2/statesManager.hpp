@@ -4,8 +4,12 @@
 #include <queue>
 #include <cstdlib>
 #include <map>
+#ifndef _THREAD_H
 #include "thread.hpp"
+#endif
+#ifndef _SIGNAL_MANAGER
 #include "signalManager.hpp"
+#endif
 
 struct ThreadComparator
 {
@@ -52,6 +56,7 @@ class StatesManager
 		void setQuantum(int quantum);
 		void incrementTotalThreadsNum();
 		void decrementTotalThreadsNum();
+		void incrementTotalQuantums();
 
 		bool isValidTid(int tid);
 	private:

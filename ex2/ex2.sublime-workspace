@@ -4,6 +4,26 @@
 		"selected_items":
 		[
 			[
+				"inc",
+				"incrementQuantums"
+			],
+			[
+				"uth",
+				"uthread_terminate"
+			],
+			[
+				"thI",
+				"threadsIterator"
+			],
+			[
+				"threads",
+				"threadsIterator"
+			],
+			[
+				"thre",
+				"threadsMap"
+			],
+			[
 				"blocke",
 				"blockedSignals"
 			],
@@ -176,10 +196,6 @@
 				"totalThreadsNum"
 			],
 			[
-				"thre",
-				"totalThreadsNum"
-			],
-			[
 				"to",
 				"totalThreadsNum"
 			],
@@ -211,7 +227,7 @@
 			"file": "thread.hpp",
 			"settings":
 			{
-				"buffer_size": 926,
+				"buffer_size": 941,
 				"line_ending": "Unix"
 			}
 		},
@@ -219,7 +235,7 @@
 			"file": "thread.cpp",
 			"settings":
 			{
-				"buffer_size": 2320,
+				"buffer_size": 2277,
 				"line_ending": "Unix"
 			}
 		},
@@ -227,7 +243,7 @@
 			"file": "Makefile",
 			"settings":
 			{
-				"buffer_size": 676,
+				"buffer_size": 687,
 				"line_ending": "Unix"
 			}
 		},
@@ -235,7 +251,7 @@
 			"file": "statesManager.hpp",
 			"settings":
 			{
-				"buffer_size": 1388,
+				"buffer_size": 1477,
 				"line_ending": "Unix"
 			}
 		},
@@ -243,7 +259,7 @@
 			"file": "statesManager.cpp",
 			"settings":
 			{
-				"buffer_size": 4627,
+				"buffer_size": 4180,
 				"line_ending": "Unix"
 			}
 		},
@@ -276,7 +292,7 @@
 			"file": "uthreads.cpp",
 			"settings":
 			{
-				"buffer_size": 5901,
+				"buffer_size": 8794,
 				"line_ending": "Unix"
 			}
 		}
@@ -354,7 +370,7 @@
 	},
 	"find_in_files":
 	{
-		"height": 0.0,
+		"height": 90.0,
 		"where_history":
 		[
 			""
@@ -365,6 +381,7 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"printf",
 			"static ",
 			"statesManager->postponeSignals();",
 			"statesManager->hasTimerSignalTriggered()",
@@ -423,15 +440,15 @@
 					"file": "thread.hpp",
 					"settings":
 					{
-						"buffer_size": 926,
+						"buffer_size": 941,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								115,
-								115
+								0,
+								0
 							]
 						],
 						"settings":
@@ -499,15 +516,15 @@
 					"file": "thread.cpp",
 					"settings":
 					{
-						"buffer_size": 2320,
+						"buffer_size": 2277,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2032,
-								2032
+								0,
+								0
 							]
 						],
 						"settings":
@@ -580,15 +597,15 @@
 					"file": "Makefile",
 					"settings":
 					{
-						"buffer_size": 676,
+						"buffer_size": 687,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								390,
-								390
+								0,
+								0
 							]
 						],
 						"settings":
@@ -641,6 +658,7 @@
 								"bh_single_quote_open",
 								"bh_single_quote_close"
 							],
+							"color_scheme": "Packages/Theme - Afterglow/Afterglow.tmTheme",
 							"syntax": "Packages/Makefile/Makefile.tmLanguage"
 						},
 						"translation.x": 0.0,
@@ -652,7 +670,7 @@
 			]
 		},
 		{
-			"selected": 3,
+			"selected": 1,
 			"sheets":
 			[
 				{
@@ -660,15 +678,15 @@
 					"file": "statesManager.hpp",
 					"settings":
 					{
-						"buffer_size": 1388,
+						"buffer_size": 1477,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								155,
-								155
+								1202,
+								1202
 							]
 						],
 						"settings":
@@ -726,7 +744,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 450.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -736,15 +754,15 @@
 					"file": "statesManager.cpp",
 					"settings":
 					{
-						"buffer_size": 4627,
+						"buffer_size": 4180,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								3422,
-								3422
+								2213,
+								2213
 							]
 						],
 						"settings":
@@ -802,7 +820,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 2450.0,
+						"translation.y": 1284.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -874,6 +892,7 @@
 								"bh_single_quote_open",
 								"bh_single_quote_close"
 							],
+							"color_scheme": "Packages/Theme - Afterglow/Afterglow.tmTheme",
 							"syntax": "Packages/C++/C++.tmLanguage"
 						},
 						"translation.x": 0.0,
@@ -948,7 +967,9 @@
 								"bh_single_quote_open",
 								"bh_single_quote_close"
 							],
-							"syntax": "Packages/C++/C++.tmLanguage"
+							"color_scheme": "Packages/Theme - Afterglow/Afterglow.tmTheme",
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -1042,15 +1063,15 @@
 					"file": "uthreads.cpp",
 					"settings":
 					{
-						"buffer_size": 5901,
+						"buffer_size": 8794,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2594,
-								2594
+								2255,
+								2255
 							]
 						],
 						"settings":
@@ -1108,7 +1129,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 2070.0,
+						"translation.y": 1755.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"

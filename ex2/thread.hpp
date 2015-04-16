@@ -6,12 +6,14 @@
 #include <setjmp.h>
 #include <signal.h>
 #include <sys/time.h>
+#ifndef _UTHREADS_H
 #include "uthreads.h"
+#endif
 
 #define SUCCESS 0;
 #define FAIL -1;
 
-typedef enum State { READY, RUNNING, BLOCKED, TERMINATED, NEW } State;
+typedef enum State { READY, RUNNING, BLOCKED, NEW } State;
 
 typedef unsigned long address_t;
 

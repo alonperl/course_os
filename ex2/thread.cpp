@@ -44,7 +44,7 @@ Thread::Thread(void (*f)(void), Priority pr, unsigned int newTid)
 {
 	tid = newTid;
 
-	if (f == NULL || !isValidPriority(pr))
+	if (!isValidPriority(pr))
 	{
 		throw FAIL;
 	}
@@ -133,7 +133,6 @@ void Thread::setReadyFrom()
 	readyFrom = ts;
 }
 
-// TODO: This is pretty dirty
 void Thread::resetReadyFrom()
 {
 	readyFrom.tv_sec = 0;

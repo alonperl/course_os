@@ -86,12 +86,12 @@ void ReadyQueue::erase(Thread *thread)
 	switch (thread->getPriority())
 	{
 		case RED:
-			red.erase(thread);
+			red.erase(iterator);
 	
 		case ORANGE:
-			orange.erase(thread);
+			orange.erase(iterator);
 	
 		case GREEN:
-			green.erase(thread);
+			green.erase(iterator);
 	}
 }

@@ -399,7 +399,7 @@ int uthread_resume(int tid)
 {
 	SignalManager::postponeSignals();
 
-	if (tid > statesManager->getTotalThreadsNum() || tid < 0)
+	if (!statesManager->isValidTid(tid))
 	{
 		return FAIL;
 	}

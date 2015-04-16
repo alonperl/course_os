@@ -65,9 +65,6 @@ int main(int argc, char const *argv[])
 		if (threadsIterator->first != 0)// threadsIterator->second->getState() == BLOCKED)
 		{
 			printf("Tid %d\tState %d\n", threadsIterator->second->getTid(), threadsIterator->second->getState());
-			t = statesManager->readyQueue.top();
-			statesManager->readyQueue.pop();
-			printf("Tid %d\tState %d\n", t->getTid(), t->getState());
 		}
 	}
 

@@ -421,6 +421,7 @@ int uthread_resume(int tid)
 	// If the quantum has ended till now, switch threads now.
 	if (SignalManager::hasTimerSignalTriggered())
 	{
+		printf("timer finished.\n");
 		statesManager->switchThreads(READY);
 	}
 

@@ -135,6 +135,8 @@ void StatesManager::runNext() {
 	nextThread->setState(RUNNING);
 	running = nextThread;
 
+	printf("Next to run: %d\n", running->getTid());
+
 }
 
 void StatesManager::switchThreads(State destination) {

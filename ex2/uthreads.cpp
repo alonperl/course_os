@@ -94,6 +94,7 @@ void f (void)
 				j++;
 				cout << "          f suspend by f" << endl;
 				uthread_suspend(uthread_get_tid());
+				printf("          f continued?");
 			}
 			if (i == 6 && j == 1)
 			{

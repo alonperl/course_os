@@ -19,8 +19,6 @@ void ReadyQueue::pop()
 		green.pop_front();
 		return;
 	}
-
-	throw -1;
 }
 
 Thread *ReadyQueue::top()

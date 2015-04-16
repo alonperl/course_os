@@ -341,6 +341,7 @@ int uthread_terminate(int tid)
 	// , switch threads now.
 	if (SignalManager::hasTimerSignalTriggered() && !selfDestroy)
 	{
+		printf("TERMINATE:: timer expired\n");
 		statesManager->switchThreads(READY);
 	}
 

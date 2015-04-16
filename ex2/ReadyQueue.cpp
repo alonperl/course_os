@@ -79,19 +79,34 @@ std::deque<Thread*>::iterator ReadyQueue::iterator(Priority priority)
 
 void ReadyQueue::erase(Thread *thread)
 {
-	std::deque<Thread*>::iterator iterator = iterator(thread->getPriority());
+	// std::deque<Thread*>::iterator iterator = iterator(thread->getPriority());
 
-	for (; (*iterator)->getTid() != thread->getTid(); iterator++);
-
+	// for (; (*iterator)->getTid() != thread->getTid(); iterator++);
+	int i;
 	switch (thread->getPriority())
 	{
 		case RED:
-			red.erase(iterator);
+			for (i = 0; red[i]->getTid() == thread->getTid(); ++i)
+			{
+				red.erase(iterator);
+				break;
+			}
+			break;
 	
 		case ORANGE:
-			orange.erase(iterator);
+			for (i = 0; orange[i]->getTid() == thread->getTid(); ++i)
+			{
+				orange.erase(iterator);
+				break;
+			}
+			break;
 	
 		case GREEN:
-			green.erase(iterator);
+			for (i = 0; green[i]->getTid() == thread->getTid(); ++i)
+			{
+				green.erase(iterator);
+				break;
+			}
+			break;
 	}
 }

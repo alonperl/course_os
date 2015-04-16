@@ -12,7 +12,7 @@ Thread *ReadyQueue::top()
 {
 	if (!ready.empty())
 	{
-		return red.front();
+		return ready.front();
 	}
 }
 
@@ -30,7 +30,7 @@ void ReadyQueue::erase(Thread *thread)
 {
 	for (std::list<Thread*>::iterator it=ready.begin(); it != ready.end(); ++it)
 	{
-		if (*it->getTid() == thread->getTid())
+		if ((*it)->getTid() == thread->getTid())
 		{
 			ready.erase(it);
 			break;

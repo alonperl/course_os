@@ -145,6 +145,7 @@ int main(void)
 	int j = 0;
 	while(1)
 	{
+		cout << "GE m" << "  q:  " << i << endl;
 		if (i == uthread_get_quantums(uthread_get_tid()))
 		{
 			cout << "m" << "  q:  " << i << endl;
@@ -169,7 +170,6 @@ int main(void)
 				uthread_resume(1);
 				cout << "          f resume again by main" << endl;
 				uthread_resume(1);
-				printf("Now running %d\n", statesManager->running->getTid());
 			}
 			if (i == 13 && j == 3)
 			{

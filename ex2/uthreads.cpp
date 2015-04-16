@@ -372,7 +372,7 @@ int uthread_suspend(int tid)
 		if (thread->getState() == RUNNING)
 		{
 			// Get next ready thread and set it as current
-			switchThreads(BLOCKED);
+			statesManager->switchThreads(BLOCKED);
 			/*statesManager->runNext();
 
 			SignalManager::unblockSignals();

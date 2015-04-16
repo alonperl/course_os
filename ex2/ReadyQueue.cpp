@@ -64,7 +64,7 @@ int ReadyQueue::size()
 
 std::deque<Thread*>::iterator ReadyQueue::iterator(Priority priority)
 {
-	switch (thread->getPriority())
+	switch (priority)
 	{
 		case RED:
 			return red.begin();

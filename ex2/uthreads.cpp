@@ -263,7 +263,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 		statesManager->switchThreads(READY);
 	}
 
-	return 0;
+	return newTid;
 }
 
 /* Terminate a thread */

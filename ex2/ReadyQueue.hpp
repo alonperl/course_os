@@ -4,7 +4,7 @@
 class ReadyQueue
 {
 public:
-	void size();
+	int size();
 
 	void pop();
 	Thread *top();

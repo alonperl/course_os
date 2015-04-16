@@ -57,7 +57,7 @@ void ReadyQueue::push(Thread *thread)
 	}
 }
 
-void ReadyQueue::size()
+int ReadyQueue::size()
 {
 	return red.size() + orange.size() + green.size();
 }

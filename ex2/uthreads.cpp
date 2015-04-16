@@ -214,7 +214,7 @@ int uthread_init(int quantum_usecs)
 
 	statesManager->setQuantum(quantum_usecs);
 
-	uthread_spawn(NULL, ORANGE);
+	uthread_spawn(work, ORANGE);
 
 	statesManager->runNext();
 

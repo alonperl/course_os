@@ -434,7 +434,7 @@ int uthread_get_tid()
 	SignalManager::postponeSignals();
 	return statesManager->running->getTid();
 	SignalManager::unblockSignals();
-	if (SignalManager::hasTimerSignalTriggered() && !selfDestroy)
+	if (SignalManager::hasTimerSignalTriggered())
 	{
 		statesManager->switchThreads(READY);
 	}
@@ -452,7 +452,7 @@ int uthread_get_quantums(int tid)
 	SignalManager::postponeSignals();
 	return statesManager->getThread(tid)->getQuantums();
 	SignalManager::unblockSignals();
-	if (SignalManager::hasTimerSignalTriggered() && !selfDestroy)
+	if (SignalManager::hasTimerSignalTriggered())
 	{
 		statesManager->switchThreads(READY);
 	}

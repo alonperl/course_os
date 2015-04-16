@@ -1,4 +1,4 @@
-#include <vector>
+#include <deque>
 #include "thread.hpp"
 
 class ReadyQueue
@@ -11,7 +11,7 @@ public:
 	Thread *top();
 	void push(Thread *thread);
 	
-	std::vector<Thread*> red;
-	std::vector<Thread*> orange;
-	std::vector<Thread*> green;
+	std::deque<Thread*> red;
+	std::deque<Thread*> orange;
+	std::deque<Thread*> green;
 };

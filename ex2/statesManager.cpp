@@ -141,7 +141,7 @@ void StatesManager::switchThreads(State destination) {
 // TODO: somehow suspended threads are in ready???
 	SignalManager::stopTimer();
 int prevtid = running->getTid();
-	if (readyQueue.size() == 1) {
+	if (readyQueue.size() == 0) {
 		running->incrementQuantums();
 		SignalManager::startTimer(staticSignalHandler, getQuantum());
 		return;

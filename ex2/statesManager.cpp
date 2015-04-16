@@ -140,7 +140,7 @@ void StatesManager::runNext() {
 void StatesManager::switchThreads(State destination) {
 // TODO: somehow suspended threads are in ready???
 	SignalManager::stopTimer();
-printf("Last one %d. its current quantum count %d\n", running->getTid(), running->getQuantums());	if (totalThreadsNum == 1) {
+	if (totalThreadsNum == 1) {
 		running->incrementQuantums();
 		SignalManager::startTimer(staticSignalHandler, getQuantum());
 		return;
@@ -173,7 +173,7 @@ printf("Last one %d. its current quantum count %d\n", running->getTid(), running
 	}
 
 	running->incrementQuantums();
-printf("Next one %d. its current quantum count %d\n", running->getTid(), running->getQuantums());
+
 	SignalManager::startTimer(staticSignalHandler, getQuantum());
 	siglongjmp(*(running->getEnv()), CONTINUING);
 }

@@ -1,4 +1,4 @@
-#include <deque>
+#include <list>
 #include "thread.hpp"
 
 class ReadyQueue
@@ -11,9 +11,7 @@ public:
 	void push(Thread *thread);
 	void erase(Thread *thread);
 
-	std::deque<Thread*>::iterator iterator(Priority priority);
+	// std::list<Thread*>::iterator iterator(Priority priority);
 
-	std::deque<Thread*> red;
-	std::deque<Thread*> orange;
-	std::deque<Thread*> green;
+	std::list<Thread*> ready;
 };

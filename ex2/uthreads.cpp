@@ -119,7 +119,7 @@ void g (void)
 	int j = 0;
 	while(1)
 	{
-		printf("i: %d, gq: %d\n", i, uthread_get_quantums(uthread_get_tid()));
+		// printf("i: %d, gq: %d\n", i, uthread_get_quantums(uthread_get_tid()));
 		if (i == uthread_get_quantums(uthread_get_tid()))
 		{
 			cout << "g" << "  q:  " << i << endl;

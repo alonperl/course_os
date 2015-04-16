@@ -151,6 +151,7 @@ int prevtid = running->getTid();
 	int retVal = sigsetjmp(*(running->getEnv()), 1);
 	if (retVal == CONTINUING) {
 		// Reset timer
+		printf("Continuting thread %d\n", running->getTid());
 		SignalManager::startTimer(staticSignalHandler, getQuantum());
 		return;
 	}

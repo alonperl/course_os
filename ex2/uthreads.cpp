@@ -405,11 +405,10 @@ int uthread_resume(int tid)
 	}
 
 	Thread *thread = statesManager->getThread(tid);
-printf("entered resume\n");
+
 	// If the thread is not blocked, do nothing.
 	if (thread->getState() == BLOCKED)
 	{
-printf("actually resuming\n");
 		statesManager->ready(thread);
 		statesManager->blockedMap.erase(tid);
 	}

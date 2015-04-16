@@ -174,7 +174,7 @@ int prevtid = running->getTid();
 	}
 
 	running->incrementQuantums();
-printf("Switched from %d to %d\n", running->getTid(), prevtid);
+printf("Switched from %d to %d\n", prevtid, running->getTid());
 	SignalManager::startTimer(staticSignalHandler, getQuantum());
 	siglongjmp(*(running->getEnv()), CONTINUING);
 }

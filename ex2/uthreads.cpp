@@ -145,7 +145,6 @@ int main(void)
 	int j = 0;
 	while(1)
 	{
-		cout << "GE m" << "  q:  " << i << endl;
 		if (i == uthread_get_quantums(uthread_get_tid()))
 		{
 			cout << "m" << "  q:  " << i << endl;

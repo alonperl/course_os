@@ -28,7 +28,7 @@ int ReadyQueue::size()
 
 void ReadyQueue::erase(Thread *thread)
 {
-	for (std::list<int>::iterator it=ready.begin(); it != ready.end(); ++it)
+	for (std::list<Thread*>::iterator it=ready.begin(); it != ready.end(); ++it)
 	{
 		if (*it->getTid() == thread->getTid())
 		{

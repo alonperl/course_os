@@ -140,7 +140,7 @@ void StatesManager::runNext() {
 void StatesManager::switchThreads(State destination) {
 // TODO: somehow suspended threads are in ready???
 	SignalManager::stopTimer();
-int prevtid = running->getTid();
+
 	if (readyQueue.size() == 0) {
 		running->incrementQuantums();
 		incrementTotalQuantums();
@@ -174,7 +174,7 @@ int prevtid = running->getTid();
 
 	running->incrementQuantums();
 	incrementTotalQuantums();
-printf("Switched from %d to %d\n", prevtid, running->getTid());
+
 	SignalManager::startTimer(staticSignalHandler, getQuantum());
 	siglongjmp(*(running->getEnv()), CONTINUING);
 }

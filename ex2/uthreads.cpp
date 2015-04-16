@@ -169,6 +169,7 @@ int main(void)
 				uthread_resume(1);
 				cout << "          f resume again by main" << endl;
 				uthread_resume(1);
+				printf("Now running %d\n", statesManager->running->getTid());
 			}
 			if (i == 13 && j == 3)
 			{
@@ -421,7 +422,6 @@ int uthread_resume(int tid)
 	// If the quantum has ended till now, switch threads now.
 	if (SignalManager::hasTimerSignalTriggered())
 	{
-		printf("timer finished.\n");
 		statesManager->switchThreads(READY);
 	}
 

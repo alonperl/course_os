@@ -40,7 +40,7 @@ void work()
 	}
 }
 
-int main(int argc, char const *argv[])
+/*int main(int argc, char const *argv[])
 {
 	printf("Entering main\n");
 	uthread_init(10000);
@@ -74,11 +74,11 @@ int main(int argc, char const *argv[])
 		uthread_resume(i);
 	}
 
+	printf("Finished main\n");
 	uthread_terminate(MAIN);
 
-	printf("Finished main\n");
 	return 0;
-}
+}*/
 
 void f (void)
 {
@@ -134,7 +134,7 @@ void g (void)
 	}
 }
 
-/*int main(void)
+int main(void)
 {
 	if (uthread_init(100) == -1)
 	{
@@ -200,7 +200,7 @@ void g (void)
 	}
 	cout << "end" << endl;
 	return 0;
-}*/
+}
 
 int uthread_init(int quantum_usecs)
 {

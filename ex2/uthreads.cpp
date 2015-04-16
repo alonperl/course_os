@@ -413,8 +413,6 @@ int uthread_resume(int tid)
 		statesManager->blockedMap.erase(tid);
 	}
 
-	thread = NULL;
-
 	// Set handler back
 	SignalManager::unblockSignals();
 

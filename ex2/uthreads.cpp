@@ -436,7 +436,7 @@ int uthread_get_tid()
 /* Get the total number of library quantums */
 int uthread_get_total_quantums()
 {
-	return statesManager->getTotalThreadsNum();
+	return statesManager->getTotalQuantums();
 }
 
 /* Get the number of thread quantums */

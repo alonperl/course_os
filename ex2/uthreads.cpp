@@ -363,8 +363,7 @@ int uthread_suspend(int tid)
 	SignalManager::postponeSignals();
 
 	// If got invalid tid or if there if only one existing thread, cannot suspend
-	if (tid > statesManager->getTotalThreadsNum() || tid < 0 
-		|| statesManager->getTotalThreadsNum() == 1)
+	if (!statesManager->isValidTid(tid) || statesManager->getTotalThreadsNum() == 1)
 	{
 		return FAIL;
 	}

@@ -64,6 +64,11 @@ int StatesManager::block(Thread *thread) {
 		return SUCCESS;
 	}
 
+	if (thread->getState() == READY)
+	{
+		thread->resetReadyFrom();
+		readyQueue.pop();
+	}
 	thread->setState(BLOCKED);
 	blockedMap[thread->getTid()] = thread;
 	return SUCCESS;

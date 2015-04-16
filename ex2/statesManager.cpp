@@ -179,21 +179,3 @@ printf("Switched from %d to %d\n", prevtid, running->getTid());
 	SignalManager::startTimer(staticSignalHandler, getQuantum());
 	siglongjmp(*(running->getEnv()), CONTINUING);
 }
-
-bool ThreadComparator::operator()(Thread *t1, Thread *t2) {
-	if (t1->getPriority() == t2->getPriority()) {
-		if (t1->getReadyFrom().tv_sec > t2->getReadyFrom().tv_sec)
-			return true; /* Less than. */
-		else if (t1->getReadyFrom().tv_sec < t2->getReadyFrom().tv_sec)
-			return false; /* Greater than. */
-		else if (t1->getReadyFrom().tv_usec > t2->getReadyFrom().tv_usec)
-			return true; /* Less than. */
-		else if (t1->getReadyFrom().tv_usec < t2->getReadyFrom().tv_usec)
-			return false; /* Greater than. */
-		else
-			return false; /* Equal. Cannot happen. */
-	}
-
-	// TODO: Recheck conditions:
-	return t1->getPriority() > t2->getPriority();
-}

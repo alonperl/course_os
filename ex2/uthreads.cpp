@@ -66,7 +66,7 @@ int main(int argc, char const *argv[])
 		{
 			printf("Tid %d\tState %d\n", threadsIterator->second->getTid(), threadsIterator->second->getState());
 			t = statesManager->readyQueue.top();
-			readyQueue.pop();
+			statesManager->readyQueue.pop();
 			printf("Tid %d\tState %d\n", t->getTid(), t->getState());
 		}
 	}

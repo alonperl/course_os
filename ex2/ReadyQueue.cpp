@@ -28,5 +28,12 @@ int ReadyQueue::size()
 
 void ReadyQueue::erase(Thread *thread)
 {
-	ready.remove_if(thread->getTid() == getTid());
+	for (std::list<int>::iterator it=ready.begin(); it != ready.end(); ++it)
+	{
+		if (*it->getTid() == thread->getTid())
+		{
+			ready.erase(it);
+			break;
+		}
+	}
 }

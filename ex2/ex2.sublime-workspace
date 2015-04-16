@@ -4,6 +4,30 @@
 		"selected_items":
 		[
 			[
+				"rea",
+				"ReadyQueue"
+			],
+			[
+				"thread",
+				"thread.hpp"
+			],
+			[
+				"getI",
+				"getTid"
+			],
+			[
+				"ready",
+				"readyQueue"
+			],
+			[
+				"read",
+				"readyQueue"
+			],
+			[
+				"thr",
+				"threadsIterator"
+			],
+			[
 				"inc",
 				"incrementQuantums"
 			],
@@ -114,10 +138,6 @@
 			[
 				"get",
 				"getEnv"
-			],
-			[
-				"read",
-				"readyFrom"
 			],
 			[
 				"tim",
@@ -243,7 +263,7 @@
 			"file": "Makefile",
 			"settings":
 			{
-				"buffer_size": 687,
+				"buffer_size": 717,
 				"line_ending": "Unix"
 			}
 		},
@@ -251,7 +271,7 @@
 			"file": "statesManager.hpp",
 			"settings":
 			{
-				"buffer_size": 1477,
+				"buffer_size": 1376,
 				"line_ending": "Unix"
 			}
 		},
@@ -259,7 +279,7 @@
 			"file": "statesManager.cpp",
 			"settings":
 			{
-				"buffer_size": 4381,
+				"buffer_size": 3654,
 				"line_ending": "Windows"
 			}
 		},
@@ -281,19 +301,53 @@
 			}
 		},
 		{
+			"file": "uthreads.cpp",
+			"settings":
+			{
+				"buffer_size": 9497,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "tests/mytest1.out",
+			"settings":
+			{
+				"buffer_size": 869,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "Searching 25 files for \"readyQueue\" (case sensitive)\n\nD:\\Code\\course_os\\ex2\\statesManager.cpp:\n   55  	thread->setReadyFrom();\n   56  \n   57: 	readyQueue.push(thread);\n   58  \n   59  	return SUCCESS;\n   ..\n   68  	{\n   69  		thread->resetReadyFrom();\n   70: 		readyQueue.pop();\n   71  	}\n   72  	thread->setState(BLOCKED);\n   ..\n  130  \n  131  void StatesManager::runNext() {\n  132: 	Thread *nextThread = readyQueue.top();\n  133: 	readyQueue.pop();\n  134  \n  135  	nextThread->setState(RUNNING);\n\nD:\\Code\\course_os\\ex2\\statesManager.hpp:\n   24  		std::priority_queue<unsigned int, std::vector<unsigned int>, std::greater<unsigned int> > terminatedTids;\n   25  		\n   26: 		ReadyQueue readyQueue;\n   27  	  	std::map<unsigned int, Thread*> blockedMap;\n   28  \n\nD:\\Code\\course_os\\ex2\\uthreads:\n    <binary>\n\nD:\\Code\\course_os\\ex2\\uthreads.cpp:\n  308  		// Remove from Ready queue\n  309  		thread->resetReadyFrom();\n  310: 		statesManager->readyQueue.pop();\n  311  		break;\n  312  \n\n7 matches across 4 files\n\n\nSearching 25 files for \"resetReadyFrom\" (case sensitive)\n\nD:\\Code\\course_os\\ex2\\pqdemo:\n    <binary>\n\nD:\\Code\\course_os\\ex2\\pqdemo.cpp:\n   49  	// Remove thread 2 from pq\n   50  	printf(\"Removing thread %d from pq...\\n\", th->getTid());\n   51: 	th->resetReadyFrom();\n   52  	pq.pop();\n   53  \n\nD:\\Code\\course_os\\ex2\\statesManager.cpp:\n   67  	if (thread->getState() == READY)\n   68  	{\n   69: 		thread->resetReadyFrom();\n   70  		readyQueue.pop();\n   71  	}\n\nD:\\Code\\course_os\\ex2\\thread.cpp:\n  134  }\n  135  \n  136: void Thread::resetReadyFrom()\n  137  {\n  138  	readyFrom.tv_sec = 0;\n\nD:\\Code\\course_os\\ex2\\thread.hpp:\n   35  \n   36  	void setReadyFrom();\n   37: 	void resetReadyFrom();\n   38  	void setState(State st);\n   39  \n\nD:\\Code\\course_os\\ex2\\uthreads:\n    <binary>\n\nD:\\Code\\course_os\\ex2\\uthreads.cpp:\n  308  	case READY:\n  309  		// Remove from Ready queue\n  310: 		thread->resetReadyFrom();\n  311  		statesManager->readyQueue.pop();\n  312  		break;\n\n9 matches across 7 files\n\n\nSearching 25 files for \"resetReadyFrom\" (case sensitive)\n\nD:\\Code\\course_os\\ex2\\pqdemo:\n    <binary>\n\nD:\\Code\\course_os\\ex2\\pqdemo.cpp:\n   49  	// Remove thread 2 from pq\n   50  	printf(\"Removing thread %d from pq...\\n\", th->getTid());\n   51: 	th->resetReadyFrom();\n   52  	pq.pop();\n   53  \n\nD:\\Code\\course_os\\ex2\\statesManager.cpp:\n   67  	if (thread->getState() == READY)\n   68  	{\n   69: 		thread->resetReadyFrom();\n   70  		readyQueue.pop();\n   71  	}\n\nD:\\Code\\course_os\\ex2\\thread.cpp:\n  134  }\n  135  \n  136: void Thread::resetReadyFrom()\n  137  {\n  138  	readyFrom.tv_sec = 0;\n\nD:\\Code\\course_os\\ex2\\thread.hpp:\n   35  \n   36  	void setReadyFrom();\n   37: 	void resetReadyFrom();\n   38  	void setState(State st);\n   39  \n\nD:\\Code\\course_os\\ex2\\uthreads:\n    <binary>\n\nD:\\Code\\course_os\\ex2\\uthreads.cpp:\n  308  	case READY:\n  309  		// Remove from Ready queue\n  310: 		thread->resetReadyFrom();\n  311  		statesManager->readyQueue.pop();\n  312  		break;\n\n9 matches across 7 files\n\n\nSearching 25 files for \"setReadyFrom\" (case sensitive)\n\nD:\\Code\\course_os\\ex2\\pqdemo:\n    <binary>\n\nD:\\Code\\course_os\\ex2\\pqdemo.cpp:\n   49  	// Remove thread 2 from pq\n   50  	printf(\"Removing thread %d from pq...\\n\", th->getTid());\n   51: 	th->resetReadyFrom();\n   52  	pq.pop();\n   53  \n\nD:\\Code\\course_os\\ex2\\statesManager.cpp:\n   53  \n   54  	thread->setState(READY);\n   55: 	thread->setReadyFrom();\n   56  \n   57  	readyQueue.push(thread);\n   ..\n  164  		ready(prevThread);\n  165  		prevThread->setState(destination);\n  166: 		prevThread->setReadyFrom();\n  167  		break;\n  168  \n\nD:\\Code\\course_os\\ex2\\thread.cpp:\n  121  }\n  122  \n  123: void Thread::setReadyFrom()\n  124  {\n  125  	struct timeval ts;\n  ...\n  134  }\n  135  \n  136: void Thread::resetReadyFrom()\n  137  {\n  138  	readyFrom.tv_sec = 0;\n\nD:\\Code\\course_os\\ex2\\thread.hpp:\n   34  	sigjmp_buf *getEnv();\n   35  \n   36: 	void setReadyFrom();\n   37: 	void resetReadyFrom();\n   38  	void setState(State st);\n   39  \n\nD:\\Code\\course_os\\ex2\\uthreads:\n    <binary>\n\n14 matches across 6 files\n\n\nSearching 23 files for \"incrementTotalQuantums\" (case sensitive)\n\nD:\\Code\\course_os\\ex2\\statesManager.cpp:\n  112  }\n  113  \n  114: void StatesManager::incrementTotalQuantums()\n  115  {\n  116  	totalQuantums++;\n\nD:\\Code\\course_os\\ex2\\statesManager.hpp:\n   54  		void incrementTotalThreadsNum();\n   55  		void decrementTotalThreadsNum();\n   56: 		void incrementTotalQuantums();\n   57  \n   58  		bool isValidTid(int tid);\n\nD:\\Code\\course_os\\ex2\\uthreads:\n    <binary>\n\n5 matches across 3 files\n\n\nSearching 23 files for \"printf\" (case sensitive)\n\nD:\\Code\\course_os\\ex2\\demo_itimer.c:\n   14  {\n   15    gotit = 1;\n   16:   printf(\"Using timer_handler\\n\", sig);\n   17  }\n   18  \n   ..\n   20  {\n   21    static int times = 0;\n   22:   printf(\"Using th2 \");\n   23:   printf(\"%d\\n\", times++);\n   24    if (times % 5 == 0)\n   25    {\n   ..\n   46    }\n   47  \n   48:   printf(\"finished\\n\");\n   49    return 0;\n   50  }\n\nD:\\Code\\course_os\\ex2\\demo_jmp.c:\n   71    int ret_val = sigsetjmp(env[currentThread],0);\n   72  \n   73:   printf(\"SWITCH: ret_val=%d\\n\", ret_val); \n   74    if (ret_val == 1) {\n   75      signal(SIGVTALRM, timer_handler);\n   ..\n   78    }\n   79    currentThread = (currentThread + 1) % 3;\n   80:   printf(\"Thread %d\\n\", currentThread);\n   81  \n   82    signal(SIGVTALRM, timer_handler);\n   ..\n   88  void timer_handler(int sog)\n   89  {\n   90:   printf(\"Signal catched!\\n\");\n   91    switchThreads();\n   92  }\n   ..\n   98    while(1){\n   99      ++i;\n  100:     printf(\"in f (%d)\\n\",i);\n  101      usleep(100000);\n  102    }\n  ...\n  109    while(1){\n  110      ++i;\n  111:     printf(\"in g (%d)\\n\",i);\n  112      if (i % 5 == 0) {\n  113:       printf(\"g: switching\\n\");\n  114        switchThreads();\n  115      }\n\nD:\\Code\\course_os\\ex2\\demojmp:\n    <binary>\n\nD:\\Code\\course_os\\ex2\\demot:\n    <binary>\n\nD:\\Code\\course_os\\ex2\\pqdemo:\n    <binary>\n\nD:\\Code\\course_os\\ex2\\pqdemo.cpp:\n    8   	int k = 0;\n    9   	k++;\n   10:  	printf(\"%d\\n\", k);\n   11   }\n   12  \n   ..\n   45  	pq.push(th);\n   46  \n   47: 	printf(\"pq size is %d\\n\", pq.size());\n   48  \n   49  	// Remove thread 2 from pq\n   50: 	printf(\"Removing thread %d from pq...\\n\", th->getTid());\n   51  	th->resetReadyFrom();\n   52  	pq.pop();\n   ..\n   55  	{\n   56  		Thread *t = pq.top();\n   57: 		printf(\"Thread %d in pq with priority %d\\n\", t->getTid(), t->getPriority());\n   58  		pq.pop();\n   59  	}\n\nD:\\Code\\course_os\\ex2\\uthreads:\n    <binary>\n\nD:\\Code\\course_os\\ex2\\uthreads.cpp:\n   27  		if (i == 0)\n   28  		{\n   29: 			printf(\"Thread %d starts its work.\\n\", uthread_get_tid());\n   30  		}\n   31  		if (i % 1000 == 0)\n   32  		{\n   33: 			printf(\".\", i);\n   34  		}\n   35  	 	 if (i == 1000000000)\n   36  	 	 {\n   37: 	 	 	printf(\"Thread %d finished.\\n\", uthread_get_tid());\n   38  	 	 	uthread_terminate(uthread_get_tid());\n   39  	 	 }\n   ..\n   43  /*int main(int argc, char const *argv[])\n   44  {\n   45: 	printf(\"Entering main\\n\");\n   46  	uthread_init(10000);\n   47: 	printf(\"Inited\\n\");\n   48  \n   49  	int i;\n   ..\n   55  	for (i = 1; i <= 30; ++i)\n   56  	{\n   57: 		printf(\"suspending %d from main\\n\", i);\n   58  		uthread_suspend(i);\n   59  	}\n   ..\n   65  		if (threadsIterator->first != 0)// threadsIterator->second->getState() == BLOCKED)\n   66  		{\n   67: 			printf(\"Tid %d\\tState %d\\n\", threadsIterator->second->getTid(), threadsIterator->second->getState());\n   68  		}\n   69  	}\n   ..\n   71  	for (i = 1; i <= 30; ++i)\n   72  	{\n   73: 		printf(\"resuming %d from main\\n\", i);\n   74  		uthread_resume(i);\n   75  	}\n   76  \n   77: 	printf(\"Finished main\\n\");\n   78  	uthread_terminate(MAIN);\n   79  \n\n34 matches across 8 files\n",
+			"settings":
+			{
+				"buffer_size": 7656,
+				"line_ending": "Windows",
+				"name": "Find Results",
+				"scratch": true
+			}
+		},
+		{
+			"file": "ReadyQueue.cpp",
+			"settings":
+			{
+				"buffer_size": 1233,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "ReadyQueue.hpp",
+			"settings":
+			{
+				"buffer_size": 196,
+				"line_ending": "Windows"
+			}
+		},
+		{
 			"file": "uthreads.h",
 			"settings":
 			{
 				"buffer_size": 900,
 				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "uthreads.cpp",
-			"settings":
-			{
-				"buffer_size": 8824,
-				"line_ending": "Windows"
 			}
 		}
 	],
@@ -343,9 +397,14 @@
 	},
 	"expanded_folders":
 	[
+		"/D/Code/course_os/ex2",
+		"/D/Code/course_os/ex2/tests"
 	],
 	"file_history":
 	[
+		"/D/Code/course_os/ex2/pqdemo.cpp",
+		"/D/Code/course_os/ex2/ReadyQueue.cpp",
+		"/D/Code/course_os/ex2/ReadyQueue.hpp",
 		"/cs/stud/griffonn/safe/os/ex2/pqdemo.cpp",
 		"/cs/stud/griffonn/safe/os/ex2/demo_itimer.c",
 		"/cs/stud/griffonn/Downloads/manager.hpp",
@@ -379,13 +438,14 @@
 	],
 	"find":
 	{
-		"height": 34.0
+		"height": 38.0
 	},
 	"find_in_files":
 	{
 		"height": 90.0,
 		"where_history":
 		[
+			"D:\\Code\\course_os\\ex2",
 			""
 		]
 	},
@@ -394,6 +454,17 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"printf",
+			"incrementTotalQuantums",
+			"setReadyFrom",
+			"printf",
+			"ThreadComparator",
+			"switchThreads",
+			"resetReadyFrom",
+			"readyQueue",
+			"throw",
+			"readyQueue.",
+			"readyQueue.pop()",
 			"printf",
 			"static ",
 			"statesManager->postponeSignals();",
@@ -423,6 +494,7 @@
 		"regex": false,
 		"replace_history":
 		[
+			"compareThreads",
 			"",
 			"SignalManager::postponeSignals();",
 			"SignalManager::hasTimerSignalTriggered()",
@@ -445,7 +517,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 4,
 			"sheets":
 			[
 				{
@@ -461,8 +533,8 @@
 						"selection":
 						[
 							[
-								0,
-								0
+								822,
+								822
 							]
 						],
 						"settings":
@@ -522,10 +594,10 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 212.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 7,
 					"type": "text"
 				},
 				{
@@ -541,8 +613,8 @@
 						"selection":
 						[
 							[
-								0,
-								0
+								2172,
+								2253
 							]
 						],
 						"settings":
@@ -601,33 +673,27 @@
 							"syntax": "Packages/C++/C++.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 1281.0,
+						"translation.y": 2091.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 8,
 					"type": "text"
-				}
-			]
-		},
-		{
-			"selected": 0,
-			"sheets":
-			[
+				},
 				{
 					"buffer": 2,
 					"file": "Makefile",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 687,
+						"buffer_size": 717,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								511,
+								511
 							]
 						],
 						"settings":
@@ -685,34 +751,28 @@
 							"git_savvy.repo_path": "D:/Code/course_os",
 							"syntax": "Packages/Makefile/Makefile.tmLanguage"
 						},
-						"translation.x": 0.0,
-						"translation.y": 180.0,
+						"translation.x": 273.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 11,
 					"type": "text"
-				}
-			]
-		},
-		{
-			"selected": 1,
-			"sheets":
-			[
+				},
 				{
 					"buffer": 3,
 					"file": "statesManager.hpp",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1477,
+						"buffer_size": 1376,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1202,
-								1202
+								736,
+								736
 							]
 						],
 						"settings":
@@ -772,10 +832,10 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 450.0,
+						"translation.y": 399.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
@@ -784,15 +844,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4381,
+						"buffer_size": 3654,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								3257,
+								3257
 							]
 						],
 						"settings":
@@ -852,7 +912,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 1284.0,
+						"translation.y": 2555.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
@@ -935,7 +995,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 12,
 					"type": "text"
 				},
 				{
@@ -1015,17 +1075,425 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 7,
+					"stack_index": 10,
 					"type": "text"
 				}
 			]
 		},
 		{
-			"selected": 1,
+			"selected": 0,
 			"sheets":
 			[
 				{
 					"buffer": 7,
+					"file": "uthreads.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9497,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								7141,
+								7141
+							]
+						],
+						"settings":
+						{
+							"BracketHighlighterBusy": false,
+							"bh_regions":
+							[
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close"
+							],
+							"color_scheme": "Packages/Theme - Afterglow/Afterglow.tmTheme",
+							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\uthreads.cpp",
+							"git_savvy.repo_path": "D:/Code/course_os",
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 5815.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "tests/mytest1.out",
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 869,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								424,
+								424
+							]
+						],
+						"settings":
+						{
+							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\tests\\mytest1.out",
+							"git_savvy.repo_path": "D:/Code/course_os",
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 5,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7656,
+						"regions":
+						{
+							"match":
+							{
+								"flags": 112,
+								"regions":
+								[
+									[
+										143,
+										153
+									],
+									[
+										260,
+										270
+									],
+									[
+										405,
+										415
+									],
+									[
+										431,
+										441
+									],
+									[
+										683,
+										693
+									],
+									[
+										936,
+										946
+									],
+									[
+										1254,
+										1268
+									],
+									[
+										1408,
+										1422
+									],
+									[
+										1535,
+										1549
+									],
+									[
+										1676,
+										1690
+									],
+									[
+										1891,
+										1905
+									],
+									[
+										2243,
+										2257
+									],
+									[
+										2397,
+										2411
+									],
+									[
+										2524,
+										2538
+									],
+									[
+										2665,
+										2679
+									],
+									[
+										2880,
+										2894
+									],
+									[
+										3232,
+										3244
+									],
+									[
+										3373,
+										3385
+									],
+									[
+										3529,
+										3541
+									],
+									[
+										3641,
+										3653
+									],
+									[
+										3737,
+										3749
+									],
+									[
+										3877,
+										3889
+									],
+									[
+										3908,
+										3920
+									],
+									[
+										4191,
+										4213
+									],
+									[
+										4390,
+										4412
+									],
+									[
+										4658,
+										4664
+									],
+									[
+										4768,
+										4774
+									],
+									[
+										4799,
+										4805
+									],
+									[
+										4898,
+										4904
+									],
+									[
+										5056,
+										5062
+									],
+									[
+										5248,
+										5254
+									],
+									[
+										5396,
+										5402
+									],
+									[
+										5512,
+										5518
+									],
+									[
+										5627,
+										5633
+									],
+									[
+										5694,
+										5700
+									],
+									[
+										5973,
+										5979
+									],
+									[
+										6053,
+										6059
+									],
+									[
+										6142,
+										6148
+									],
+									[
+										6303,
+										6309
+									],
+									[
+										6534,
+										6540
+									],
+									[
+										6653,
+										6659
+									],
+									[
+										6737,
+										6743
+									],
+									[
+										6923,
+										6929
+									],
+									[
+										6987,
+										6993
+									],
+									[
+										7089,
+										7095
+									],
+									[
+										7287,
+										7293
+									],
+									[
+										7469,
+										7475
+									],
+									[
+										7561,
+										7567
+									]
+								],
+								"scope": ""
+							}
+						},
+						"selection":
+						[
+							[
+								7290,
+								7290
+							]
+						],
+						"settings":
+						{
+							"detect_indentation": false,
+							"git_savvy.file_path": null,
+							"line_numbers": false,
+							"output_tag": 6,
+							"result_base_dir": "",
+							"result_file_regex": "^([A-Za-z\\\\/<].*):$",
+							"result_line_regex": "^ +([0-9]+):",
+							"scroll_past_end": true,
+							"syntax": "Packages/Default/Find Results.hidden-tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 5719.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "ReadyQueue.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1233,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								704,
+								704
+							]
+						],
+						"settings":
+						{
+							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\ReadyQueue.cpp",
+							"git_savvy.repo_path": "D:/Code/course_os",
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "ReadyQueue.hpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 196,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								167,
+								167
+							]
+						],
+						"settings":
+						{
+							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\ReadyQueue.hpp",
+							"git_savvy.repo_path": "D:/Code/course_os",
+							"syntax": "Packages/C++/C++.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 12,
 					"file": "uthreads.h",
 					"semi_transient": false,
 					"settings":
@@ -1100,87 +1568,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 8,
-					"type": "text"
-				},
-				{
-					"buffer": 8,
-					"file": "uthreads.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 8824,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close"
-							],
-							"color_scheme": "Packages/Theme - Afterglow/Afterglow.tmTheme",
-							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\uthreads.cpp",
-							"git_savvy.repo_path": "D:/Code/course_os",
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1755.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
+					"stack_index": 9,
 					"type": "text"
 				}
 			]
@@ -1188,7 +1576,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 0.0
+		"height": 27.0
 	},
 	"input":
 	{
@@ -1209,18 +1597,6 @@
 				0,
 				2,
 				1
-			],
-			[
-				0,
-				1,
-				1,
-				2
-			],
-			[
-				1,
-				1,
-				2,
-				2
 			]
 		],
 		"cols":
@@ -1232,7 +1608,6 @@
 		"rows":
 		[
 			0.0,
-			0.359067357513,
 			1.0
 		]
 	},
@@ -1249,7 +1624,7 @@
 	"project": "ex2.sublime-project",
 	"replace":
 	{
-		"height": 62.0
+		"height": 72.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -1279,7 +1654,7 @@
 		],
 		"width": 408.0
 	},
-	"selected_group": 3,
+	"selected_group": 1,
 	"settings":
 	{
 	},

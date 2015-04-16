@@ -348,6 +348,7 @@ int uthread_terminate(int tid)
 	if (selfDestroy)
 	{
 		// Terminated last running thread, must switch to next
+		TODO after f ends, g gets into running, but does not work (g q = 8)
 		siglongjmp(*(statesManager->running->getEnv()), 1);
 	}
 

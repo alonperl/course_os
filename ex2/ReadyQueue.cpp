@@ -61,3 +61,37 @@ int ReadyQueue::size()
 {
 	return red.size() + orange.size() + green.size();
 }
+
+std::deque<Thread*>::iterator ReadyQueue::iterator(Priority priority)
+{
+	switch (thread->getPriority())
+	{
+		case RED:
+			return red.begin();
+	
+		case ORANGE:
+			return orange.begin();
+	
+		case GREEN:
+			return green.begin();
+	}
+}
+
+void ReadyQueue::erase(Thread *thread)
+{
+	std::deque<Thread*>::iterator iterator = iterator(thread->getPriority());
+
+	for (; iterator->getTid() != thread->getTid(); iterator++);
+
+	switch (thread->getPriority())
+	{
+		case RED:
+			red.erase(thread);
+	
+		case ORANGE:
+			orange.erase(thread);
+	
+		case GREEN:
+			green.erase(thread);
+	}
+}

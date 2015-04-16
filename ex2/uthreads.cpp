@@ -305,22 +305,21 @@ int uthread_terminate(int tid)
 
 	switch(thread->getState())
 	{
-	case READY:
-		// Remove from Ready queue
-		thread->resetReadyFrom();
-		statesManager->readyQueue.pop();
-		break;
+		case READY:
+			// Remove from Ready queue
+			statesManager->readyQueue.erase(thread);
+			break;
 
-	case RUNNING:
-		// Stop current thread and run next ready thread
-		selfDestroy = true;
-		statesManager->runNext();
-		break;
+		case RUNNING:
+			// Stop current thread and run next ready thread
+			selfDestroy = true;
+			statesManager->runNext();
+			break;
 
-	case BLOCKED:
-		// Remove from blocked
-		statesManager->blockedMap.erase(tid);
-		break;
+		case BLOCKED:
+			// Remove from blocked
+			statesManager->blockedMap.erase(tid);
+			break;
 	}
 
 	statesManager->threadsMap.erase(thread->getTid());
@@ -370,17 +369,17 @@ int uthread_suspend(int tid)
 
 	if (thread->getState() != BLOCKED)
 	{
-		State oldState = thread->getState();
-		statesManager->block(thread);
-
-		if (oldState == RUNNING)
+		if (thread->getState() == RUNNING)
 		{
 			// Get next ready thread and set it as current
-			statesManager->runNext();
+			switchThreads(BLOCKED);
+			/*statesManager->runNext();
 
 			SignalManager::unblockSignals();
-			siglongjmp(*(statesManager->running->getEnv()), CONTINUING);
+			siglongjmp(*(statesManager->running->getEnv()), CONTINUING);*/
 		}
+
+		statesManager->block(thread);
 	}
 
 	// Set handler back

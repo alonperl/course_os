@@ -81,7 +81,7 @@ void ReadyQueue::erase(Thread *thread)
 {
 	std::deque<Thread*>::iterator iterator = iterator(thread->getPriority());
 
-	for (; iterator->getTid() != thread->getTid(); iterator++);
+	for (; (*iterator)->getTid() != thread->getTid(); iterator++);
 
 	switch (thread->getPriority())
 	{

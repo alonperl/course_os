@@ -40,20 +40,9 @@ void work()
 	}
 }
 
-/*int main(int argc, char const *argv[])
+int main(int argc, char const *argv[])
 {
-	if (uthread_init(100) == -1)
-	{
-		return 0;
-	}
-
-	int i = 1;
-	int j = 0;
-	while(1)
-	{
-		cout << uthread_get_quantums(uthread_get_tid()) << "\n";
-	}
-	/*printf("Entering main\n");
+	printf("Entering main\n");
 	uthread_init(10000);
 	printf("Inited\n");
 
@@ -69,6 +58,15 @@ void work()
 		uthread_suspend(i);
 	}
 
+	std::map<unsigned int, Thread*>::iterator threadsIterator = statesManager->threadsMap.begin();
+	for (; threadsIterator != statesManager->threadsMap.end(); ++threadsIterator)
+	{
+		if (threadsIterator->first != 0)// threadsIterator->second->getState() == BLOCKED)
+		{
+			printf("Tid %d\tState %d\n", threadsIterator->second->getTid(), threadsIterator->second->getState());
+		}
+	}
+
 	for (i = 1; i <= 30; ++i)
 	{
 		printf("resuming %d from main\n", i);
@@ -78,8 +76,8 @@ void work()
 	uthread_terminate(MAIN);
 
 	printf("Finished main\n");
-	return 0;*/
-// }
+	return 0;
+}
 
 void f (void)
 {
@@ -135,7 +133,7 @@ void g (void)
 	}
 }
 
-int main(void)
+/*int main(void)
 {
 	if (uthread_init(100) == -1)
 	{
@@ -201,7 +199,7 @@ int main(void)
 	}
 	cout << "end" << endl;
 	return 0;
-}
+}*/
 
 int uthread_init(int quantum_usecs)
 {

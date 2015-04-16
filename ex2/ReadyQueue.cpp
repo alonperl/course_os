@@ -2,20 +2,20 @@
 
 bool compareThreads(Thread *t1, Thread *t2) {
 	if (t1->getPriority() == t2->getPriority()) {
-		if (t1->getReadyFrom().tv_sec > t2->getReadyFrom().tv_sec)
+		if (t1->getReadyFrom().tv_sec < t2->getReadyFrom().tv_sec)
 			return true; /* Less than. */
-		else if (t1->getReadyFrom().tv_sec < t2->getReadyFrom().tv_sec)
+		else if (t1->getReadyFrom().tv_sec > t2->getReadyFrom().tv_sec)
 			return false; /* Greater than. */
-		else if (t1->getReadyFrom().tv_usec > t2->getReadyFrom().tv_usec)
-			return true; /* Less than. */
 		else if (t1->getReadyFrom().tv_usec < t2->getReadyFrom().tv_usec)
+			return true; /* Less than. */
+		else if (t1->getReadyFrom().tv_usec > t2->getReadyFrom().tv_usec)
 			return false; /* Greater than. */
 		else
 			return false; /* Equal. Cannot happen. */
 	}
 
 	// TODO: Recheck conditions:
-	return t1->getPriority() > t2->getPriority();
+	return t1->getPriority() < t2->getPriority();
 }
 
 void ReadyQueue::pop()

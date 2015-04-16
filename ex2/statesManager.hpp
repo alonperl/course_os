@@ -12,11 +12,6 @@
 #endif
 #include "ReadyQueue.hpp"
 
-struct ThreadComparator
-{
-	bool operator()(Thread *t1, Thread *t2);
-};
-
 class StatesManager
 {
 

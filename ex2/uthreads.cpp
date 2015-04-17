@@ -34,7 +34,7 @@ void f (void)
 {
 	while(1)
 	{
-		cout << "f";
+//		cout << "f" << endl;
 		uthread_suspend(1);
 	}
 }
@@ -43,7 +43,7 @@ void g (void)
 {
 	while(1)
 	{
-		cout << "g";
+//		cout << "g" << endl;
 		uthread_suspend(2);
 	}
 }
@@ -52,7 +52,7 @@ void h (void)
 {
 	while(1)
 	{
-		cout << "h";
+//		cout << "h" << endl;
 		uthread_suspend(3);
 	}
 }
@@ -311,8 +311,10 @@ int uthread_suspend(int tid)
 			SignalManager::unblockSignals();
 			siglongjmp(*(statesManager->running->getEnv()), CONTINUING);*/
 		}
-
-		statesManager->block(thread);
+		else
+		{
+			statesManager->block(thread);
+		}
 	}
 
 	// Set handler back

@@ -182,6 +182,7 @@ printf("Switching from %d to %d\n", prevtid, running->getTid());
 	running->incrementQuantums();
 	incrementTotalQuantums();
 
+	// TODO: maybe it is redundant because anyway long jumps to set and there is unblock
 	// Set handler back
 	SignalManager::unblockSignals();
 	SignalManager::startTimer(staticSignalHandler, getQuantum());

@@ -117,8 +117,8 @@ bool Thread::isValidPriority(Priority pr)
 
 void Thread::incrementQuantums()
 {
-	printf("Incrementing quantum of %d to %d\n", tid, quantums);
 	quantums++;
+	printf("Incrementing quantum of %d to %d\n", tid, quantums);
 }
 
 void Thread::setReadyFrom()

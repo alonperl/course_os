@@ -286,22 +286,11 @@ printf("%d terminates %d\n", uthread_get_tid(), tid);
 		{
 			if (threadsIterator->first != 0)
 			{
-				existingThreads[counter++] = threadsIterator->first;
+				delete threadsIterator->second;
 			}
 		}
 
-		printf("Need to terminate: ");
-		counter = 0;
-		for (; counter  < totalThreadNum - 1; counter ++)
-		{
-			printf("%d ", existingThreads[counter]);
-		}		
-
-		counter = 0;
-		for (; counter  < totalThreadNum - 1; counter ++)
-		{
-			uthread_terminate(existingThreads[counter]);
-		}
+		exit(0);
 	}
 
 	Thread *thread = statesManager->getThread(tid);
@@ -333,12 +322,6 @@ printf("%d terminates %d\n", uthread_get_tid(), tid);
 	delete thread;
 
 	statesManager->decrementTotalThreadsNum();
-
-	// If it is the main thread, exit
-	if (tid == 0)
-	{
-		exit(0);
-	}
 
 	// If the quantum has ended till now and thread did not kill itself
 	// , switch threads now.

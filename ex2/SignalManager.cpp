@@ -43,5 +43,6 @@ void SignalManager::stopTimer()
 
 void SignalManager::staticSignalHandler(int sig)
 {
+	(void)(sig); // unused, suppress compiler warning
 	(*Scheduler::getInstance()).switchThreads(READY);
 }

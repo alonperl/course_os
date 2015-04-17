@@ -153,7 +153,7 @@ int uthread_terminate(int tid)
 
 		case BLOCKED:
 			// Remove from blocked
-			scheduler->getBlockedMap().erase(tid);
+			scheduler->getBlockedMap()->erase(tid);
 			break;
 
 		default:

@@ -342,7 +342,7 @@ int uthread_resume(int tid)
 	// If the thread is not blocked, do nothing.
 	if (thread->getState() == BLOCKED)
 	{
-		printf("%d resumed 1\n", uthread_get_tid());
+		printf("%d resumed %d\n", uthread_get_tid(), tid);
 		statesManager->ready(thread);
 		statesManager->blockedMap.erase(tid);
 	}

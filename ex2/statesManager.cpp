@@ -172,10 +172,10 @@ int prevtid = running->getTid();
 		prevThread->setState(destination);
 		break;
 	}
+printf("Switching from %d to %d\n", prevtid, running->getTid());
 	running->incrementQuantums();
 	incrementTotalQuantums();
 
-printf("Switching from %d to %d\n", prevtid, running->getTid());
 	// Set handler back
 	SignalManager::unblockSignals();
 	SignalManager::startTimer(staticSignalHandler, getQuantum());

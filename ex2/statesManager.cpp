@@ -142,9 +142,13 @@ void StatesManager::switchThreads(State destination) {
 	SignalManager::stopTimer();
 int prevtid = running->getTid();
 	if (readyQueue.size() == 0) {
+		// Single thread exists, no need to switch
 		running->incrementQuantums();
 		incrementTotalQuantums();
+
+		SignalManager::unblockSignals();
 		SignalManager::startTimer(staticSignalHandler, getQuantum());
+
 		return;
 	}
 

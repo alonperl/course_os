@@ -70,8 +70,11 @@ int main(void)
 
 	while(uthread_get_total_quantums() < 10)
 	{
+		printf("Resuming 1\n");
 		uthread_resume(1);
+		printf("Resuming 2\n");
 		uthread_resume(2);
+		printf("Resuming 3\n");
 		uthread_resume(3);
 	}
 

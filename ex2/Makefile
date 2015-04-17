@@ -30,13 +30,13 @@ test2:
 	$(CC) $(CFLAGS) -o test2 tests/test2.cpp $(TARGETS)
 	./test2 > test2.out
 	diff test2.out tests/test2.out && echo ::: Passed 2 ::: || ::: Failed 2 :::
-	rm -rf test1.out test2
+	rm -rf test2.out test2
 
 test3:
 	$(CC) $(CFLAGS) -o test3 tests/test3.cpp $(TARGETS)
 	./test3 > test3.out
 	diff test3.out tests/test3.out && echo ::: Passed 3 ::: || ::: Failed 3 :::
-	rm -rf test1.out test3
+	rm -rf test3.out test3
 
 test4:
 	$(CC) $(CFLAGS) -o test4 tests/test4.cpp $(TARGETS)

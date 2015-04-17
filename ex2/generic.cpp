@@ -14,7 +14,6 @@ template <typename Type, typename Compare>
 class PQueue
 {
 	public:
-		PQueue(Compare &comp);
 		Type get();
 		void set(Type t);
 
@@ -22,11 +21,6 @@ class PQueue
 		std::list<Type*> list;
 		Compare comp;
 };
-
-PQueue<typename Type, typename Compare>::PQueue(Compare c)
-{
-	comp = c;
-}
 
 template <typename Type, typename Compare>
 void PQueue<Type, compare>::set(Type t)

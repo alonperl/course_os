@@ -146,7 +146,6 @@ int main(void)
 	int j = 0;
 	while(1)
 	{
-		printf(".");
 		if (i == uthread_get_quantums(uthread_get_tid()))
 		{
 			cout << "m" << "  q:  " << i << endl;

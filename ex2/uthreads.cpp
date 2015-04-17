@@ -70,12 +70,12 @@ int main(void)
 
 	while(uthread_get_total_quantums() < 10)
 	{
-		printf("Resuming 1\n");
 		uthread_resume(1);
-		printf("Resuming 2\n");
+		printf("Resumed 1\n");
 		uthread_resume(2);
-		printf("Resuming 3\n");
+		printf("Resumed 2\n");
 		uthread_resume(3);
+		printf("Resumed 3\n");
 	}
 
 	cout << uthread_get_quantums(0) << " + " << endl;

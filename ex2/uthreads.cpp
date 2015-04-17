@@ -18,11 +18,12 @@
 
 #define LIBERR "thread library error: "
 
+#define LIBERR_INVALID_QUANTUM ": invalid quantum\n"
 #define LIBERR_INIT_CALLED ": cannot call init more then once\n"
 #define LIBERR_MAX_THREAD_NUM ": maximum threads reached\n"
 #define LIBERR_INVALID_TID ": no such thread\n"
 #define LIBERR_THREAD_CREATION_FAILED ": cannot create thread object\n"
-#define LIBERR_SUSPEND_ONLY_THREAD ": cannot suspend thread if it is the only one existing\n"
+#define LIBERR_SUSPEND_ONLY_THREAD ": cannot suspend main thread\n"
 
 
 StatesManager *statesManager;
@@ -129,6 +130,12 @@ int main(void)
 
 int uthread_init(int quantum_usecs)
 {
+	if (quantum_usecs <= 0)
+	{
+		cerr << LIBERR << __FUNCTION__ << LIBERR_INVALID_QUANTUM;
+		return FAIL;
+	}
+
 	statesManager = StatesManager::getInstance();
 
 	// If init was called before, statesManager will contain at least main thread

@@ -16,8 +16,14 @@
 #define CONTINUING 1
 #define MAIN 0
 
-#define LIBERR_INIT_CALLED "thread library error: cannot call init more then once\n"
-#define LIBERR_MAX_THREAD_NUM "thread library error: maximum threads\n"
+#define LIBERR "thread library error: "
+
+#define LIBERR_INIT_CALLED ": cannot call init more then once\n"
+#define LIBERR_MAX_THREAD_NUM ": maximum threads reached\n"
+#define LIBERR_INVALID_TID ": no such thread\n"
+#define LIBERR_THREAD_CREATION_FAILED ": cannot create thread object\n"
+#define LIBERR_SUSPEND_ONLY_THREAD ": cannot suspend thread if it is the only one existing\n"
+
 
 StatesManager *statesManager;
 using namespace std;
@@ -93,31 +99,31 @@ int main(void)
 	}
 
 
-	// uthread_terminate(-1);
-	// uthread_suspend(-1);
-	// uthread_resume(-1);
-	// uthread_get_quantums(-1);
+	uthread_terminate(-1);
+	uthread_suspend(-1);
+	uthread_resume(-1);
+	uthread_get_quantums(-1);
 
-	// uthread_terminate(1);
-	// uthread_suspend(1);
-	// uthread_resume(1);
-	// uthread_get_quantums(1);
+	uthread_terminate(1);
+	uthread_suspend(1);
+	uthread_resume(1);
+	uthread_get_quantums(1);
 
-	// uthread_suspend(0);
+	uthread_suspend(0);
 
-	// uthread_spawn(f,GREEN);
-	// uthread_terminate(1);
+	uthread_spawn(f,GREEN);
+	uthread_terminate(1);
 
-	// uthread_terminate(1);
-	// uthread_suspend(1);
-	// uthread_resume(1);
-	// uthread_get_quantums(1);
+	uthread_terminate(1);
+	uthread_suspend(1);
+	uthread_resume(1);
+	uthread_get_quantums(1);
 
-	// uthread_init(0);
-	// uthread_init(-5);
+	uthread_init(0);
+	uthread_init(-5);
 
 
-	// uthread_terminate(0);
+	uthread_terminate(0);
 	return 0;
 }
 
@@ -128,7 +134,7 @@ int uthread_init(int quantum_usecs)
 	// If init was called before, statesManager will contain at least main thread
 	if (statesManager->getTotalThreadsNum() > 0)
 	{
-		cerr << LIBERR_INIT_CALLED;
+		cerr << LIBERR << __FUNCTION__ << LIBERR_INIT_CALLED;
 		return FAIL;
 	}
 
@@ -151,7 +157,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 
 	if (statesManager->getTotalThreadsNum() >= MAX_THREAD_NUM)
 	{
-		cerr << LIBERR_MAX_THREAD_NUM;
+		cerr << LIBERR << __FUNCTION__ << LIBERR_MAX_THREAD_NUM;
 		return FAIL;
 	}
 	
@@ -164,6 +170,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 	}
 	catch (int e)
 	{
+		cerr << LIBERR << __FUNCTION__ << LIBERR_THREAD_CREATION_FAILED;
 		return FAIL;
 	}
 
@@ -194,6 +201,7 @@ int uthread_terminate(int tid)
 
 	if (!statesManager->isValidTid(tid))
 	{
+		cerr << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
 		SignalManager::unblockSignals();
 		return FAIL;
 	}
@@ -281,8 +289,15 @@ int uthread_suspend(int tid)
 	SignalManager::postponeSignals();
 
 	// If got invalid tid or if there if only one existing thread, cannot suspend
-	if (!statesManager->isValidTid(tid) || statesManager->getTotalThreadsNum() == 1)
+	if (!statesManager->isValidTid(tid))
 	{
+		cerr << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
+		return FAIL;
+	}
+
+	if (statesManager->getTotalThreadsNum() == 1)
+	{
+		cerr << LIBERR << __FUNCTION__ << LIBERR_SUSPEND_ONLY_THREAD;
 		return FAIL;
 	}
 
@@ -322,6 +337,7 @@ int uthread_resume(int tid)
 
 	if (!statesManager->isValidTid(tid))
 	{
+		cerr << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
 		return FAIL;
 	}
 
@@ -370,6 +386,12 @@ int uthread_get_total_quantums()
 /* Get the number of thread quantums */
 int uthread_get_quantums(int tid)
 {
+	if (!statesManager->isValidTid(tid))
+	{
+		cerr << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
+		return FAIL;
+	}
+	
 	// SignalManager::postponeSignals();
 	return statesManager->getThread(tid)->getQuantums();
 	// SignalManager::unblockSignals();

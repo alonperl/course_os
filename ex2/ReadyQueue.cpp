@@ -20,18 +20,18 @@ bool compareThreads(Thread *t1, Thread *t2) {
 
 void ReadyQueue::pop()
 {
-	if (!ready.empty())
+	if (!_ready.empty())
 	{
-		ready.pop_front();
-		ready.sort(compareThreads);
+		_ready.pop_front();
+		_ready.sort(compareThreads);
 	}
 }
 
 Thread *ReadyQueue::top()
 {
-	if (!ready.empty())
+	if (!_ready.empty())
 	{
-		return ready.front();
+		return _ready.front();
 	}
 
 	return NULL;
@@ -39,23 +39,23 @@ Thread *ReadyQueue::top()
 
 void ReadyQueue::push(Thread *thread)
 {
-	ready.push_back(thread);
-	ready.sort(compareThreads);
+	_ready.push_back(thread);
+	_ready.sort(compareThreads);
 }
 
 int ReadyQueue::size()
 {
-	return ready.size();
+	return _ready.size();
 }
 
 void ReadyQueue::erase(Thread *thread)
 {
-	for (std::list<Thread*>::iterator it=ready.begin(); it != ready.end(); ++it)
+	for (std::list<Thread*>::iterator it=_ready.begin(); it != _ready.end(); ++it)
 	{
 		if ((*it)->getTid() == thread->getTid())
 		{
-			ready.erase(it);
-			ready.sort(compareThreads);
+			_ready.erase(it);
+			_ready.sort(compareThreads);
 			break;
 		}
 	}

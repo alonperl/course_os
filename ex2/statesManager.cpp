@@ -1,4 +1,4 @@
-#include "statesManager.hpp"
+#include "StatesManager.hpp"
 
 #define MEGA 100000
 #define CONTINUING 1

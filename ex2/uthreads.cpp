@@ -10,8 +10,8 @@
 #include <iostream>
 
 #include "uthreads.h"
-#include "statesManager.hpp"
-#include "signalManager.hpp"
+#include "StatesManager.hpp"
+#include "SignalManager.hpp"
 
 #define CONTINUING 1
 #define MAIN 0

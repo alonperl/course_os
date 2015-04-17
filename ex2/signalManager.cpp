@@ -1,5 +1,5 @@
-#include "signalManager.hpp"
-#include "statesManager.hpp"
+#include "SignalManager.hpp"
+#include "StatesManager.hpp"
 
 sigset_t SignalManager::blockedSignals;
 sigset_t SignalManager::pendingSignals;

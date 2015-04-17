@@ -4,8 +4,8 @@
 #include <map>
 #include <queue>
 #include <setjmp.h>
-#include "thread.hpp"
-#include "signalManager.hpp"
+#include "Thread.hpp"
+#include "SignalManager.hpp"
 #include "ReadyQueue.hpp"
 
 class StatesManager

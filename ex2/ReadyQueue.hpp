@@ -1,5 +1,5 @@
 #include <list>
-#include "thread.hpp"
+#include "Thread.hpp"
 
 class ReadyQueue
 {
@@ -11,5 +11,6 @@ public:
 	void push(Thread *thread);
 	void erase(Thread *thread);
 
-	std::list<Thread*> ready;
+private:
+	std::list<Thread*> _ready;
 };

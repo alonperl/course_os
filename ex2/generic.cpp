@@ -30,7 +30,7 @@ void PQueue<Type, Compare>::set(Type t)
 }
 
 template <typename Type, typename Compare>
-Type PQueue<Type, Compare>::get(Type t)
+Type PQueue<Type, Compare>::get()
 {
 	return list.front();
 }

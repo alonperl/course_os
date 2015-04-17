@@ -80,7 +80,7 @@ int Scheduler::block(Thread *thread)
 	}
 
 	thread->setState(BLOCKED);
-	getBlockedMap()->at(thread->getTid()) = thread;
+	_blockedMap[thread->getTid()] = thread;
 	return SUCCESS;
 }
 

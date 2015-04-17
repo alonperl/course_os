@@ -29,11 +29,11 @@ class Scheduler
 		itimerval *getQuantum();
 
 		std::priority_queue<unsigned int, std::vector<unsigned int>,
-							std::greater<unsigned int> > getTidsPool();
+							std::greater<unsigned int> > *getTidsPool();
 
-		ReadyQueue getReadyQueue();
-		std::map<unsigned int, Thread*> getBlockedMap();
-		std::map<unsigned int, Thread*> getThreadsMap();
+		ReadyQueue *getReadyQueue();
+		std::map<unsigned int, Thread*> *getBlockedMap();
+		std::map<unsigned int, Thread*> *getThreadsMap();
 
 		Thread* getRunning();
 		void setRunning(Thread *thread);

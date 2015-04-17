@@ -48,7 +48,7 @@ int uthread_init(int quantum_usecs)
 	scheduler->setQuantum(quantum_usecs);
 
 	uthread_spawn(NULL, ORANGE);
-	scheduler->threadsMap[MAIN]->incrementQuantums();
+	scheduler->getThreadsMap()[MAIN]->incrementQuantums();
 	scheduler->incrementTotalQuantums();
 
 	scheduler->runNext();
@@ -88,7 +88,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 	if (thread != NULL)
 	{
 		scheduler->ready(thread);
-		scheduler->threadsMap[newTid] = thread;
+		scheduler->getThreadsMap()[newTid] = thread;
 	}
 
 	scheduler->incrementTotalThreadsNum();
@@ -122,12 +122,12 @@ int uthread_terminate(int tid)
 	// Terminating main
 	if (tid == 0)
 	{
-		std::map<unsigned int, Thread*>::iterator threadsIterator = scheduler->threadsMap.begin();
-		for (; threadsIterator != scheduler->threadsMap.end(); ++threadsIterator)
+		std::map<unsigned int, Thread*>::iterator threadIter = scheduler->getThreadsMap().begin();
+		for (; threadIter != scheduler->getThreadsMap().end(); ++threadIter)
 		{
-			if (threadsIterator->first != 0)
+			if (threadIter->first != 0)
 			{
-				delete threadsIterator->second;
+				delete threadIter->second;
 			}
 		}
 
@@ -142,7 +142,7 @@ int uthread_terminate(int tid)
 	{
 		case READY:
 			// Remove from Ready queue
-			scheduler->readyQueue.erase(thread);
+			scheduler->getReadyQueue().erase(thread);
 			break;
 
 		case RUNNING:
@@ -153,15 +153,15 @@ int uthread_terminate(int tid)
 
 		case BLOCKED:
 			// Remove from blocked
-			scheduler->blockedMap.erase(tid);
+			scheduler->getBlockedMap().erase(tid);
 			break;
 
 		default:
 			break;
 	}
 
-	scheduler->threadsMap.erase(thread->getTid());
-	scheduler->terminatedTids.push(thread->getTid());
+	scheduler->getThreadsMap().erase(thread->getTid());
+	scheduler->getTidsPool().push(thread->getTid());
 
 	delete thread;
 
@@ -176,12 +176,12 @@ int uthread_terminate(int tid)
 
 	if (selfDestroy)
 	{
-		scheduler->running->incrementQuantums();
+		scheduler->getRunning()->incrementQuantums();
 		scheduler->incrementTotalQuantums();
 
 		// Terminated last running thread, must switch to next
 		// TODO after f ends, g gets into running, but does not work (g q = 8)
-		siglongjmp(*(scheduler->running->getEnv()), 1);
+		siglongjmp(*(scheduler->getRunning()->getEnv()), 1);
 	}
 
 	return 0;
@@ -259,7 +259,7 @@ int uthread_resume(int tid)
 	{
 		// printf("%d resumed %d\n", uthread_get_tid(), tid);
 		scheduler->ready(thread);
-		scheduler->blockedMap.erase(tid);
+		scheduler->getBlockedMap().erase(tid);
 	}
 
 	thread = NULL;
@@ -280,13 +280,13 @@ int uthread_resume(int tid)
 /* Get the id of the calling thread */
 int uthread_get_tid()
 {
-	return Scheduler::getInstance()->running->getTid();
+	return Scheduler::getInstance()->getRunning()->getTid();
 }
 
 /* Get the total number of library quantums */
 int uthread_get_total_quantums()
 {
-	return scheduler->getTotalQuantums();
+	return Scheduler::getInstance()->getTotalQuantums();
 }
 
 /* Get the number of thread quantums */

@@ -112,24 +112,24 @@ itimerval *Scheduler::getQuantum()
 }
 
 std::priority_queue<unsigned int, std::vector<unsigned int>,
-					std::greater<unsigned int> > Scheduler::getTidsPool()
+					std::greater<unsigned int> > *Scheduler::getTidsPool()
 {
-	return _tidsPool;
+	return &_tidsPool;
 }
 
-ReadyQueue Scheduler::getReadyQueue()
+ReadyQueue *Scheduler::getReadyQueue()
 {
-	return _readyQueue;
+	return &_readyQueue;
 }
 
-std::map<unsigned int, Thread*> Scheduler::getBlockedMap()
+std::map<unsigned int, Thread*> *Scheduler::getBlockedMap()
 {
-	return _blockedMap;
+	return &_blockedMap;
 }
 
-std::map<unsigned int, Thread*> Scheduler::getThreadsMap()
+std::map<unsigned int, Thread*> *Scheduler::getThreadsMap()
 {
-	return _threadsMap;
+	return &_threadsMap;
 }
 
 Thread* Scheduler::getRunning()

@@ -16,6 +16,7 @@
 #define CONTINUING 1
 #define MAIN 0
 
+#define LIBERR_INIT_CALLED "thread library error: cannot call init more then once\n"
 #define LIBERR_MAX_THREAD_NUM "thread library error: maximum threads\n"
 
 StatesManager *statesManager;
@@ -133,7 +134,7 @@ int uthread_init(int quantum_usecs)
 	// If init was called before, statesManager will contain at least main thread
 	if (statesManager->getTotalThreadsNum() > 0)
 	{
-		cerr << LIBERR_MAX_THREAD_NUM;
+		cerr << LIBERR_INIT_CALLED;
 		return FAIL;
 	}
 
@@ -156,6 +157,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 
 	if (statesManager->getTotalThreadsNum() >= MAX_THREAD_NUM)
 	{
+		cerr << LIBERR_MAX_THREAD_NUM;
 		return FAIL;
 	}
 	

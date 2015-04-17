@@ -1,0 +1,754 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"TAR",
+				"TARGETS"
+			],
+			[
+				"map",
+				"mapThread"
+			],
+			[
+				"_ma",
+				"_threadsMap"
+			],
+			[
+				"qua",
+				"quantum_usecs"
+			],
+			[
+				"getR",
+				"getRunning"
+			],
+			[
+				"getT",
+				"getTidsPool"
+			],
+			[
+				"getTh",
+				"getThreadsMap"
+			],
+			[
+				"uthg",
+				"uthread_get_tid"
+			],
+			[
+				"threads",
+				"threadsMap"
+			],
+			[
+				"total",
+				"totalQuantums"
+			],
+			[
+				"pri",
+				"prevtid"
+			],
+			[
+				"qu",
+				"quantum_usecs"
+			],
+			[
+				"INVA",
+				"LIBERR_INVALID_TID"
+			],
+			[
+				"LIB",
+				"LIBERR_MAX_THREAD_NUM"
+			],
+			[
+				"rea",
+				"ReadyQueue"
+			],
+			[
+				"thread",
+				"thread.hpp"
+			],
+			[
+				"getI",
+				"getTid"
+			],
+			[
+				"ready",
+				"readyQueue"
+			],
+			[
+				"read",
+				"readyQueue"
+			],
+			[
+				"thr",
+				"threadsIterator"
+			],
+			[
+				"inc",
+				"incrementQuantums"
+			],
+			[
+				"uth",
+				"uthread_terminate"
+			],
+			[
+				"thI",
+				"threadsIterator"
+			],
+			[
+				"thre",
+				"threadsMap"
+			],
+			[
+				"blocke",
+				"blockedSignals"
+			],
+			[
+				"getQ",
+				"getQuantum"
+			],
+			[
+				"stat",
+				"staticSignalHandler"
+			],
+			[
+				"signa",
+				"signalManager"
+			],
+			[
+				"wor",
+				"workMain"
+			],
+			[
+				"tv",
+				"tv_sec"
+			],
+			[
+				"swi",
+				"switch"
+			],
+			[
+				"ol",
+				"oldState"
+			],
+			[
+				"has",
+				"hasTimerSignalTriggered"
+			],
+			[
+				"unb",
+				"unblockSignals"
+			],
+			[
+				"pos",
+				"postponeSignals"
+			],
+			[
+				"bloce",
+				"blockedSignals"
+			],
+			[
+				"SIG",
+				"SIGVTALRM"
+			],
+			[
+				"s",
+				"stdio"
+			],
+			[
+				"stop",
+				"stopTimer"
+			],
+			[
+				"swit",
+				"switchThreads"
+			],
+			[
+				"signal",
+				"signalHandler"
+			],
+			[
+				"sta",
+				"statesManager"
+			],
+			[
+				"tota",
+				"totalQuantums"
+			],
+			[
+				"uthread",
+				"uthread_spawn"
+			],
+			[
+				"sw",
+				"switchThreads"
+			],
+			[
+				"get",
+				"getEnv"
+			],
+			[
+				"tim",
+				"timestamp"
+			],
+			[
+				"next",
+				"nextThread"
+			],
+			[
+				"run",
+				"running"
+			],
+			[
+				"state",
+				"statesManager"
+			],
+			[
+				"the",
+				"threadEnv"
+			],
+			[
+				"time",
+				"time_t"
+			],
+			[
+				"getP",
+				"getPriority"
+			],
+			[
+				"State",
+				"StatesManager"
+			],
+			[
+				"in",
+				"instance"
+			],
+			[
+				"S",
+				"StatesManager::run"
+			],
+			[
+				"Stat",
+				"StatesManager"
+			],
+			[
+				"Sta",
+				"StatesManager"
+			],
+			[
+				"new",
+				"newTid"
+			],
+			[
+				"q",
+				"quantumUsecs"
+			],
+			[
+				"tot",
+				"totalThreadsNum"
+			],
+			[
+				"to",
+				"totalThreadsNum"
+			],
+			[
+				"pro",
+				"programCounter"
+			],
+			[
+				"ret",
+				"return"
+			],
+			[
+				"add",
+				"address_t"
+			],
+			[
+				"R",
+				"READY"
+			],
+			[
+				"th",
+				"thread2"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"contents": "CC=g++\nCFLAGS = -Wall -Wextra $(INCS)\n\nAR=ar rvs\nTAR=tar -cvs\nTARNAME=ex2.tar\n\nTARGETS=uthreads.cpp Thread.cpp Scheduler.cpp SignalManager.cpp PriorityQueue.cpp\nLIBUTHREADS = libuthreads.a\n\nTARSRCS=$(TARGETS) Makefile README\n\nall: uthreads.a\n\nuthreads.o: $(TARGETS)\n	$(CC) $(CFLAGS) -c $(TARGETS)\n\nuthreads.a: uthreads.o\n	$(AR) uthreads.a uthreads.o\n\ntests: test1 test2 test3 test4 test5\n\ntest1:\n	echo off\n	$(CC) $(CFLAGS) -o test1 tests/test1.cpp $(TARGETS)\n	./test1 > test1.out\n	diff test1.out tests/test1.out && echo ::: Passed 1 ::: || echo ::: Failed 1 :::\n	rm -rf test1.out test1\n\ntest2:\n	echo off\n	$(CC) $(CFLAGS) -o test2 tests/test2.cpp $(TARGETS)\n	./test2 > test2.out\n	diff test2.out tests/test2.out && echo ::: Passed 2 ::: || echo ::: Failed 2 :::\n	rm -rf test2.out test2\n\ntest3:\n	echo off\n	$(CC) $(CFLAGS) -o test3 tests/test3.cpp $(TARGETS)\n	./test3 > test3.out\n	diff test3.out tests/test3.out && echo ::: Passed 3 ::: || echo ::: Failed 3 :::\n	rm -rf test3.out test3\n\ntest4:\n	echo off\n	$(CC) $(CFLAGS) -o test4 tests/test4.cpp $(TARGETS)\n	./test4 > test4.out\n	diff test4.out tests/test4.out && echo ::: Passed 4 ::: || echo ::: Failed 4 :::\n	rm -rf test4.out test4\n\ntest5:\n	echo off\n	$(CC) $(CFLAGS) -o test5 tests/test5.cpp $(TARGETS)\n	./test5 > test5.out\n	diff test5.out tests/test5.out && echo ::: Passed 5 ::: || echo ::: Failed 5 :::\n	rm -rf test5.out test5\n\nclean:\n	rm -rf uthreads.o uthreads.a\n\ntar:\n	$(TAR) $(TARNAME) $(TARSRCS)\n\n.PHONY: all",
+			"file": "Makefile",
+			"file_size": 1472,
+			"file_write_time": 130737802894058469,
+			"settings":
+			{
+				"buffer_size": 1464,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/D/Code/bitterdb/src/similaritySearch/run.sh",
+			"settings":
+			{
+				"buffer_size": 2714,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "uthreads.cpp",
+			"settings":
+			{
+				"buffer_size": 6555,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 378.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"rem",
+				"Package Control: Remove Package"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 521.0
+	},
+	"console":
+	{
+		"height": 125.0,
+		"history":
+		[
+			"import urllib.request,os; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); open(os.path.join(ipp, pf), 'wb').write(urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ','%20')).read())",
+			"import urllib.request,os; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); open(os.path.join(ipp, pf), 'wb').write(urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ','%20')).read()"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/D/Code/course_os/ex2",
+		"/D/Code/course_os/ex2/tests"
+	],
+	"file_history":
+	[
+		"/D/Code/course_os/ex2/Scheduler.cpp",
+		"/D/Code/course_os/ex2/Scheduler.hpp",
+		"/D/Code/course_os/ex2/ReadyQueue.cpp",
+		"/D/Code/course_os/ex2/ReadyQueue.hpp",
+		"/D/Code/course_os/ex2/uthreads.cpp",
+		"/D/Code/course_os/ex2/SignalManager.cpp",
+		"/D/Code/course_os/ex2/tests/test5.cpp",
+		"/D/Code/course_os/ex2/codingStyleErrs",
+		"/D/Code/course_os/ex2/Thread.cpp",
+		"/D/Code/course_os/ex2/Thread.hpp",
+		"/D/Code/course_os/ex2/uthreads",
+		"/D/Code/course_os/ex2/SignalManager.hpp",
+		"/D/Code/course_os/ex2/StatesManager.cpp",
+		"/D/Code/course_os/ex2/StatesManager.hpp",
+		"/D/Code/course_os/ex2/Makefile",
+		"/D/Code/course_os/ex2/thread.hpp",
+		"/D/Code/course_os/ex2/thread.cpp",
+		"/D/Code/course_os/ex2/signalManager.cpp",
+		"/D/Code/course_os/ex2/signalManager.hpp",
+		"/D/Code/course_os/ex2/hw_specific.h",
+		"/D/Code/course_os/ex2/uthreads.h",
+		"/D/Code/course_os/ex2/statesManager.hpp",
+		"/D/Code/course_os/ex2/statesManager.cpp",
+		"/D/Code/course_os/ex2/tests/mytest5.out",
+		"/D/Code/course_os/ex2/tests/mytest4.out",
+		"/D/Code/course_os/ex2/tests/test2.cpp",
+		"/D/Code/course_os/ex2/tests/mytest1.out",
+		"/D/Code/course_os/ex2/pqdemo.cpp",
+		"/cs/stud/griffonn/safe/os/ex2/pqdemo.cpp",
+		"/cs/stud/griffonn/safe/os/ex2/demo_itimer.c",
+		"/cs/stud/griffonn/Downloads/manager.hpp",
+		"/cs/stud/griffonn/Downloads/myThread.cpp",
+		"/cs/stud/griffonn/Downloads/myThread.hpp",
+		"/cs/stud/griffonn/Downloads/uthreads.cpp",
+		"/cs/stud/griffonn/safe/os/ex2/demo_jmp.c",
+		"/cs/stud/griffonn/Downloads/manager.cpp",
+		"/cs/stud/griffonn/safe/os/ex2/ex2.sublime-project",
+		"/cs/stud/griffonn/safe/os/ex2/Makefile",
+		"/a/fr-05/vol/prime/stud/griffonn/st2/Data/Packages/User/SublimeGDB.sublime-settings",
+		"/a/fr-05/vol/prime/stud/griffonn/st2/Data/Packages/SublimeGDB/SublimeGDB.sublime-settings",
+		"/cs/stud/griffonn/safe/os/ex2/sigaction_demo.c",
+		"/cs/stud/griffonn/safe/os/ex2/numtest.c",
+		"/cs/stud/griffonn/safe/os/ex1/osm.c",
+		"/cs/stud/griffonn/safe/os/ex2/testpq.cpp",
+		"/cs/stud/griffonn/safe/os/ex2/comparator.hpp",
+		"/cs/stud/griffonn/safe/os/ex2/statesTest.cpp",
+		"/cs/stud/griffonn/safe/os/ex2/statesTest.hpp",
+		"/cs/stud/griffonn/safe/os/ex2/enumTest.cpp",
+		"/cs/stud/griffonn/safe/os/ex2/enumTest.hpp",
+		"/cs/stud/griffonn/safe/os/ex2/states.hpp",
+		"/cs/stud/griffonn/safe/os/ex2/uthreads.h",
+		"/cs/stud/griffonn/safe/os/ex2/uthread.hpp",
+		"/cs/stud/griffonn/safe/os/ex2/uthreads.cpp",
+		"/cs/stud/griffonn/safe/os/ex2/uthread.cpp",
+		"/cs/stud/griffonn/safe/os/ex2/scheduler.hpp",
+		"/cs/stud/griffonn/safe/os/ex2/scheduler.cpp",
+		"/cs/stud/griffonn/safe/os/ex2/state.cpp",
+		"/cs/stud/griffonn/safe/os/ex2/state.hpp"
+	],
+	"find":
+	{
+		"height": 38.0
+	},
+	"find_in_files":
+	{
+		"height": 90.0,
+		"where_history":
+		[
+			"D:\\Code\\course_os\\ex2",
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"std::cerr",
+			"cerr <<",
+			"ReadyQueue",
+			"ReadyQueue.cpp",
+			"->at(",
+			"mapThread",
+			"[",
+			"getInstance(",
+			"getInstance\\(",
+			"getInstance(",
+			"gScheduler",
+			" \\{\\n",
+			"cerr",
+			"statesManager",
+			"    ",
+			"isValidPrio",
+			"StatesManager",
+			"Signal",
+			"signalManager.hpp",
+			"signalManager.cpp",
+			"ready",
+			"MEGA",
+			"setQuantum",
+			"startTimer",
+			"staticSignalHandler",
+			"init",
+			"Thread *",
+			"printf(",
+			"getTotalQuantums",
+			"siglongjmp",
+			"getThread(",
+			"sigsetjmp",
+			"runNext()",
+			"Next to run",
+			"printf",
+			"incrementTotalQuantums",
+			"setReadyFrom",
+			"printf",
+			"ThreadComparator",
+			"switchThreads",
+			"resetReadyFrom",
+			"readyQueue",
+			"throw",
+			"readyQueue.",
+			"readyQueue.pop()",
+			"printf",
+			"static ",
+			"statesManager->postponeSignals();",
+			"statesManager->hasTimerSignalTriggered()",
+			"statesManager->unblockSignals();",
+			"Sign",
+			"signal",
+			"States",
+			"printf",
+			"setRea",
+			"setrea",
+			"reset",
+			"StatesManager::",
+			"statesManager->",
+			"States",
+			"states",
+			"\nint States::ready(Thread *t)\n{\n	return NULL;\n}",
+			"states.",
+			"states->",
+			"UThread",
+			"states",
+			"~states"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"std::cout",
+			"PriorityQueue",
+			"scheduler",
+			"\\n{\\n",
+			"\\n{",
+			"std::cerr",
+			"gScheduler",
+			"\\t",
+			"Scheduler",
+			"_ready",
+			"compareThreads",
+			"",
+			"SignalManager::postponeSignals();",
+			"SignalManager::hasTimerSignalTriggered()",
+			"SignalManager::unblockSignals();",
+			"Signal",
+			"statesManager->",
+			"StatesManager::",
+			"StatesManager",
+			"statesManager",
+			"states->",
+			"states.",
+			"Thread"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "Makefile",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1464,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								405,
+								405
+							],
+							[
+								603,
+								603
+							],
+							[
+								801,
+								801
+							],
+							[
+								999,
+								999
+							],
+							[
+								1197,
+								1197
+							]
+						],
+						"settings":
+						{
+							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\Makefile",
+							"git_savvy.repo_path": "D:/Code/course_os",
+							"syntax": "Packages/Makefile/Makefile.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 114.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/D/Code/bitterdb/src/similaritySearch/run.sh",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2714,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"git_savvy.file_path": "D:\\Code\\bitterdb\\src\\similaritySearch\\run.sh",
+							"git_savvy.repo_path": "D:/Code/bitterdb/src",
+							"syntax": "Packages/ShellScript/Shell-Unix-Generic.tmLanguage",
+							"tab_size": 8,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 798.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "uthreads.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6555,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								983,
+								983
+							]
+						],
+						"settings":
+						{
+							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\uthreads.cpp",
+							"git_savvy.repo_path": "D:/Code/course_os",
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 114.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 27.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.5,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 100.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "ex2.sublime-project",
+	"replace":
+	{
+		"height": 72.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 392.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 408.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 184.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

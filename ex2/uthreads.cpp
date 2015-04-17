@@ -157,7 +157,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 
 	if (statesManager->getTotalThreadsNum() >= MAX_THREAD_NUM)
 	{
-		cerr << LIBERR_MAX_THREAD_NUM;
+		cout << LIBERR_MAX_THREAD_NUM;
 		return FAIL;
 	}
 	

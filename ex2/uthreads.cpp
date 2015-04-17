@@ -321,6 +321,7 @@ int uthread_suspend(int tid)
 	// If the quantum has ended till now, switch threads now.
 	if (SignalManager::hasTimerSignalTriggered())
 	{
+		printf("Timer expired! ");
 		statesManager->switchThreads(READY);
 	}
 

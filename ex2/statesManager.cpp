@@ -153,6 +153,9 @@ void StatesManager::switchThreads(State destination) {
 	// Save current thread
 	int retVal = sigsetjmp(*(running->getEnv()), 1);
 	if (retVal == CONTINUING) {
+		printf("%d: Jumped to heren", running->getTid());
+		// Set handler back
+		SignalManager::unblockSignals();
 		// Reset timer
 		SignalManager::startTimer(staticSignalHandler, getQuantum());
 		return;

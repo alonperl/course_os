@@ -266,7 +266,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 int uthread_terminate(int tid)
 {
 	SignalManager::postponeSignals();
-
+printf("terminating %d\n", tid);
 	if (!statesManager->isValidTid(tid))
 	{
 		cerr << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;

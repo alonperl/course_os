@@ -1,16 +1,15 @@
 #include <list>
-#include "Thread.hpp"
 
-class PriorityQueue
+class PriorityQueue<class Type, bool (*compare)(Type *t1, Type *t2)>
 {
 public:
 	int size();
 
 	void pop();
-	Thread *top();
-	void push(Thread *thread);
-	void erase(Thread *thread);
+	Type *top();
+	void push(Type *thread);
+	void erase(Type *thread);
 
 private:
-	std::list<Thread*> _ready;
+	std::list<Type*> _ready;
 };

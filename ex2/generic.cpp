@@ -23,14 +23,14 @@ class PQueue
 };
 
 template <typename Type, typename Compare>
-void PQueue<Type, compare>::set(Type t)
+void PQueue<Type, Compare>::set(Type t)
 {
 	list.push_front(t);
 	list.sort(comp);
 }
 
 template <typename Type, typename Compare>
-Type PQueue<Type, compare>::get(Type t)
+Type PQueue<Type, Compare>::get(Type t)
 {
 	return list.front();
 }

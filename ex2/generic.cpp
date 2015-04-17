@@ -10,25 +10,32 @@
 #include "uthreads.h"
 #include "Thread.hpp"
 
-template <class Type, bool (*compare)(const Type *t1, const Type *t2)>
+template <typename Type, typename Compare>
 class PQueue
 {
-	template <Type, (*compare)(const Type *t1, const Type *t2)>
-	Type get();
+	public:
+		PQueue(Compare &comp);
+		Type get();
+		void set(Type t);
 
-	template <Type, (*compare)(const Type *t1, const Type *t2)>
-	void set(Type t);
-
-	std::list<Type*> list;
+	private:
+		std::list<Type*> list;
+		Compare comp;
 };
 
-template <class Type, bool (*compare)(const Type *t1, const Type *t2)>
+PQueue<typename Type, typename Compare>::PQueue(Compare c)
+{
+	comp = c;
+}
+
+template <typename Type, typename Compare>
 void PQueue<Type, compare>::set(Type t)
 {
 	list.push_front(t);
+	list.sort(comp);
 }
 
-template <class Type, bool (*compare)(const Type *t1, const Type *t2)>
+template <typename Type, typename Compare>
 Type PQueue<Type, compare>::get(Type t)
 {
 	return list.front();

@@ -34,7 +34,7 @@ test2:
 
 test3:
 	$(CC) $(CFLAGS) -o test3 tests/test3.cpp $(TARGETS)
-	./test1 > test3.out
+	./test3 > test3.out
 	diff test3.out tests/test3.out && echo ::: Passed 3 ::: || ::: Failed 3 :::
 	rm -rf test1.out test3
 

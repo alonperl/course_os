@@ -1,4 +1,4 @@
-#include "ReadyQueue.hpp"
+#include "PriorityQueue.hpp"
 
 bool compareThreads(Thread *t1, Thread *t2)
 {
@@ -19,7 +19,7 @@ bool compareThreads(Thread *t1, Thread *t2)
 	return t1->getPriority() < t2->getPriority();
 }
 
-void ReadyQueue::pop()
+void PriorityQueue::pop()
 {
 	if (!_ready.empty())
 	{
@@ -28,7 +28,7 @@ void ReadyQueue::pop()
 	}
 }
 
-Thread *ReadyQueue::top()
+Thread *PriorityQueue::top()
 {
 	if (!_ready.empty())
 	{
@@ -38,18 +38,18 @@ Thread *ReadyQueue::top()
 	return NULL;
 }
 
-void ReadyQueue::push(Thread *thread)
+void PriorityQueue::push(Thread *thread)
 {
 	_ready.push_back(thread);
 	_ready.sort(compareThreads);
 }
 
-int ReadyQueue::size()
+int PriorityQueue::size()
 {
 	return _ready.size();
 }
 
-void ReadyQueue::erase(Thread *thread)
+void PriorityQueue::erase(Thread *thread)
 {
 	for (std::list<Thread*>::iterator it = _ready.begin(); it != _ready.end(); ++it)
 	{

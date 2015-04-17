@@ -31,7 +31,7 @@ class Scheduler
 		std::priority_queue<unsigned int, std::vector<unsigned int>,
 							std::greater<unsigned int> > *getTidsPool();
 
-		ReadyQueue *getReadyQueue();
+		PriorityQueue *getReadyQueue();
 		std::map<unsigned int, Thread*> *getBlockedMap();
 		std::map<unsigned int, Thread*> *getThreadsMap();
 
@@ -58,7 +58,7 @@ class Scheduler
 		std::priority_queue<unsigned int, std::vector<unsigned int>,
 							std::greater<unsigned int> > _tidsPool;
 		
-		ReadyQueue _readyQueue;
+		PriorityQueue _readyQueue;
 	  	
 	  	std::map<unsigned int, Thread*> _blockedMap;
 

@@ -1,7 +1,7 @@
 #include <list>
 #include "Thread.hpp"
 
-class ReadyQueue
+class PriorityQueue
 {
 public:
 	int size();

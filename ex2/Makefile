@@ -1,7 +1,7 @@
 CC=g++
 RANLIB=ranlib
 
-TARGETS=Thread.cpp Scheduler.cpp uthreads.cpp SignalManager.cpp
+TARGETS=uthreads.cpp Thread.cpp Scheduler.cpp SignalManager.cpp PriorityQueue.cpp
 
 LIBSRC=uthreads.cpp
 LIBOBJ=$(LIBSRC:.c=.o)
@@ -18,8 +18,8 @@ TARFLAGS=-cvf
 TARNAME=ex2.tar
 TARSRCS=$(LIBSRC) Makefile README
 
-all: uthreads.cpp Thread.cpp Scheduler.cpp SignalManager.cpp ReadyQueue.cpp
-	$(CC) $(CFLAGS) -o uthreads uthreads.cpp Thread.cpp Scheduler.cpp SignalManager.cpp ReadyQueue.cpp
+all: uthreads.cpp Thread.cpp Scheduler.cpp SignalManager.cpp PriorityQueue.cpp
+	$(CC) $(CFLAGS) -o uthreads uthreads.cpp Thread.cpp Scheduler.cpp SignalManager.cpp PriorityQueue.cpp
 
 $(TARGETS): $(LIBOBJ)
 	$(AR) $(ARFLAGS) $@ $^

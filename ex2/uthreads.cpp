@@ -301,6 +301,7 @@ int uthread_suspend(int tid)
 
 	if (thread->getState() != BLOCKED)
 	{
+		printf("%d suspending %d\n", uthread_get_tid(), tid);
 		if (thread->getState() == RUNNING)
 		{
 			// Get next ready thread and set it as current
@@ -312,7 +313,6 @@ int uthread_suspend(int tid)
 		}
 
 		statesManager->block(thread);
-		printf("%d suspended %d\n", uthread_get_tid(), tid);
 	}
 
 	// Set handler back

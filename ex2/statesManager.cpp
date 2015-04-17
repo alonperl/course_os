@@ -1,4 +1,3 @@
-#include <setjmp.h>
 #include "statesManager.hpp"
 
 #define MEGA 100000
@@ -108,14 +107,13 @@ void StatesManager::setQuantum(int quantumUsec) {
 	quantum.it_interval.tv_usec = usec; /* following time intervals, microseconds part */
 }
 
-void StatesManager::incrementTotalThreadsNum() {
-	totalThreadsNum++;
-}
-
 void StatesManager::incrementTotalQuantums()
 {
 	totalQuantums++;
-	// printf("Incrementing total quantum to %d\n", totalQuantums);
+}
+
+void StatesManager::incrementTotalThreadsNum() {
+	totalThreadsNum++;
 }
 
 void StatesManager::decrementTotalThreadsNum() {

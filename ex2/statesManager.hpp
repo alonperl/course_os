@@ -3,6 +3,7 @@
 
 #include <map>
 #include <queue>
+#include <setjmp.h>
 #include "thread.hpp"
 #include "signalManager.hpp"
 #include "ReadyQueue.hpp"

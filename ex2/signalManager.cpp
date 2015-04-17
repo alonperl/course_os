@@ -1,8 +1,6 @@
 #include "signalManager.hpp"
 #include "statesManager.hpp"
 
-#define UNUSED(x) (void)(x)
-
 sigset_t SignalManager::blockedSignals;
 sigset_t SignalManager::pendingSignals;
 

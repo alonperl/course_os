@@ -2,7 +2,6 @@
 #define _SIGNAL_MANAGER_H
 
 #include <signal.h>
-#include <cstdlib>
 #include <sys/time.h>
 
 class SignalManager

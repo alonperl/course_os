@@ -19,11 +19,13 @@ class PQueue
 	std::list<Type*> list;
 };
 
+template <class Type, bool (*compare)(const Type *t1, const Type *t2)>
 void PQueue<Type, compare>::set(Type t)
 {
 	list.push_front(t);
 }
 
+template <class Type, bool (*compare)(const Type *t1, const Type *t2)>
 Type PQueue<Type, compare>::get(Type t)
 {
 	return list.front();

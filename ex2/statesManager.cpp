@@ -114,7 +114,7 @@ void StatesManager::incrementTotalThreadsNum() {
 void StatesManager::incrementTotalQuantums()
 {
 	totalQuantums++;
-	printf("Incrementing total quantum to %d\n", totalQuantums);
+	// printf("Incrementing total quantum to %d\n", totalQuantums);
 }
 
 void StatesManager::decrementTotalThreadsNum() {
@@ -122,7 +122,7 @@ void StatesManager::decrementTotalThreadsNum() {
 }
 
 void StatesManager::staticSignalHandler(int sig) {
-	printf("Time! ");
+	// printf("Time! ");
 	(*instance).signalHandler(sig);
 }
 
@@ -178,7 +178,7 @@ int prevtid = running->getTid();
 		prevThread->setState(destination);
 		break;
 	}
-printf("Switching from %d to %d\n", prevtid, running->getTid());
+// printf("Switching from %d to %d\n", prevtid, running->getTid());
 	running->incrementQuantums();
 	incrementTotalQuantums();
 

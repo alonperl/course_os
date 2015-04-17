@@ -301,7 +301,7 @@ int uthread_suspend(int tid)
 
 	if (thread->getState() != BLOCKED)
 	{
-		printf("%d suspending %d\n", uthread_get_tid(), tid);
+		// printf("%d suspending %d\n", uthread_get_tid(), tid);
 		if (thread->getState() == RUNNING)
 		{
 			// Get next ready thread and set it as current
@@ -323,7 +323,6 @@ int uthread_suspend(int tid)
 	// If the quantum has ended till now, switch threads now.
 	if (SignalManager::hasTimerSignalTriggered())
 	{
-		printf("Timer expired! ");
 		statesManager->switchThreads(READY);
 	}
 
@@ -346,7 +345,7 @@ int uthread_resume(int tid)
 	// If the thread is not blocked, do nothing.
 	if (thread->getState() == BLOCKED)
 	{
-		printf("%d resumed %d\n", uthread_get_tid(), tid);
+		// printf("%d resumed %d\n", uthread_get_tid(), tid);
 		statesManager->ready(thread);
 		statesManager->blockedMap.erase(tid);
 	}
@@ -359,7 +358,6 @@ int uthread_resume(int tid)
 	// If the quantum has ended till now, switch threads now.
 	if (SignalManager::hasTimerSignalTriggered())
 	{
-		printf("Timer expired! ");	
 		statesManager->switchThreads(READY);
 	}
 

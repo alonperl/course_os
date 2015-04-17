@@ -139,7 +139,7 @@ void StatesManager::runNext() {
 void StatesManager::switchThreads(State destination) {
 	SignalManager::postponeSignals();
 	SignalManager::stopTimer();
-
+int prevtid = running->getTid();
 	if (readyQueue.size() == 0) {
 		running->incrementQuantums();
 		incrementTotalQuantums();
@@ -172,10 +172,10 @@ void StatesManager::switchThreads(State destination) {
 		prevThread->setState(destination);
 		break;
 	}
-
 	running->incrementQuantums();
 	incrementTotalQuantums();
 
+printf("Switching from %d to %d\n", prevtid, running->getTid());
 	// Set handler back
 	SignalManager::unblockSignals();
 	SignalManager::startTimer(staticSignalHandler, getQuantum());

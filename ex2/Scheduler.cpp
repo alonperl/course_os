@@ -15,7 +15,7 @@ Scheduler::Scheduler(int quantum_usecs)
 
 bool Scheduler::isValidTid(int tid)
 {
-	if (threadsMap.find(tid) == threadsMap.end() || tid < 0)
+	if (getThreadsMap().find(tid) == getThreadsMap().end() || tid < 0)
 	{
 		return false;
 	}
@@ -23,17 +23,17 @@ bool Scheduler::isValidTid(int tid)
 	return true;
 }
 
-Scheduler *Scheduler::getInstance(int quantum_usecs)
+Scheduler *Scheduler::getInstance(int quantumUsecs)
 {
-	if (!instanceFlag)
+	if (!_instanceFlag)
 	{
-		instance = new Scheduler(quantum_usecs);
-		instanceFlag = true;
-		return instance;
+		s_instance = new Scheduler(quantumUsecs);
+		s_instanceFlag = true;
+		return s_instance;
 	}
 	else
 	{
-		return instance;
+		return s_instance;
 	}
 }
 
@@ -50,7 +50,7 @@ Thread *Scheduler::getThread(int tid)
 		return NULL;
 	}
 
-	return threadsMap[tid];
+	return getThreadsMap()[tid];
 }
 
 int Scheduler::ready(Thread *thread)
@@ -63,7 +63,7 @@ int Scheduler::ready(Thread *thread)
 	thread->setState(READY);
 	thread->setReadyFrom();
 
-	readyQueue.push(thread);
+	getReadyQueue().push(thread);
 
 	return SUCCESS;
 }
@@ -77,20 +77,20 @@ int Scheduler::block(Thread *thread)
 
 	if (thread->getState() == READY)
 	{
-		readyQueue.erase(thread);
+		getReadyQueue().erase(thread);
 	}
 
 	thread->setState(BLOCKED);
-	blockedMap[thread->getTid()] = thread;
+	getBlockedMap()[thread->getTid()] = thread;
 	return SUCCESS;
 }
 
 unsigned int Scheduler::getMinTid()
 {
-	if (!terminatedTids.empty())
+	if (!getTidsPool().empty())
 	{
-		unsigned int newTid = terminatedTids.top();
-		terminatedTids.pop();
+		unsigned int newTid = getTidsPool().top();
+		getTidsPool().pop();
 		return newTid;
 	}
 
@@ -110,6 +110,40 @@ int Scheduler::getTotalThreadsNum()
 itimerval *Scheduler::getQuantum()
 {
 	return &quantum;
+}
+
+std::priority_queue<unsigned int, std::vector<unsigned int>,
+					std::greater<unsigned int> > Scheduler::getTidsPool()
+{
+	return _tidsPool;
+}
+
+ReadyQueue Scheduler::getReadyQueue()
+{
+	return _readyQueue;
+}
+
+std::map<unsigned int, Thread*> Scheduler::getBlockedMap()
+{
+	return _blockedMap;
+}
+
+std::map<unsigned int, Thread*> Scheduler::getThreadsMap()
+{
+	return _threadsMap;
+}
+
+Thread* Scheduler::getRunning()
+{
+	return _running;
+}
+
+void Scheduler::setRunning(Thread *thread)
+{
+	if (thread != NULL)
+	{
+		_running = thread;
+	}
 }
 
 void Scheduler::setQuantum(int quantumUsec)
@@ -140,11 +174,11 @@ void Scheduler::decrementTotalThreadsNum()
 
 void Scheduler::runNext()
 {
-	Thread *nextThread = readyQueue.top();
-	readyQueue.pop();
+	Thread *nextThread = getReadyQueue().top();
+	getReadyQueue().pop();
 
 	nextThread->setState(RUNNING);
-	running = nextThread;
+	setRunning(nextThread);
 }
 
 void Scheduler::switchThreads(State destination)
@@ -152,10 +186,10 @@ void Scheduler::switchThreads(State destination)
 	SignalManager::postponeSignals();
 	SignalManager::stopTimer();
 
-	if (readyQueue.size() == 0)
+	if (getReadyQueue().size() == 0)
 	{
 		// Single thread exists, no need to switch
-		running->incrementQuantums();
+		getRunning()->incrementQuantums();
 		incrementTotalQuantums();
 
 		SignalManager::unblockSignals();
@@ -175,7 +209,7 @@ void Scheduler::switchThreads(State destination)
 		return;
 	}
 
-	Thread *prevThread = running;
+	Thread *prevThread = getRunning();
 	runNext();
 
 	switch (destination)
@@ -195,7 +229,7 @@ void Scheduler::switchThreads(State destination)
 			break;
 	}
 
-	running->incrementQuantums();
+	getRunning()->incrementQuantums();
 	incrementTotalQuantums();
 
 	// TODO: maybe it is redundant because anyway long jumps to set and there is unblock

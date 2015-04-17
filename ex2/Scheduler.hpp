@@ -12,19 +12,6 @@ class Scheduler
 {
 
 	public:
-		// Min-queue of freed tids for second use
-		std::priority_queue<unsigned int, std::vector<unsigned int>, std::greater<unsigned int> > terminatedTids;
-		
-		ReadyQueue readyQueue;
-	  	
-	  	std::map<unsigned int, Thread*> blockedMap;
-
-	  	// General threads map
-	  	std::map<unsigned int, Thread*> threadsMap;
-
-	  	// Current running thread
-		Thread *running;
-
 		static Scheduler *getInstance(int quantum_usecs);
 
 		void switchThreads(State destination);
@@ -41,6 +28,16 @@ class Scheduler
 		int getTotalThreadsNum();
 		itimerval *getQuantum();
 
+		std::priority_queue<unsigned int, std::vector<unsigned int>,
+							std::greater<unsigned int> > getTidsPool();
+
+		ReadyQueue getReadyQueue();
+		std::map<unsigned int, Thread*> getBlockedMap();
+		std::map<unsigned int, Thread*> getThreadsMap();
+
+		Thread* getRunning();
+		void setRunning(Thread *thread);
+
 		unsigned int getMinTid();
 
 		void incrementTotalQuantums();
@@ -54,13 +51,27 @@ class Scheduler
 
 		void setQuantum(int quantum);
 
-		static Scheduler *instance;
-	    static bool instanceFlag;
+		static Scheduler *s_instance;
+	    static bool s_instanceFlag;
 
-	    struct itimerval quantum;
+		// Min-queue of freed tids for second use
+		std::priority_queue<unsigned int, std::vector<unsigned int>,
+							std::greater<unsigned int> > _tidsPool;
+		
+		ReadyQueue _readyQueue;
+	  	
+	  	std::map<unsigned int, Thread*> _blockedMap;
 
-		int totalQuantums;
-		int totalThreadsNum;
+	  	// General threads map
+	  	std::map<unsigned int, Thread*> _threadsMap;
+
+	  	// Current running thread
+		Thread *_running;
+
+	    struct itimerval _quantum;
+
+		int _totalQuantums;
+		int _totalThreadsNum;
 };
 
 #endif

@@ -148,7 +148,7 @@ int main(void)
 		if (i == uthread_get_quantums(uthread_get_tid()))
 		{
 			i++;
-			cout << "main: i=" << i << "j=" << j <<  endl;
+			cout << "main" <<  endl;
 		}
 		if (i == 30 && j == 0)
 		{

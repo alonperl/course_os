@@ -9,7 +9,7 @@ StatesManager *StatesManager::instance = NULL;
 
 StatesManager::StatesManager() {
 	totalThreadsNum = 0;
-	totalQuantums = -1;
+	totalQuantums = 0;
 }
 
 bool StatesManager::isValidTid(int tid) {

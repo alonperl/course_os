@@ -146,6 +146,7 @@ int main(void)
 	int j = 0;
 	while(1)
 	{
+		printf(".");
 		if (i == uthread_get_quantums(uthread_get_tid()))
 		{
 			cout << "m" << "  q:  " << i << endl;
@@ -347,7 +348,6 @@ int uthread_terminate(int tid)
 
 	if (selfDestroy)
 	{
-		printf("Testn");
 		// Terminated last running thread, must switch to next
 		// TODO after f ends, g gets into running, but does not work (g q = 8)
 		siglongjmp(*(statesManager->running->getEnv()), 1);

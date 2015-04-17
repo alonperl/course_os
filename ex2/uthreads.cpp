@@ -26,7 +26,7 @@ int uthread_init(int quantum_usecs)
 {
 	if (quantum_usecs <= 0)
 	{
-		std::cerr << LIBERR << __FUNCTION__ << LIBERR_INVALID_QUANTUM;
+		std::cout << LIBERR << __FUNCTION__ << LIBERR_INVALID_QUANTUM;
 		return FAIL;
 	}
 
@@ -35,7 +35,7 @@ int uthread_init(int quantum_usecs)
 	// If init was called before, scheduler will contain at least main thread
 	if (scheduler->getTotalThreadsNum() > 0)
 	{
-		std::cerr << LIBERR << __FUNCTION__ << LIBERR_INIT_CALLED;
+		std::cout << LIBERR << __FUNCTION__ << LIBERR_INIT_CALLED;
 		return FAIL;
 	}
 
@@ -62,7 +62,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 
 	if (scheduler->getTotalThreadsNum() >= MAX_THREAD_NUM)
 	{
-		std::cerr << LIBERR << __FUNCTION__ << LIBERR_MAX_THREAD_NUM;
+		std::cout << LIBERR << __FUNCTION__ << LIBERR_MAX_THREAD_NUM;
 		return FAIL;
 	}
 	
@@ -75,7 +75,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 	}
 	catch (int e)
 	{
-		std::cerr << LIBERR << __FUNCTION__ << LIBERR_THREAD_CREATION_FAILED;
+		std::cout << LIBERR << __FUNCTION__ << LIBERR_THREAD_CREATION_FAILED;
 		return FAIL;
 	}
 
@@ -108,7 +108,7 @@ int uthread_terminate(int tid)
 
 	if (!scheduler->isValidTid(tid))
 	{
-		std::cerr << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
+		std::cout << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
 		SignalManager::unblockSignals();
 		return FAIL;
 	}
@@ -191,13 +191,13 @@ int uthread_suspend(int tid)
 	// If got invalid tid or if there if only one existing thread, cannot suspend
 	if (!scheduler->isValidTid(tid))
 	{
-		std::cerr << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
+		std::cout << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
 		return FAIL;
 	}
 
 	if (scheduler->getTotalThreadsNum() == 1)
 	{
-		std::cerr << LIBERR << __FUNCTION__ << LIBERR_SUSPEND_ONLY_THREAD;
+		std::cout << LIBERR << __FUNCTION__ << LIBERR_SUSPEND_ONLY_THREAD;
 		return FAIL;
 	}
 
@@ -242,7 +242,7 @@ int uthread_resume(int tid)
 
 	if (!scheduler->isValidTid(tid))
 	{
-		std::cerr << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
+		std::cout << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
 		return FAIL;
 	}
 
@@ -290,7 +290,7 @@ int uthread_get_quantums(int tid)
 
 	if (!scheduler->isValidTid(tid))
 	{
-		std::cerr << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
+		std::cout << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
 		return FAIL;
 	}
 	

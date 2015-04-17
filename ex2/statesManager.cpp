@@ -113,6 +113,7 @@ void StatesManager::incrementTotalThreadsNum() {
 
 void StatesManager::incrementTotalQuantums()
 {
+	printf("Incrementing total quantum to %d\n", totalQuantums);
 	totalQuantums++;
 }
 

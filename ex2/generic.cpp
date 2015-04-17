@@ -61,7 +61,7 @@ int main()
 {
 	PQueue<Thread*, CompareThreads> *pq;
 	Thread *t = new Thread(NULL, ORANGE, 0);
-	pq.set(t);
+	pq->set(t);
 	printf("%d", pq->get()->getTid());
 	return 0;
 }

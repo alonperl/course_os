@@ -13,7 +13,7 @@
 template <typename Type, bool (*f)(Type t1, Type t2)>
 class PQueue
 {
-	typedef bool (*f)(Type t1, Type t2) Compare;
+	typedef bool(*f)(Type t1, Type t2) Compare;
 	public:
 		PQueue(Compare &comp);
 		Type get();

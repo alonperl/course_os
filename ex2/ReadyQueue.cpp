@@ -1,7 +1,9 @@
 #include "ReadyQueue.hpp"
 
-bool compareThreads(Thread *t1, Thread *t2) {
-	if (t1->getPriority() == t2->getPriority()) {
+bool compareThreads(Thread *t1, Thread *t2)
+{
+	if (t1->getPriority() == t2->getPriority())
+	{
 		if (t1->getReadyFrom().tv_sec < t2->getReadyFrom().tv_sec)
 			return true; /* Less than. */
 		else if (t1->getReadyFrom().tv_sec > t2->getReadyFrom().tv_sec)
@@ -14,7 +16,6 @@ bool compareThreads(Thread *t1, Thread *t2) {
 			return false; /* Equal. Cannot happen. */
 	}
 
-	// TODO: Recheck conditions:
 	return t1->getPriority() < t2->getPriority();
 }
 
@@ -50,7 +51,7 @@ int ReadyQueue::size()
 
 void ReadyQueue::erase(Thread *thread)
 {
-	for (std::list<Thread*>::iterator it=_ready.begin(); it != _ready.end(); ++it)
+	for (std::list<Thread*>::iterator it = _ready.begin(); it != _ready.end(); ++it)
 	{
 		if ((*it)->getTid() == thread->getTid())
 		{

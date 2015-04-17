@@ -38,7 +38,7 @@ void SignalManager::stopTimer()
 {
 	ignoreSignals();
 	struct itimerval reset = {0, 0, 0, 0};
-    setitimer(ITIMER_VIRTUAL, &reset, NULL);
+	setitimer(ITIMER_VIRTUAL, &reset, NULL);
 }
 
 void SignalManager::staticSignalHandler(int sig)

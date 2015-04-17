@@ -13,7 +13,12 @@
 #define SUCCESS 0;
 #define FAIL -1;
 
-typedef enum State { READY, RUNNING, BLOCKED, NEW } State;
+typedef enum State { 
+	READY, 
+	RUNNING, 
+	BLOCKED, 
+	NEW 
+} State;
 
 typedef unsigned long address_t;
 
@@ -50,7 +55,7 @@ private:
 	unsigned int quantums;
 	unsigned int tid;
 
-	bool isValidPriority(Priority pr);
+	bool _isValidPriority(Priority pr);
 };
 
 #endif

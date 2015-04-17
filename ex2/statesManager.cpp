@@ -7,7 +7,8 @@
 bool StatesManager::instanceFlag = false;
 StatesManager *StatesManager::instance = NULL;
 
-StatesManager::StatesManager() {
+StatesManager::StatesManager(int quantum_usecs) {
+	setQuantum(quantum_usecs);
 	totalThreadsNum = 0;
 	totalQuantums = 0;
 }
@@ -20,9 +21,9 @@ bool StatesManager::isValidTid(int tid) {
 	return true;
 }
 
-StatesManager *StatesManager::getInstance() {
+StatesManager *StatesManager::getInstance(int quantum_usecs) {
 	if (!instanceFlag) {
-		instance = new StatesManager();
+		instance = new StatesManager(quantum_usecs);
 		instanceFlag = true;
 		return instance;
 	} else {

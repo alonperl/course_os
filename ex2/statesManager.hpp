@@ -1,24 +1,21 @@
 #ifndef _STATES_MANAGER_H
 #define _STATES_MANAGER_H
 
-#include <queue>
-#include <cstdlib>
 #include <map>
-#ifndef _THREAD_H
+#include <queue>
 #include "thread.hpp"
-#endif
-#ifndef _SIGNAL_MANAGER
 #include "signalManager.hpp"
-#endif
 #include "ReadyQueue.hpp"
 
 class StatesManager
 {
 
 	public:
+		// Min-queue of freed tids for second use
 		std::priority_queue<unsigned int, std::vector<unsigned int>, std::greater<unsigned int> > terminatedTids;
 		
 		ReadyQueue readyQueue;
+	  	
 	  	std::map<unsigned int, Thread*> blockedMap;
 
 	  	// General threads map
@@ -35,25 +32,26 @@ class StatesManager
 		int block(Thread *thread);
 		int run(Thread *thread);
 
-		Thread *getThread(int tid);
+		void runNext();
 
+		Thread *getThread(int tid);
 
 		int getTotalQuantums();
 		int getTotalThreadsNum();
-		unsigned int getMinTid();
 		itimerval *getQuantum();
 
-		void runNext();
+		unsigned int getMinTid();
 
-		void setQuantum(int quantum);
+		void incrementTotalQuantums();
 		void incrementTotalThreadsNum();
 		void decrementTotalThreadsNum();
-		void incrementTotalQuantums();
 
 		bool isValidTid(int tid);
 
 	private:
-		StatesManager();
+		StatesManager(int quantum_usecs);
+
+		void setQuantum(int quantum);
 
 		static StatesManager *instance;
 	    static bool instanceFlag;

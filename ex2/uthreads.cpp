@@ -195,7 +195,7 @@ int uthread_init(int quantum_usecs)
 		return FAIL;
 	}
 
-	statesManager = StatesManager::getInstance();
+	statesManager = StatesManager::getInstance(quantum_usecs);
 
 	// If init was called before, statesManager will contain at least main thread
 	if (statesManager->getTotalThreadsNum() > 0)
@@ -203,8 +203,6 @@ int uthread_init(int quantum_usecs)
 		cerr << LIBERR << __FUNCTION__ << LIBERR_INIT_CALLED;
 		return FAIL;
 	}
-
-	statesManager->setQuantum(quantum_usecs);
 
 	uthread_spawn(NULL, ORANGE);
 	statesManager->threadsMap[MAIN]->incrementQuantums();

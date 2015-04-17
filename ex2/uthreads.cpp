@@ -136,6 +136,7 @@ int uthread_init(int quantum_usecs)
 
 	uthread_spawn(NULL, ORANGE);
 	statesManager->threadsMap[MAIN]->incrementQuantums();
+	statesManager->incrementTotalQuantums();
 
 	statesManager->runNext();
 

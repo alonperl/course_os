@@ -1,6 +1,8 @@
 #include "signalManager.hpp"
 #include "statesManager.hpp"
 
+#define UNUSED(x) (void)(x)
+
 sigset_t SignalManager::blockedSignals;
 sigset_t SignalManager::pendingSignals;
 
@@ -41,7 +43,8 @@ void SignalManager::stopTimer()
     setitimer(ITIMER_VIRTUAL, &reset, NULL);
 }
 
-void SignalManager::staticSignalHandler((void)(sig))
+void SignalManager::staticSignalHandler(int sig)
 {
+	UNUSED(sig);
 	(*StatesManager::getInstance()).switchThreads(READY);
 }

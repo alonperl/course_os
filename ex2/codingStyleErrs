@@ -1,0 +1,215 @@
+Scheduler.cpp(1, 0):  file_comm {Please provide file info comment in front of file}
+Scheduler.cpp(9, 41):  function_braces {The brace for function definition should be located in start of line}
+Scheduler.cpp(13, 1):  function_braces {The brace for function definition should be located in same column}
+Scheduler.cpp(9, 12):  func_comment_imp {Doxygen Comment should be provided in front of function (Scheduler::Scheduler) in impl file.}
+Scheduler.cpp(15, 37):  function_braces {The brace for function definition should be located in start of line}
+Scheduler.cpp(21, 1):  function_braces {The brace for function definition should be located in same column}
+Scheduler.cpp(15, 17):  func_comment_imp {Doxygen Comment should be provided in front of function (Scheduler::isValidTid) in impl file.}
+Scheduler.cpp(16, 2):  brace_line {The brace should be located in seperate line}
+Scheduler.cpp(18, 2):  matching_braces_align {Matching Braces inside of function should be located in the same column}
+Scheduler.cpp(23, 54):  function_braces {The brace for function definition should be located in start of line}
+Scheduler.cpp(31, 1):  function_braces {The brace for function definition should be located in same column}
+Scheduler.cpp(23, 23):  func_comment_imp {Doxygen Comment should be provided in front of function (Scheduler::getInstance) in impl file.}
+Scheduler.cpp(24, 2):  brace_line {The brace should be located in seperate line}
+Scheduler.cpp(28, 2):  matching_braces_align {Matching Braces inside of function should be located in the same column}
+Scheduler.cpp(28, 4):  brace_line {The brace should be located in seperate line}
+Scheduler.cpp(30, 2):  matching_braces_align {Matching Braces inside of function should be located in the same column}
+Scheduler.cpp(39, 39):  function_braces {The brace for function definition should be located in start of line}
+Scheduler.cpp(47, 1):  function_braces {The brace for function definition should be located in same column}
+Scheduler.cpp(49, 38):  function_braces {The brace for function definition should be located in start of line}
+Scheduler.cpp(60, 1):  function_braces {The brace for function definition should be located in same column}
+Scheduler.cpp(50, 2):  brace_line {The brace should be located in seperate line}
+Scheduler.cpp(52, 2):  matching_braces_align {Matching Braces inside of function should be located in the same column}
+Scheduler.cpp(62, 38):  function_braces {The brace for function definition should be located in start of line}
+Scheduler.cpp(75, 1):  function_braces {The brace for function definition should be located in same column}
+Scheduler.cpp(63, 2):  brace_line {The brace should be located in seperate line}
+Scheduler.cpp(65, 2):  matching_braces_align {Matching Braces inside of function should be located in the same column}
+Scheduler.cpp(79, 2):  brace_line {The brace should be located in seperate line}
+Scheduler.cpp(83, 2):  matching_braces_align {Matching Braces inside of function should be located in the same column}
+Scheduler.cpp(88, 35):  function_braces {The brace for function definition should be located in start of line}
+Scheduler.cpp(90, 1):  function_braces {The brace for function definition should be located in same column}
+Scheduler.cpp(92, 37):  function_braces {The brace for function definition should be located in start of line}
+Scheduler.cpp(94, 1):  function_braces {The brace for function definition should be located in same column}
+Scheduler.cpp(96, 36):  function_braces {The brace for function definition should be located in start of line}
+Scheduler.cpp(98, 1):  function_braces {The brace for function definition should be located in same column}
+Scheduler.cpp(100, 45):  function_braces {The brace for function definition should be located in start of line}
+Scheduler.cpp(108, 1):  function_braces {The brace for function definition should be located in same column}
+Scheduler.cpp(110, 17):  func_comment_imp {Doxygen Comment should be provided in front of function (Scheduler::incrementTotalQuantums) in impl file.}
+Scheduler.cpp(115, 44):  function_braces {The brace for function definition should be located in start of line}
+Scheduler.cpp(117, 1):  function_braces {The brace for function definition should be located in same column}
+Scheduler.cpp(115, 17):  func_comment_imp {Doxygen Comment should be provided in front of function (Scheduler::incrementTotalThreadsNum) in impl file.}
+Scheduler.cpp(119, 44):  function_braces {The brace for function definition should be located in start of line}
+Scheduler.cpp(121, 1):  function_braces {The brace for function definition should be located in same column}
+Scheduler.cpp(119, 17):  func_comment_imp {Doxygen Comment should be provided in front of function (Scheduler::decrementTotalThreadsNum) in impl file.}
+Scheduler.cpp(123, 27):  function_braces {The brace for function definition should be located in start of line}
+Scheduler.cpp(129, 1):  function_braces {The brace for function definition should be located in same column}
+Scheduler.cpp(123, 17):  func_comment_imp {Doxygen Comment should be provided in front of function (Scheduler::runNext) in impl file.}
+Scheduler.cpp(131, 50):  function_braces {The brace for function definition should be located in start of line}
+Scheduler.cpp(183, 1):  function_braces {The brace for function definition should be located in same column}
+Scheduler.cpp(131, 17):  func_comment_imp {Doxygen Comment should be provided in front of function (Scheduler::switchThreads) in impl file.}
+Scheduler.cpp(135, 2):  brace_line {The brace should be located in seperate line}
+Scheduler.cpp(144, 2):  matching_braces_align {Matching Braces inside of function should be located in the same column}
+Scheduler.cpp(148, 2):  brace_line {The brace should be located in seperate line}
+Scheduler.cpp(154, 2):  matching_braces_align {Matching Braces inside of function should be located in the same column}
+Scheduler.cpp(173, 2):  matching_braces_align {Matching Braces inside of function should be located in the same column}
+Scheduler.hpp(1, 0):  file_comm {Please provide file info comment in front of file}
+Scheduler.hpp(11, 1):  class_comment {Doxygen Comment should be provided in front of class def(Scheduler).}
+Scheduler.hpp(16, 0):  long_line {Lines should very rarely be longer than 100 characters}
+Scheduler.hpp(55, 8):  private_func_underbar {Start private function name(setQuantum) with underbar}
+uthreads.cpp(1, 0):  file_comm {Please provide file info comment in front of file}
+uthreads.cpp(33, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (f) in impl file.}
+uthreads.cpp(56, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (g) in impl file.}
+uthreads.cpp(74, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (h) in impl file.}
+uthreads.cpp(92, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (i) in impl file.}
+uthreads.cpp(110, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (j) in impl file.}
+uthreads.cpp(128, 5):  func_comment_imp {Doxygen Comment should be provided in front of function (main) in impl file.}
+uthreads.cpp(135, 17):  opeartor_spaces {Provide space after operator ,}
+uthreads.cpp(136, 17):  opeartor_spaces {Provide space after operator ,}
+uthreads.cpp(137, 17):  opeartor_spaces {Provide space after operator ,}
+uthreads.cpp(138, 17):  opeartor_spaces {Provide space after operator ,}
+uthreads.cpp(139, 17):  opeartor_spaces {Provide space after operator ,}
+uthreads.cpp(190, 5):  func_name_special {Function name(uthread_init) should not contains special characters or underbars}
+uthreads.cpp(190, 5):  func_comment_imp {Doxygen Comment should be provided in front of function (uthread_init) in impl file.}
+uthreads.cpp(220, 5):  func_name_special {Function name(uthread_spawn) should not contains special characters or underbars}
+uthreads.cpp(220, 5):  func_comment_imp {Doxygen Comment should be provided in front of function (uthread_spawn) in impl file.}
+uthreads.cpp(264, 5):  func_name_special {Function name(uthread_terminate) should not contains special characters or underbars}
+uthreads.cpp(264, 5):  func_comment_imp {Doxygen Comment should be provided in front of function (uthread_terminate) in impl file.}
+uthreads.cpp(344, 5):  func_name_special {Function name(uthread_suspend) should not contains special characters or underbars}
+uthreads.cpp(344, 5):  func_comment_imp {Doxygen Comment should be provided in front of function (uthread_suspend) in impl file.}
+uthreads.cpp(394, 5):  func_name_special {Function name(uthread_resume) should not contains special characters or underbars}
+uthreads.cpp(394, 5):  func_comment_imp {Doxygen Comment should be provided in front of function (uthread_resume) in impl file.}
+uthreads.cpp(430, 5):  func_name_special {Function name(uthread_get_tid) should not contains special characters or underbars}
+uthreads.cpp(430, 5):  func_comment_imp {Doxygen Comment should be provided in front of function (uthread_get_tid) in impl file.}
+uthreads.cpp(442, 5):  func_name_special {Function name(uthread_get_total_quantums) should not contains special characters or underbars}
+uthreads.cpp(442, 5):  func_comment_imp {Doxygen Comment should be provided in front of function (uthread_get_total_quantums) in impl file.}
+uthreads.cpp(448, 5):  func_name_special {Function name(uthread_get_quantums) should not contains special characters or underbars}
+uthreads.cpp(448, 5):  func_comment_imp {Doxygen Comment should be provided in front of function (uthread_get_quantums) in impl file.}
+uthreads.cpp(465, 14):  func_comment_imp {Doxygen Comment should be provided in front of function (getMinTid) in impl file.}
+ReadyQueue.cpp(1, 0):  file_comm {Please provide file info comment in front of file}
+ReadyQueue.cpp(3, 45):  function_braces {The brace for function definition should be located in start of line}
+ReadyQueue.cpp(19, 1):  function_braces {The brace for function definition should be located in same column}
+ReadyQueue.cpp(3, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (compareThreads) in impl file.}
+ReadyQueue.cpp(4, 2):  brace_line {The brace should be located in seperate line}
+ReadyQueue.cpp(5, 3):  missing_braces {Use brace for even one statement in if/while/for clause}
+ReadyQueue.cpp(7, 8):  missing_braces {Use brace for even one statement in if/while/for clause}
+ReadyQueue.cpp(9, 8):  missing_braces {Use brace for even one statement in if/while/for clause}
+ReadyQueue.cpp(11, 8):  missing_braces {Use brace for even one statement in if/while/for clause}
+ReadyQueue.cpp(13, 3):  missing_braces {Use brace for even one statement in else clause}
+ReadyQueue.cpp(15, 2):  matching_braces_align {Matching Braces inside of function should be located in the same column}
+ReadyQueue.cpp(21, 18):  func_comment_imp {Doxygen Comment should be provided in front of function (ReadyQueue::pop) in impl file.}
+ReadyQueue.cpp(30, 21):  func_comment_imp {Doxygen Comment should be provided in front of function (ReadyQueue::top) in impl file.}
+ReadyQueue.cpp(40, 18):  func_comment_imp {Doxygen Comment should be provided in front of function (ReadyQueue::push) in impl file.}
+ReadyQueue.cpp(46, 17):  func_comment_imp {Doxygen Comment should be provided in front of function (ReadyQueue::size) in impl file.}
+ReadyQueue.cpp(51, 18):  func_comment_imp {Doxygen Comment should be provided in front of function (ReadyQueue::erase) in impl file.}
+ReadyQueue.cpp(53, 38):  opeartor_spaces {Provide spaces b/w operator '='}
+Thread.cpp(1, 0):  file_comm {Please provide file info comment in front of file}
+Thread.cpp(12, 11):  func_name_special {Function name(translate_address) should not contains special characters or underbars}
+Thread.cpp(12, 11):  func_comment_imp {Doxygen Comment should be provided in front of function (translate_address) in impl file.}
+Thread.cpp(14, 0):  indent_tab {Do not use space for indent}
+Thread.cpp(15, 0):  indent_tab {Do not use space for indent}
+Thread.cpp(17, 0):  indent_tab {Do not use space for indent}
+Thread.cpp(18, 0):  indent_tab {Do not use space for indent}
+Thread.cpp(19, 0):  indent_tab {Do not use space for indent}
+Thread.cpp(31, 11):  func_name_special {Function name(translate_address) should not contains special characters or underbars}
+Thread.cpp(31, 11):  func_comment_imp {Doxygen Comment should be provided in front of function (translate_address) in impl file.}
+Thread.cpp(33, 0):  indent_tab {Do not use space for indent}
+Thread.cpp(34, 0):  indent_tab {Do not use space for indent}
+Thread.cpp(36, 0):  indent_tab {Do not use space for indent}
+Thread.cpp(37, 0):  indent_tab {Do not use space for indent}
+Thread.cpp(38, 0):  indent_tab {Do not use space for indent}
+Thread.cpp(43, 9):  func_comment_imp {Doxygen Comment should be provided in front of function (Thread::Thread) in impl file.}
+Thread.cpp(64, 18):  func_comment_imp {Doxygen Comment should be provided in front of function (Thread::getPriority) in impl file.}
+Thread.cpp(69, 19):  func_comment_imp {Doxygen Comment should be provided in front of function (Thread::getProgramCounter) in impl file.}
+Thread.cpp(74, 1):  struct_comment {Doxygen Comment should be provided in front of struct/union def(Thread::getReadyFrom).}
+Thread.cpp(79, 15):  func_comment_imp {Doxygen Comment should be provided in front of function (Thread::getState) in impl file.}
+Thread.cpp(84, 14):  func_comment_imp {Doxygen Comment should be provided in front of function (Thread::setState) in impl file.}
+Thread.cpp(89, 22):  func_comment_imp {Doxygen Comment should be provided in front of function (Thread::getQuantums) in impl file.}
+Thread.cpp(94, 22):  func_comment_imp {Doxygen Comment should be provided in front of function (Thread::getTid) in impl file.}
+Thread.cpp(99, 21):  func_comment_imp {Doxygen Comment should be provided in front of function (Thread::getEnv) in impl file.}
+Thread.cpp(104, 14):  func_comment_imp {Doxygen Comment should be provided in front of function (Thread::isValidPriority) in impl file.}
+Thread.cpp(118, 14):  func_comment_imp {Doxygen Comment should be provided in front of function (Thread::incrementQuantums) in impl file.}
+Thread.cpp(124, 14):  func_comment_imp {Doxygen Comment should be provided in front of function (Thread::setReadyFrom) in impl file.}
+Thread.cpp(137, 14):  func_comment_imp {Doxygen Comment should be provided in front of function (Thread::resetReadyFrom) in impl file.}
+Thread.cpp(143, 10):  func_comment_imp {Doxygen Comment should be provided in front of function (Thread::~Thread) in impl file.}
+ReadyQueue.hpp(1, 0):  file_comm {Please provide file info comment in front of file}
+ReadyQueue.hpp(4, 1):  class_comment {Doxygen Comment should be provided in front of class def(ReadyQueue).}
+Thread.hpp(1, 0):  file_comm {Please provide file info comment in front of file}
+Thread.hpp(16, 29):  indent_enum_lines {Each enum item(RUNNING) should be located in the different line}
+Thread.hpp(16, 38):  indent_enum_lines {Each enum item(BLOCKED) should be located in the different line}
+Thread.hpp(16, 47):  indent_enum_lines {Each enum item(NEW) should be located in the different line}
+Thread.hpp(20, 1):  class_comment {Doxygen Comment should be provided in front of class def(Thread).}
+Thread.hpp(53, 7):  private_func_underbar {Start private function name(isValidPriority) with underbar}
+SignalManager.cpp(1, 0):  file_comm {Please provide file info comment in front of file}
+SignalManager.cpp(7, 21):  func_comment_imp {Doxygen Comment should be provided in front of function (SignalManager::ignoreSignals) in impl file.}
+SignalManager.cpp(12, 21):  func_comment_imp {Doxygen Comment should be provided in front of function (SignalManager::postponeSignals) in impl file.}
+SignalManager.cpp(18, 21):  func_comment_imp {Doxygen Comment should be provided in front of function (SignalManager::unblockSignals) in impl file.}
+SignalManager.cpp(24, 21):  func_comment_imp {Doxygen Comment should be provided in front of function (SignalManager::hasTimerSignalTriggered) in impl file.}
+SignalManager.cpp(31, 21):  func_comment_imp {Doxygen Comment should be provided in front of function (SignalManager::startTimer) in impl file.}
+SignalManager.cpp(37, 21):  func_comment_imp {Doxygen Comment should be provided in front of function (SignalManager::stopTimer) in impl file.}
+SignalManager.cpp(40, 2):  struct_comment {Doxygen Comment should be provided in front of struct/union def(reset).}
+SignalManager.cpp(41, 0):  indent_tab {Do not use space for indent}
+SignalManager.cpp(44, 21):  func_comment_imp {Doxygen Comment should be provided in front of function (SignalManager::staticSignalHandler) in impl file.}
+SignalManager.hpp(1, 0):  file_comm {Please provide file info comment in front of file}
+SignalManager.hpp(7, 1):  class_comment {Doxygen Comment should be provided in front of class def(SignalManager).}
+uthreads.h(1, 0):  file_comm {Please provide file info comment in front of file}
+uthreads.h(13, 30):  indent_enum_lines {Each enum item(ORANGE) should be located in the different line}
+uthreads.h(13, 38):  indent_enum_lines {Each enum item(GREEN) should be located in the different line}
+uthreads.h(16, 5):  func_name_special {Function name(uthread_init) should not contains special characters or underbars}
+uthreads.h(16, 5):  func_comment_h {Doxygen Comment should be provided in front of function (uthread_init) in header.}
+uthreads.h(19, 5):  func_name_special {Function name(uthread_spawn) should not contains special characters or underbars}
+uthreads.h(19, 5):  func_comment_h {Doxygen Comment should be provided in front of function (uthread_spawn) in header.}
+uthreads.h(22, 5):  func_name_special {Function name(uthread_terminate) should not contains special characters or underbars}
+uthreads.h(22, 5):  func_comment_h {Doxygen Comment should be provided in front of function (uthread_terminate) in header.}
+uthreads.h(25, 5):  func_name_special {Function name(uthread_suspend) should not contains special characters or underbars}
+uthreads.h(25, 5):  func_comment_h {Doxygen Comment should be provided in front of function (uthread_suspend) in header.}
+uthreads.h(28, 5):  func_name_special {Function name(uthread_resume) should not contains special characters or underbars}
+uthreads.h(28, 5):  func_comment_h {Doxygen Comment should be provided in front of function (uthread_resume) in header.}
+uthreads.h(32, 5):  func_name_special {Function name(uthread_get_tid) should not contains special characters or underbars}
+uthreads.h(32, 5):  func_comment_h {Doxygen Comment should be provided in front of function (uthread_get_tid) in header.}
+uthreads.h(35, 5):  func_name_special {Function name(uthread_get_total_quantums) should not contains special characters or underbars}
+uthreads.h(35, 5):  func_comment_h {Doxygen Comment should be provided in front of function (uthread_get_total_quantums) in header.}
+uthreads.h(38, 5):  func_name_special {Function name(uthread_get_quantums) should not contains special characters or underbars}
+uthreads.h(38, 5):  func_comment_h {Doxygen Comment should be provided in front of function (uthread_get_quantums) in header.}
+test1.cpp(26, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (f) in impl file.}
+test1.cpp(59, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (g) in impl file.}
+test1.cpp(81, 5):  func_comment_imp {Doxygen Comment should be provided in front of function (main) in impl file.}
+test2.cpp(23, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (f) in impl file.}
+test2.cpp(28, 5):  func_comment_imp {Doxygen Comment should be provided in front of function (main) in impl file.}
+test2.cpp(34, 2):  missing_braces {Use brace for even one statement in if/while/for clause}
+test2.cpp(35, 26):  opeartor_spaces {Provide space after operator ,}
+test2.cpp(39, 25):  opeartor_spaces {Provide space after operator ,}
+test2.cpp(40, 25):  opeartor_spaces {Provide space after operator ,}
+test2.cpp(51, 25):  opeartor_spaces {Provide space after operator ,}
+test2.cpp(52, 25):  opeartor_spaces {Provide space after operator ,}
+test2.cpp(53, 25):  opeartor_spaces {Provide space after operator ,}
+test2.cpp(54, 25):  opeartor_spaces {Provide space after operator ,}
+test2.cpp(55, 25):  opeartor_spaces {Provide space after operator ,}
+test2.cpp(56, 25):  opeartor_spaces {Provide space after operator ,}
+test2.cpp(57, 25):  opeartor_spaces {Provide space after operator ,}
+test2.cpp(58, 25):  opeartor_spaces {Provide space after operator ,}
+test2.cpp(59, 25):  opeartor_spaces {Provide space after operator ,}
+test3.cpp(23, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (f) in impl file.}
+test3.cpp(25, 5):  func_comment_imp {Doxygen Comment should be provided in front of function (main) in impl file.}
+test3.cpp(45, 17):  opeartor_spaces {Provide space after operator ,}
+test4.cpp(23, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (f) in impl file.}
+test4.cpp(32, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (g) in impl file.}
+test4.cpp(41, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (h) in impl file.}
+test4.cpp(50, 5):  func_comment_imp {Doxygen Comment should be provided in front of function (main) in impl file.}
+test4.cpp(57, 17):  opeartor_spaces {Provide space after operator ,}
+test4.cpp(58, 17):  opeartor_spaces {Provide space after operator ,}
+test4.cpp(59, 17):  opeartor_spaces {Provide space after operator ,}
+test4.cpp(77, 3):  brace_line_align {The brace should be located in same column}
+test5.cpp(23, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (f) in impl file.}
+test5.cpp(46, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (g) in impl file.}
+test5.cpp(64, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (h) in impl file.}
+test5.cpp(82, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (i) in impl file.}
+test5.cpp(100, 6):  func_comment_imp {Doxygen Comment should be provided in front of function (j) in impl file.}
+test5.cpp(118, 5):  func_comment_imp {Doxygen Comment should be provided in front of function (main) in impl file.}
+test5.cpp(125, 17):  opeartor_spaces {Provide space after operator ,}
+test5.cpp(126, 17):  opeartor_spaces {Provide space after operator ,}
+test5.cpp(127, 17):  opeartor_spaces {Provide space after operator ,}
+test5.cpp(128, 17):  opeartor_spaces {Provide space after operator ,}
+test5.cpp(129, 17):  opeartor_spaces {Provide space after operator ,}
+ ** Total Violated Rules      : 15
+ ** Total Errors Occurs       : 212
+ ** Total Violated Files Count: 15

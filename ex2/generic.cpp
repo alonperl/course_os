@@ -10,10 +10,9 @@
 #include "uthreads.h"
 #include "Thread.hpp"
 
-template <typename Type, bool (*f)(Type t1, Type t2)>
+template <typename Type, typename Compare>
 class PQueue
 {
-	typedef bool(*f)(Type t1, Type t2) Compare;
 	public:
 		PQueue(Compare &comp);
 		Type get();
@@ -42,24 +41,27 @@ Type PQueue<Type, compare>::get(Type t)
 	return list.front();
 }
 
-bool compareThreads(Thread *t1, Thread *t2)
+struct Compare
 {
-	if (t1->getPriority() == t2->getPriority())
+	bool operator()(Thread *t1, Thread *t2)
 	{
-		if (t1->getReadyFrom().tv_sec < t2->getReadyFrom().tv_sec)
-			return true; /* Less than. */
-		else if (t1->getReadyFrom().tv_sec > t2->getReadyFrom().tv_sec)
-			return false; /* Greater than. */
-		else if (t1->getReadyFrom().tv_usec < t2->getReadyFrom().tv_usec)
-			return true; /* Less than. */
-		else if (t1->getReadyFrom().tv_usec > t2->getReadyFrom().tv_usec)
-			return false; /* Greater than. */
-		else
-			return false; /* Equal. Cannot happen. */
-	}
+		if (t1->getPriority() == t2->getPriority())
+		{
+			if (t1->getReadyFrom().tv_sec < t2->getReadyFrom().tv_sec)
+				return true; /* Less than. */
+			else if (t1->getReadyFrom().tv_sec > t2->getReadyFrom().tv_sec)
+				return false; /* Greater than. */
+			else if (t1->getReadyFrom().tv_usec < t2->getReadyFrom().tv_usec)
+				return true; /* Less than. */
+			else if (t1->getReadyFrom().tv_usec > t2->getReadyFrom().tv_usec)
+				return false; /* Greater than. */
+			else
+				return false; /* Equal. Cannot happen. */
+		}
 
-	return t1->getPriority() < t2->getPriority();
-}
+		return t1->getPriority() < t2->getPriority();
+	}
+};
 
 int main()
 {

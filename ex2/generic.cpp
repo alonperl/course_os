@@ -59,7 +59,7 @@ struct CompareThreads
 
 int main()
 {
-	PQueue<Thread*, CompareThreads> pq;
+	PQueue<Thread*, CompareThreads> *pq;
 	Thread *t = new Thread(NULL, ORANGE, 0);
 	pq.set(t);
 	printf("%d", pq->get()->getTid());

@@ -32,88 +32,160 @@ using namespace std;
 
 void f (void)
 {
+	int i = 1;
 	while(1)
 	{
-//		cout << "f" << endl;
-		uthread_suspend(1);
+		if (i == uthread_get_quantums(uthread_get_tid()))
+		{
+			cout << "red1" << endl;
+			i++;
+		}
+		if (i == 4)
+		{
+			cout << "     red1 suspend" << endl;
+			uthread_suspend(1);
+		}
+		if (i == 8)
+		{
+			cout << "     exit" << endl;
+			uthread_terminate(0);
+		}
 	}
 }
 
 void g (void)
 {
+	int i = 1;
 	while(1)
 	{
-//		cout << "g" << endl;
-		uthread_suspend(2);
+		if (i == uthread_get_quantums(uthread_get_tid()))
+		{
+			cout << "red2" << endl;
+			i++;
+		}
+		if (i == 8)
+		{
+			cout << "     red2 suspend" << endl;
+			uthread_suspend(2);
+		}
 	}
 }
 
 void h (void)
 {
+	int i = 1;
 	while(1)
 	{
-//		cout << "h" << endl;
-		uthread_suspend(3);
+		if (i == uthread_get_quantums(uthread_get_tid()))
+		{
+			cout << "orange" << endl;
+			i++;
+		}
+		if (i == 12)
+		{
+			cout << "     orange suspend" << endl;
+			uthread_suspend(3);
+		}
+	}
+}
+
+void i (void)
+{
+	int i = 1;
+	while(1)
+	{
+		if (i == uthread_get_quantums(uthread_get_tid()))
+		{
+			cout << "green1" << endl;
+			i++;
+		}
+		if (i == 4)
+		{
+			cout << "     green1 suspend" << endl;
+			uthread_suspend(4);
+		}
+	}
+}
+
+void j (void)
+{
+	int i = 1;
+	while(1)
+	{
+		if (i == uthread_get_quantums(uthread_get_tid()))
+		{
+			cout << "green2" << endl;
+			i++;
+		}
+		if (i == 8)
+		{
+			cout << "     green2 suspend" << endl;
+			uthread_suspend(5);
+		}
 	}
 }
 
 int main(void)
 {
-	if (uthread_init(100) == -1)
+	if (uthread_init(10) == -1)
 	{
 		return 0;
 	}
 
 	uthread_spawn(f,RED);
 	uthread_spawn(g,RED);
-	uthread_spawn(h,RED);
+	uthread_spawn(h,ORANGE);
+	uthread_spawn(i,GREEN);
+	uthread_spawn(j,GREEN);
 
-	while(uthread_get_total_quantums() < 10)
+
+	int i = 1;
+	int j = 0;
+
+
+	while(1)
 	{
-		uthread_resume(1);
-		uthread_resume(2);
-		uthread_resume(3);
-	}
-
-	cout << uthread_get_quantums(0) << " + " << endl;
-	cout << uthread_get_quantums(1) << " + " << endl;
-	cout << uthread_get_quantums(2) << " + " << endl;
-	cout << uthread_get_quantums(3) << endl;
-	cout << " = " << uthread_get_total_quantums() << endl;
-
-	uthread_suspend(2);
-
-	while(uthread_get_total_quantums() < 20)
+		if (i == uthread_get_quantums(uthread_get_tid()))
 		{
-			uthread_resume(1);
-			uthread_resume(3);
+			cout << "main" <<  endl;
+			i++;
 		}
-
-	cout << uthread_get_quantums(0) << " + " << endl;
-	cout << uthread_get_quantums(1) << " + " << endl;
-	cout << uthread_get_quantums(2) << " + " << endl;
-	cout << uthread_get_quantums(3) << endl;
-	cout << " = " << uthread_get_total_quantums() << endl;
-
-	uthread_resume(2);
-
-	while(uthread_get_total_quantums() < 30)
-	{
-		uthread_resume(1);
-		uthread_resume(2);
-		uthread_resume(3);
+		if (i == 30 && j == 0)
+		{
+			cout << "     resume green2" << endl;
+			uthread_resume(5);
+			j++;
+		}
+		if (i == 34 && j == 1)
+		{
+			cout << "     resume green1" << endl;
+			uthread_resume(4);
+			j++;
+		}
+		if (i == 38 && j == 2)
+		{
+			cout << "     resume orange" << endl;
+			uthread_resume(3);
+			j++;
+		}
+		if (i == 41 && j == 3)
+		{
+			cout << "     resume red2" << endl;
+			uthread_resume(2);
+			j++;
+		}
+		if (i == 44 && j == 4)
+		{
+			cout << "     resume red1" << endl;
+			uthread_resume(1);
+			j++;
+		}
 	}
-
-	cout << uthread_get_quantums(0) << " + " << endl;
-	cout << uthread_get_quantums(1) << " + " << endl;
-	cout << uthread_get_quantums(2) << " + " << endl;
-	cout << uthread_get_quantums(3) << endl;
-	cout << " = " << uthread_get_total_quantums() << endl;
-
 
 	uthread_terminate(0);
 	return 0;
 }
+
 
 int uthread_init(int quantum_usecs)
 {

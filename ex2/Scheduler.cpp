@@ -3,14 +3,14 @@
 #define MEGA 100000
 #define CONTINUING 1
 
-bool Scheduler::instanceFlag = false;
-Scheduler *Scheduler::instance = NULL;
+bool Scheduler::s_instanceFlag = false;
+Scheduler *Scheduler::s_instance = NULL;
 
 Scheduler::Scheduler(int quantum_usecs)
 {
 	setQuantum(quantum_usecs);
-	totalThreadsNum = 0;
-	totalQuantums = 0;
+	_totalThreadsNum = 0;
+	_totalQuantums = 0;
 }
 
 bool Scheduler::isValidTid(int tid)
@@ -25,7 +25,7 @@ bool Scheduler::isValidTid(int tid)
 
 Scheduler *Scheduler::getInstance(int quantumUsecs)
 {
-	if (!_instanceFlag)
+	if (!s_instanceFlag)
 	{
 		s_instance = new Scheduler(quantumUsecs);
 		s_instanceFlag = true;
@@ -94,22 +94,22 @@ unsigned int Scheduler::getMinTid()
 		return newTid;
 	}
 
-	return totalThreadsNum;
+	return _totalThreadsNum;
 }
 
 int Scheduler::getTotalQuantums()
 {
-	return totalQuantums;
+	return _totalQuantums;
 }
 
 int Scheduler::getTotalThreadsNum()
 {
-	return totalThreadsNum;
+	return _totalThreadsNum;
 }
 
 itimerval *Scheduler::getQuantum()
 {
-	return &quantum;
+	return &_quantum;
 }
 
 std::priority_queue<unsigned int, std::vector<unsigned int>,
@@ -151,25 +151,25 @@ void Scheduler::setQuantum(int quantumUsec)
 	suseconds_t usec = quantumUsec % MEGA;
 	time_t sec = (quantumUsec - usec) / MEGA;
 
-	quantum.it_value.tv_sec = sec; /* first time interval, seconds part */
-	quantum.it_value.tv_usec = usec; /* first time interval, microseconds part */
-	quantum.it_interval.tv_sec = sec; /* following time intervals, seconds part */
-	quantum.it_interval.tv_usec = usec; /* following time intervals, microseconds part */
+	_quantum.it_value.tv_sec = sec; /* first time interval, seconds part */
+	_quantum.it_value.tv_usec = usec; /* first time interval, microseconds part */
+	_quantum.it_interval.tv_sec = sec; /* following time intervals, seconds part */
+	_quantum.it_interval.tv_usec = usec; /* following time intervals, microseconds part */
 }
 
 void Scheduler::incrementTotalQuantums()
 {
-	totalQuantums++;
+	_totalQuantums++;
 }
 
 void Scheduler::incrementTotalThreadsNum()
 {
-	totalThreadsNum++;
+	_totalThreadsNum++;
 }
 
 void Scheduler::decrementTotalThreadsNum()
 {
-	totalThreadsNum--;
+	_totalThreadsNum--;
 }
 
 void Scheduler::runNext()
@@ -199,7 +199,7 @@ void Scheduler::switchThreads(State destination)
 	}
 
 	// Save current thread
-	int retVal = sigsetjmp(*(running->getEnv()), 1);
+	int retVal = sigsetjmp(*(getRunning()->getEnv()), 1);
 	if (retVal == CONTINUING)
 	{
 		// Set handler back

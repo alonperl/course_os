@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "uthreads.h"
-#include "Thread.h"
+#include "Thread.hpp"
 
 template <class Type, bool (*compare)(const Type *t1, const Type *t2)>
 class PQueue

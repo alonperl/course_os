@@ -27,101 +27,88 @@
 
 
 StatesManager *statesManager;
+
 using namespace std;
-void work()
+
+void f (void)
 {
-	int i = 0;
-	// for(i = 0; i < 10000; i++)
-	for(;; i++)
+	while(1)
 	{
-		if (i == 0)
-		{
-			printf("Thread %d starts its work.\n", uthread_get_tid());
-		}
-		if (i % 1000 == 0)
-		{
-			printf(".", i);
-		}
-	 	 if (i == 1000000000)
-	 	 {
-	 	 	printf("Thread %d finished.\n", uthread_get_tid());
-	 	 	uthread_terminate(uthread_get_tid());
-	 	 }
+//		cout << "f" << endl;
+		uthread_suspend(1);
 	}
 }
 
-/*int main(int argc, char const *argv[])
+void g (void)
 {
-	printf("Entering main\n");
-	uthread_init(10000);
-	printf("Inited\n");
-
-	int i;
-	for (i = 0; i < 30; ++i)
+	while(1)
 	{
-		uthread_spawn(work, ORANGE);
+//		cout << "g" << endl;
+		uthread_suspend(2);
 	}
+}
 
-	for (i = 1; i <= 30; ++i)
+void h (void)
+{
+	while(1)
 	{
-		printf("suspending %d from main\n", i);
-		uthread_suspend(i);
+//		cout << "h" << endl;
+		uthread_suspend(3);
 	}
-
-	Thread *t;
-	std::map<unsigned int, Thread*>::iterator threadsIterator = statesManager->threadsMap.begin();
-	for (; threadsIterator != statesManager->threadsMap.end(); ++threadsIterator)
-	{
-		if (threadsIterator->first != 0)// threadsIterator->second->getState() == BLOCKED)
-		{
-			printf("Tid %d\tState %d\n", threadsIterator->second->getTid(), threadsIterator->second->getState());
-		}
-	}
-
-	for (i = 1; i <= 30; ++i)
-	{
-		printf("resuming %d from main\n", i);
-		uthread_resume(i);
-	}
-
-	printf("Finished main\n");
-	uthread_terminate(MAIN);
-
-	return 0;
-}*/
-
-void f(void){}
+}
 
 int main(void)
 {
-	if (uthread_init(1000000000) == -1)
+	if (uthread_init(100) == -1)
 	{
 		return 0;
 	}
 
+	uthread_spawn(f,RED);
+	uthread_spawn(g,RED);
+	uthread_spawn(h,RED);
 
-	uthread_terminate(-1);
-	uthread_suspend(-1);
-	uthread_resume(-1);
-	uthread_get_quantums(-1);
+	while(uthread_get_total_quantums() < 10)
+	{
+		uthread_resume(1);
+		uthread_resume(2);
+		uthread_resume(3);
+	}
 
-	uthread_terminate(1);
-	uthread_suspend(1);
-	uthread_resume(1);
-	uthread_get_quantums(1);
+	cout << uthread_get_quantums(0) << " + " << endl;
+	cout << uthread_get_quantums(1) << " + " << endl;
+	cout << uthread_get_quantums(2) << " + " << endl;
+	cout << uthread_get_quantums(3) << endl;
+	cout << " = " << uthread_get_total_quantums() << endl;
 
-	uthread_suspend(0);
+	uthread_suspend(2);
 
-	uthread_spawn(f,GREEN);
-	uthread_terminate(1);
+	while(uthread_get_total_quantums() < 20)
+		{
+			uthread_resume(1);
+			uthread_resume(3);
+		}
 
-	uthread_terminate(1);
-	uthread_suspend(1);
-	uthread_resume(1);
-	uthread_get_quantums(1);
+	cout << uthread_get_quantums(0) << " + " << endl;
+	cout << uthread_get_quantums(1) << " + " << endl;
+	cout << uthread_get_quantums(2) << " + " << endl;
+	cout << uthread_get_quantums(3) << endl;
+	cout << " = " << uthread_get_total_quantums() << endl;
 
-	uthread_init(0);
-	uthread_init(-5);
+	uthread_resume(2);
+
+	while(uthread_get_total_quantums() < 30)
+	{
+		uthread_resume(1);
+		uthread_resume(2);
+		uthread_resume(3);
+	}
+
+	cout << uthread_get_quantums(0) << " + " << endl;
+	cout << uthread_get_quantums(1) << " + " << endl;
+	cout << uthread_get_quantums(2) << " + " << endl;
+	cout << uthread_get_quantums(3) << endl;
+	cout << " = " << uthread_get_total_quantums() << endl;
 
 
 	uthread_terminate(0);

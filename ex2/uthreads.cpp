@@ -22,12 +22,6 @@
 #define LIBERR_THREAD_CREATION_FAILED ": cannot create thread object\n"
 #define LIBERR_SUSPEND_ONLY_THREAD ": cannot suspend main thread\n"
 
-int main()
-{
-	/* code */
-	return 0;
-}
-
 int uthread_init(int quantum_usecs)
 {
 	if (quantum_usecs <= 0)

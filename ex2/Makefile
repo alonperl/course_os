@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS = -Wall -Wextra $(INCS)
+CFLAGS=-Wall -Wextra $(INCS)
 
 AR=ar rvs
 TAR=tar -cvs

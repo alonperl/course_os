@@ -114,6 +114,7 @@ void StatesManager::incrementTotalThreadsNum() {
 void StatesManager::incrementTotalQuantums()
 {
 	totalQuantums++;
+	printf("Now total quantums are %d\n", getTotalQuantums());
 }
 
 void StatesManager::decrementTotalThreadsNum() {

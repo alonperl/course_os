@@ -82,8 +82,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 	if (thread != NULL)
 	{
 		scheduler->ready(thread);
-		std::map<unsigned int, Thread*> *threads = scheduler->getThreadsMap();
-		(*threads)[newTid] = thread;
+		(*scheduler->getThreadsMap())[newTid] = thread;
 	}
 
 	scheduler->incrementTotalThreadsNum();

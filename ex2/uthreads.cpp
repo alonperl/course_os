@@ -212,7 +212,7 @@ int uthread_init(int quantum_usecs)
 
 	statesManager->runNext();
 
-	signal(SIGVTALRM, StatesManager::staticSignalHandler);
+	signal(SIGVTALRM, SignalManager::staticSignalHandler);
 	setitimer(ITIMER_VIRTUAL, statesManager->getQuantum(), NULL);
 
 	return 0;

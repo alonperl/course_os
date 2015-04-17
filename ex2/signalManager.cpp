@@ -27,9 +27,9 @@ bool SignalManager::hasTimerSignalTriggered()
 	return sigismember(&pendingSignals, SIGVTALRM);
 }
 
-void SignalManager::startTimer(void (*handler)(int sig), itimerval *quantum)
+void SignalManager::startTimer(itimerval *quantum)
 {
-	signal(SIGVTALRM, handler);
+	signal(SIGVTALRM, staticSignalHandler);
 	setitimer(ITIMER_VIRTUAL, quantum, NULL);
 }
 

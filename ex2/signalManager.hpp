@@ -15,7 +15,7 @@ public:
 	static void staticSignalHandler(int sig);
 
 	static bool hasTimerSignalTriggered();
-	static void startTimer(void (*handler)(int sig), itimerval *quantum);
+	static void startTimer(itimerval *quantum);
 	static void stopTimer();
 
 	static sigset_t blockedSignals;

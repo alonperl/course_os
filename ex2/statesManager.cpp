@@ -139,7 +139,7 @@ int prevtid = running->getTid();
 		incrementTotalQuantums();
 
 		SignalManager::unblockSignals();
-		SignalManager::startTimer(staticSignalHandler, getQuantum());
+		SignalManager::startTimer(getQuantum());
 
 		return;
 	}
@@ -150,7 +150,7 @@ int prevtid = running->getTid();
 		// Set handler back
 		SignalManager::unblockSignals();
 		// Reset timer
-		SignalManager::startTimer(staticSignalHandler, getQuantum());
+		SignalManager::startTimer(getQuantum());
 		return;
 	}
 
@@ -176,6 +176,6 @@ int prevtid = running->getTid();
 	// TODO: maybe it is redundant because anyway long jumps to set and there is unblock
 	// Set handler back
 	SignalManager::unblockSignals();
-	SignalManager::startTimer(staticSignalHandler, getQuantum());
+	SignalManager::startTimer(getQuantum());
 	siglongjmp(*(running->getEnv()), CONTINUING);
 }

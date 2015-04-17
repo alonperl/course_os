@@ -45,9 +45,6 @@ class StatesManager
 
 		void runNext();
 
-		void stopTimer();
-		void startTimer();
-
 		void setQuantum(int quantum);
 		void incrementTotalThreadsNum();
 		void decrementTotalThreadsNum();

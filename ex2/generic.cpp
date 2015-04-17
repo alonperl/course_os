@@ -10,9 +10,10 @@
 #include "uthreads.h"
 #include "Thread.hpp"
 
-template <typename Type, typename Compare>
+template <typename Type, bool (*f)(Type t1, Type t2)>
 class PQueue
 {
+	typedef bool (*f)(Type t1, Type t2) Compare;
 	public:
 		PQueue(Compare &comp);
 		Type get();

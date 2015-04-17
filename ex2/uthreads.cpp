@@ -325,7 +325,6 @@ int uthread_suspend(int tid)
 		statesManager->switchThreads(READY);
 	}
 
-	printf("Timer did not expire while suspending.\n");	
 	return 0;
 }
 
@@ -362,7 +361,6 @@ int uthread_resume(int tid)
 		statesManager->switchThreads(READY);
 	}
 
-	printf("Timer did not expire while resuming.\n");	
 	return 0;
 }
 

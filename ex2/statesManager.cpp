@@ -122,6 +122,7 @@ void StatesManager::decrementTotalThreadsNum() {
 }
 
 void StatesManager::staticSignalHandler(int sig) {
+	printf("Time! ");
 	(*instance).signalHandler(sig);
 }
 

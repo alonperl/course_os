@@ -43,8 +43,5 @@ void SignalManager::stopTimer()
 
 void SignalManager::staticSignalHandler(int sig)
 {
-	/*  Here, getInstance accepts int quantum_usecs for first init
-		and doesn't use its argument at any other calls. Let's pass
-		sig to it, as it is not used anyway. Yes, this is bad. */
-	(*Scheduler::getInstance(sig)).switchThreads(READY);
+	(*Scheduler::getInstance()).switchThreads(READY);
 }

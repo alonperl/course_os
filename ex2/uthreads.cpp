@@ -15,16 +15,12 @@
 #define MAIN 0
 
 #define LIBERR "thread library error: "
-
 #define LIBERR_INVALID_QUANTUM ": invalid quantum\n"
 #define LIBERR_INIT_CALLED ": cannot call init more then once\n"
 #define LIBERR_MAX_THREAD_NUM ": maximum threads reached\n"
 #define LIBERR_INVALID_TID ": no such thread\n"
 #define LIBERR_THREAD_CREATION_FAILED ": cannot create thread object\n"
 #define LIBERR_SUSPEND_ONLY_THREAD ": cannot suspend main thread\n"
-
-
-Scheduler *gScheduler;
 
 int main()
 {
@@ -40,23 +36,25 @@ int uthread_init(int quantum_usecs)
 		return FAIL;
 	}
 
-	gScheduler = Scheduler::getInstance(quantum_usecs);
+	Scheduler *scheduler = Scheduler::getInstance();
 
-	// If init was called before, gScheduler will contain at least main thread
-	if (gScheduler->getTotalThreadsNum() > 0)
+	// If init was called before, scheduler will contain at least main thread
+	if (scheduler->getTotalThreadsNum() > 0)
 	{
 		std::cerr << LIBERR << __FUNCTION__ << LIBERR_INIT_CALLED;
 		return FAIL;
 	}
 
-	uthread_spawn(NULL, ORANGE);
-	gScheduler->threadsMap[MAIN]->incrementQuantums();
-	gScheduler->incrementTotalQuantums();
+	scheduler->setQuantum(quantum_usecs);
 
-	gScheduler->runNext();
+	uthread_spawn(NULL, ORANGE);
+	scheduler->threadsMap[MAIN]->incrementQuantums();
+	scheduler->incrementTotalQuantums();
+
+	scheduler->runNext();
 
 	signal(SIGVTALRM, SignalManager::staticSignalHandler);
-	setitimer(ITIMER_VIRTUAL, gScheduler->getQuantum(), NULL);
+	setitimer(ITIMER_VIRTUAL, scheduler->getQuantum(), NULL);
 
 	return 0;
 }
@@ -66,14 +64,16 @@ int uthread_spawn(void (*f)(void), Priority pr)
 {
 	SignalManager::postponeSignals();
 
-	if (gScheduler->getTotalThreadsNum() >= MAX_THREAD_NUM)
+	Scheduler *scheduler = Scheduler::getInstance();
+
+	if (scheduler->getTotalThreadsNum() >= MAX_THREAD_NUM)
 	{
 		std::cerr << LIBERR << __FUNCTION__ << LIBERR_MAX_THREAD_NUM;
 		return FAIL;
 	}
 	
 	Thread *thread;
-	unsigned int newTid = gScheduler->getMinTid();
+	unsigned int newTid = scheduler->getMinTid();
 
 	try
 	{
@@ -87,11 +87,11 @@ int uthread_spawn(void (*f)(void), Priority pr)
 
 	if (thread != NULL)
 	{
-		gScheduler->ready(thread);
-		gScheduler->threadsMap[newTid] = thread;
+		scheduler->ready(thread);
+		scheduler->threadsMap[newTid] = thread;
 	}
 
-	gScheduler->incrementTotalThreadsNum();
+	scheduler->incrementTotalThreadsNum();
 
 	// Set handler back
 	SignalManager::unblockSignals();
@@ -99,7 +99,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 	// If the quantum has ended till now, switch threads now.
 	if (SignalManager::hasTimerSignalTriggered())
 	{
-		gScheduler->switchThreads(READY);
+		scheduler->switchThreads(READY);
 	}
 
 	return newTid;
@@ -110,7 +110,9 @@ int uthread_terminate(int tid)
 {
 	SignalManager::postponeSignals();
 
-	if (!gScheduler->isValidTid(tid))
+	Scheduler *scheduler = Scheduler::getInstance();
+
+	if (!scheduler->isValidTid(tid))
 	{
 		std::cerr << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
 		SignalManager::unblockSignals();
@@ -120,8 +122,8 @@ int uthread_terminate(int tid)
 	// Terminating main
 	if (tid == 0)
 	{
-		std::map<unsigned int, Thread*>::iterator threadsIterator = gScheduler->threadsMap.begin();
-		for (; threadsIterator != gScheduler->threadsMap.end(); ++threadsIterator)
+		std::map<unsigned int, Thread*>::iterator threadsIterator = scheduler->threadsMap.begin();
+		for (; threadsIterator != scheduler->threadsMap.end(); ++threadsIterator)
 		{
 			if (threadsIterator->first != 0)
 			{
@@ -132,7 +134,7 @@ int uthread_terminate(int tid)
 		exit(0);
 	}
 
-	Thread *thread = gScheduler->getThread(tid);
+	Thread *thread = scheduler->getThread(tid);
 
 	bool selfDestroy = false;
 
@@ -140,46 +142,46 @@ int uthread_terminate(int tid)
 	{
 		case READY:
 			// Remove from Ready queue
-			gScheduler->readyQueue.erase(thread);
+			scheduler->readyQueue.erase(thread);
 			break;
 
 		case RUNNING:
 			// Stop current thread and run next ready thread
 			selfDestroy = true;
-			gScheduler->runNext();
+			scheduler->runNext();
 			break;
 
 		case BLOCKED:
 			// Remove from blocked
-			gScheduler->blockedMap.erase(tid);
+			scheduler->blockedMap.erase(tid);
 			break;
 
 		default:
 			break;
 	}
 
-	gScheduler->threadsMap.erase(thread->getTid());
-	gScheduler->terminatedTids.push(thread->getTid());
+	scheduler->threadsMap.erase(thread->getTid());
+	scheduler->terminatedTids.push(thread->getTid());
 
 	delete thread;
 
-	gScheduler->decrementTotalThreadsNum();
+	scheduler->decrementTotalThreadsNum();
 
 	// If the quantum has ended till now and thread did not kill itself
 	// , switch threads now.
 	if (SignalManager::hasTimerSignalTriggered() && !selfDestroy)
 	{
-		gScheduler->switchThreads(READY);
+		scheduler->switchThreads(READY);
 	}
 
 	if (selfDestroy)
 	{
-		gScheduler->running->incrementQuantums();
-		gScheduler->incrementTotalQuantums();
+		scheduler->running->incrementQuantums();
+		scheduler->incrementTotalQuantums();
 
 		// Terminated last running thread, must switch to next
 		// TODO after f ends, g gets into running, but does not work (g q = 8)
-		siglongjmp(*(gScheduler->running->getEnv()), 1);
+		siglongjmp(*(scheduler->running->getEnv()), 1);
 	}
 
 	return 0;
@@ -190,20 +192,22 @@ int uthread_suspend(int tid)
 {
 	SignalManager::postponeSignals();
 
+	Scheduler *scheduler = Scheduler::getInstance();
+
 	// If got invalid tid or if there if only one existing thread, cannot suspend
-	if (!gScheduler->isValidTid(tid))
+	if (!scheduler->isValidTid(tid))
 	{
 		std::cerr << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
 		return FAIL;
 	}
 
-	if (gScheduler->getTotalThreadsNum() == 1)
+	if (scheduler->getTotalThreadsNum() == 1)
 	{
 		std::cerr << LIBERR << __FUNCTION__ << LIBERR_SUSPEND_ONLY_THREAD;
 		return FAIL;
 	}
 
-	Thread *thread = gScheduler->getThread(tid);
+	Thread *thread = scheduler->getThread(tid);
 
 	if (thread->getState() != BLOCKED)
 	{
@@ -211,15 +215,15 @@ int uthread_suspend(int tid)
 		if (thread->getState() == RUNNING)
 		{
 			// Get next ready thread and set it as current
-			gScheduler->switchThreads(BLOCKED);
-			/*gScheduler->runNext();
+			scheduler->switchThreads(BLOCKED);
+			/*scheduler->runNext();
 
 			SignalManager::unblockSignals();
-			siglongjmp(*(gScheduler->running->getEnv()), CONTINUING);*/
+			siglongjmp(*(scheduler->running->getEnv()), CONTINUING);*/
 		}
 		else
 		{
-			gScheduler->block(thread);
+			scheduler->block(thread);
 		}
 	}
 
@@ -229,7 +233,7 @@ int uthread_suspend(int tid)
 	// If the quantum has ended till now, switch threads now.
 	if (SignalManager::hasTimerSignalTriggered())
 	{
-		gScheduler->switchThreads(READY);
+		scheduler->switchThreads(READY);
 	}
 
 	return 0;
@@ -240,20 +244,22 @@ int uthread_resume(int tid)
 {
 	SignalManager::postponeSignals();
 
-	if (!gScheduler->isValidTid(tid))
+	Scheduler *scheduler = Scheduler::getInstance();
+
+	if (!scheduler->isValidTid(tid))
 	{
 		std::cerr << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
 		return FAIL;
 	}
 
-	Thread *thread = gScheduler->getThread(tid);
+	Thread *thread = scheduler->getThread(tid);
 
 	// If the thread is not blocked, do nothing.
 	if (thread->getState() == BLOCKED)
 	{
 		// printf("%d resumed %d\n", uthread_get_tid(), tid);
-		gScheduler->ready(thread);
-		gScheduler->blockedMap.erase(tid);
+		scheduler->ready(thread);
+		scheduler->blockedMap.erase(tid);
 	}
 
 	thread = NULL;
@@ -264,7 +270,7 @@ int uthread_resume(int tid)
 	// If the quantum has ended till now, switch threads now.
 	if (SignalManager::hasTimerSignalTriggered())
 	{
-		gScheduler->switchThreads(READY);
+		scheduler->switchThreads(READY);
 	}
 
 	return 0;
@@ -274,40 +280,30 @@ int uthread_resume(int tid)
 /* Get the id of the calling thread */
 int uthread_get_tid()
 {
-	// SignalManager::postponeSignals();
-	return gScheduler->running->getTid();
-	// SignalManager::unblockSignals();
-	// if (SignalManager::hasTimerSignalTriggered())
-	// {
-	// 	gScheduler->switchThreads(READY);
-	// }
+	return Scheduler::getInstance()->running->getTid();
 }
 
 /* Get the total number of library quantums */
 int uthread_get_total_quantums()
 {
-	return gScheduler->getTotalQuantums();
+	return scheduler->getTotalQuantums();
 }
 
 /* Get the number of thread quantums */
 int uthread_get_quantums(int tid)
 {
-	if (!gScheduler->isValidTid(tid))
+	Scheduler *scheduler = Scheduler::getInstance();
+
+	if (!scheduler->isValidTid(tid))
 	{
 		std::cerr << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
 		return FAIL;
 	}
 	
-	// SignalManager::postponeSignals();
-	return gScheduler->getThread(tid)->getQuantums();
-	// SignalManager::unblockSignals();
-	// if (SignalManager::hasTimerSignalTriggered())
-	// {
-	// 	gScheduler->switchThreads(READY);
-	// }
+	return scheduler->getThread(tid)->getQuantums();
 }
 
 unsigned int getMinTid()
 {
-	return gScheduler->getMinTid();
+	return 	Scheduler::getInstance()->getMinTid();
 }

@@ -6,9 +6,8 @@
 bool Scheduler::s_instanceFlag = false;
 Scheduler *Scheduler::s_instance = NULL;
 
-Scheduler::Scheduler(int quantum_usecs)
+Scheduler::Scheduler()
 {
-	setQuantum(quantum_usecs);
 	_totalThreadsNum = 0;
 	_totalQuantums = 0;
 }
@@ -23,11 +22,11 @@ bool Scheduler::isValidTid(int tid)
 	return true;
 }
 
-Scheduler *Scheduler::getInstance(int quantumUsecs)
+Scheduler *Scheduler::getInstance()
 {
 	if (!s_instanceFlag)
 	{
-		s_instance = new Scheduler(quantumUsecs);
+		s_instance = new Scheduler();
 		s_instanceFlag = true;
 		return s_instance;
 	}

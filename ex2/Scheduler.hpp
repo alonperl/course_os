@@ -12,7 +12,7 @@ class Scheduler
 {
 
 	public:
-		static Scheduler *getInstance(int quantum_usecs);
+		static Scheduler *getInstance();
 
 		void switchThreads(State destination);
 
@@ -46,10 +46,10 @@ class Scheduler
 
 		bool isValidTid(int tid);
 
+		void setQuantum(int quantum);
+
 	private:
 		Scheduler(int quantum_usecs);
-
-		void setQuantum(int quantum);
 
 		static Scheduler *s_instance;
 	    static bool s_instanceFlag;

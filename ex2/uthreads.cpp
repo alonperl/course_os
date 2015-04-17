@@ -71,11 +71,11 @@ int main(void)
 	while(uthread_get_total_quantums() < 10)
 	{
 		uthread_resume(1);
-		printf("Resumed 1\n");
+		printf("%d resumed 1\n", uthread_get_tid());
 		uthread_resume(2);
-		printf("Resumed 2\n");
+		printf("%d resumed 2\n", uthread_get_tid());
 		uthread_resume(3);
-		printf("Resumed 3\n");
+		printf("%d resumed 3\n", uthread_get_tid());
 	}
 
 	cout << uthread_get_quantums(0) << " + " << endl;

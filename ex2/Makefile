@@ -1,35 +1,44 @@
 CC=g++
-RANLIB=ranlib
+CFLAGS = -Wall -Wextra -g $(INCS)
+
+AR=ar rvs
+TAR=tar -cvs
+TARNAME=ex2.tar
 
 TARGETS=uthreads.cpp Thread.cpp Scheduler.cpp SignalManager.cpp PriorityQueue.cpp
+LIBUTHREADS = libuthreads.a
 
-LIBSRC=uthreads.cpp
-LIBOBJ=$(LIBSRC:.c=.o)
+TARSRCS=$(TARGETS) Makefile README
 
-INCS=-I.
-CFLAGS = -Wall -Wextra -g $(INCS)
-LOADLIBES = -L./
+all: uthreads.a
 
-UTHREADSLIB = libuthreads.a
-TARGETS = $(UTHREADSLIBLIB)
+uthreads.o: $(TARGETS)
+	$(CC) $(CFLAGS) -c $(TARGETS)
 
-TAR=tar
-TARFLAGS=-cvf
-TARNAME=ex2.tar
-TARSRCS=$(LIBSRC) Makefile README
+uthreads.a: uthreads.o
+	$(AR) uthreads.a uthreads.o
 
-all: uthreads.cpp Thread.cpp Scheduler.cpp SignalManager.cpp PriorityQueue.cpp
-	$(CC) $(CFLAGS) -o uthreads uthreads.cpp Thread.cpp Scheduler.cpp SignalManager.cpp PriorityQueue.cpp
+tests: test1 test2 test3 test4 test5
 
-$(TARGETS): $(LIBOBJ)
-	$(AR) $(ARFLAGS) $@ $^
-	$(RANLIB) $@
+test1:
+	$(CC) $(CFLAGS) -o test1 tests/test1.cpp $(TARGETS)
+
+test2:
+	$(CC) $(CFLAGS) -o test2 tests/test2.cpp $(TARGETS)
+
+test3:
+	$(CC) $(CFLAGS) -o test3 tests/test3.cpp $(TARGETS)
+
+test4:
+	$(CC) $(CFLAGS) -o test4 tests/test4.cpp $(TARGETS)
+
+test5:
+	$(CC) $(CFLAGS) -o test5 tests/test5.cpp $(TARGETS)
 
 clean:
-	$(RM) $(TARGETS) $(OBJ) $(LIBOBJ)
-
-depend:
-	makedepend -- $(CFLAGS) -- $(SRC) $(LIBSRC)
+	rm -rf uthreads.o uthreads.a test1 test2 test3 test4 test5
 
 tar:
-	$(TAR) $(TARFLAGS) $(TARNAME) $(TARSRCS)
+	$(TAR) $(TARNAME) $(TARSRCS)
+
+.PHONY: all

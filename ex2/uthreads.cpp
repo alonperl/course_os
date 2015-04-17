@@ -344,9 +344,11 @@ int uthread_terminate(int tid)
 
 	if (selfDestroy)
 	{
+		statesManager->running->incrementQuantums();
+		statesManager->incrementTotalQuantums();
+
 		// Terminated last running thread, must switch to next
 		// TODO after f ends, g gets into running, but does not work (g q = 8)
-		statesManager->running->incrementQuantums();
 		siglongjmp(*(statesManager->running->getEnv()), 1);
 	}
 

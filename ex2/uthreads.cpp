@@ -93,31 +93,31 @@ int main(void)
 	}
 
 
-	uthread_terminate(-1);
-	uthread_suspend(-1);
-	uthread_resume(-1);
-	uthread_get_quantums(-1);
+	// uthread_terminate(-1);
+	// uthread_suspend(-1);
+	// uthread_resume(-1);
+	// uthread_get_quantums(-1);
 
-	uthread_terminate(1);
-	uthread_suspend(1);
-	uthread_resume(1);
-	uthread_get_quantums(1);
+	// uthread_terminate(1);
+	// uthread_suspend(1);
+	// uthread_resume(1);
+	// uthread_get_quantums(1);
 
-	uthread_suspend(0);
+	// uthread_suspend(0);
 
-	uthread_spawn(f,GREEN);
-	uthread_terminate(1);
+	// uthread_spawn(f,GREEN);
+	// uthread_terminate(1);
 
-	uthread_terminate(1);
-	uthread_suspend(1);
-	uthread_resume(1);
-	uthread_get_quantums(1);
+	// uthread_terminate(1);
+	// uthread_suspend(1);
+	// uthread_resume(1);
+	// uthread_get_quantums(1);
 
-	uthread_init(0);
-	uthread_init(-5);
+	// uthread_init(0);
+	// uthread_init(-5);
 
 
-	uthread_terminate(0);
+	// uthread_terminate(0);
 	return 0;
 }
 

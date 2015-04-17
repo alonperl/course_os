@@ -15,7 +15,7 @@ class PQueue
 {
 	public:
 		Type *get();
-		void set(Type *t);
+		void set(Type &t);
 
 	private:
 		std::list<Type*> list;
@@ -23,7 +23,7 @@ class PQueue
 };
 
 template <typename Type, typename Compare>
-void PQueue<Type, Compare>::set(Type *t)
+void PQueue<Type, Compare>::set(Type &t)
 {
 	list.push_front(t);
 	list.sort(comp);
@@ -61,7 +61,7 @@ int main()
 {
 	PQueue<Thread*, CompareThreads> pq;
 	Thread *t = new Thread(NULL, ORANGE, 0);
-	pq.set(&t);
+	pq.set(t);
 	printf("%d", pq->get()->getTid());
 	return 0;
 }

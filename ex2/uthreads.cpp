@@ -34,7 +34,7 @@ void f (void)
 {
 	while(1)
 	{
-//		cout << "f" << endl;
+		cout << "f" << endl;
 		uthread_suspend(1);
 	}
 }
@@ -43,7 +43,7 @@ void g (void)
 {
 	while(1)
 	{
-//		cout << "g" << endl;
+		cout << "g" << endl;
 		uthread_suspend(2);
 	}
 }
@@ -52,7 +52,7 @@ void h (void)
 {
 	while(1)
 	{
-//		cout << "h" << endl;
+		cout << "h" << endl;
 		uthread_suspend(3);
 	}
 }

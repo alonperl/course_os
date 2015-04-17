@@ -14,8 +14,8 @@ template <typename Type, typename Compare>
 class PQueue
 {
 	public:
-		Type get();
-		void set(Type t);
+		Type *get();
+		void set(Type *t);
 
 	private:
 		std::list<Type*> list;
@@ -23,14 +23,14 @@ class PQueue
 };
 
 template <typename Type, typename Compare>
-void PQueue<Type, Compare>::set(Type t)
+void PQueue<Type, Compare>::set(Type *t)
 {
 	list.push_front(t);
 	list.sort(comp);
 }
 
 template <typename Type, typename Compare>
-Type PQueue<Type, Compare>::get()
+Type *PQueue<Type, Compare>::get()
 {
 	return list.front();
 }

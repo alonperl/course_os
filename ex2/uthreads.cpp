@@ -277,10 +277,6 @@ int uthread_terminate(int tid)
 	// Terminating main
 	if (tid == 0)
 	{
-		int totalThreadNum = statesManager->getTotalThreadsNum();
-		unsigned int existingThreads[totalThreadNum - 1];
-		int counter = 0;
-
 		std::map<unsigned int, Thread*>::iterator threadsIterator = statesManager->threadsMap.begin();
 		for (; threadsIterator != statesManager->threadsMap.end(); ++threadsIterator)
 		{
@@ -313,6 +309,9 @@ int uthread_terminate(int tid)
 		case BLOCKED:
 			// Remove from blocked
 			statesManager->blockedMap.erase(tid);
+			break;
+
+		default:
 			break;
 	}
 

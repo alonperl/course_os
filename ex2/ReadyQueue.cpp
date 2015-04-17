@@ -33,6 +33,8 @@ Thread *ReadyQueue::top()
 	{
 		return ready.front();
 	}
+
+	return nullptr;
 }
 
 void ReadyQueue::push(Thread *thread)

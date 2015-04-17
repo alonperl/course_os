@@ -1,4 +1,5 @@
 #include "signalManager.hpp"
+#include "statesManager.hpp"
 
 sigset_t SignalManager::blockedSignals;
 sigset_t SignalManager::pendingSignals;
@@ -36,7 +37,7 @@ void SignalManager::startTimer(itimerval *quantum)
 void SignalManager::stopTimer()
 {
 	ignoreSignals();
-	struct itimerval reset = {0, 0};
+	struct itimerval reset = {0, 0, 0, 0};
     setitimer(ITIMER_VIRTUAL, &reset, NULL);
 }
 

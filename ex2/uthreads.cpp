@@ -336,9 +336,6 @@ int uthread_terminate(int tid)
 		exit(0);
 	}
 
-	// Set handler back
-	SignalManager::unblockSignals();
-
 	// If the quantum has ended till now and thread did not kill itself
 	// , switch threads now.
 	if (SignalManager::hasTimerSignalTriggered() && !selfDestroy)
@@ -350,6 +347,8 @@ int uthread_terminate(int tid)
 	{
 		// Terminated last running thread, must switch to next
 		// TODO after f ends, g gets into running, but does not work (g q = 8)
+		// Set handler back
+		SignalManager::unblockSignals();
 		siglongjmp(*(statesManager->running->getEnv()), 1);
 	}
 

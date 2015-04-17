@@ -48,7 +48,7 @@ int uthread_init(int quantum_usecs)
 	scheduler->setQuantum(quantum_usecs);
 
 	uthread_spawn(NULL, ORANGE);
-	scheduler->getThreadsMap()[MAIN]->incrementQuantums();
+	scheduler->getThread(MAIN)->incrementQuantums();
 	scheduler->incrementTotalQuantums();
 
 	scheduler->runNext();
@@ -88,7 +88,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 	if (thread != NULL)
 	{
 		scheduler->ready(thread);
-		(scheduler->getThreadsMap())[newTid] = thread;
+		scheduler->getThreadsMap()->at(newTid) = thread;
 	}
 
 	scheduler->incrementTotalThreadsNum();
@@ -122,8 +122,8 @@ int uthread_terminate(int tid)
 	// Terminating main
 	if (tid == 0)
 	{
-		std::map<unsigned int, Thread*>::iterator threadIter = scheduler->getThreadsMap().begin();
-		for (; threadIter != scheduler->getThreadsMap().end(); ++threadIter)
+		std::map<unsigned int, Thread*>::iterator threadIter = scheduler->getThreadsMap()->begin();
+		for (; threadIter != scheduler->getThreadsMap()->end(); ++threadIter)
 		{
 			if (threadIter->first != 0)
 			{
@@ -142,7 +142,7 @@ int uthread_terminate(int tid)
 	{
 		case READY:
 			// Remove from Ready queue
-			scheduler->getReadyQueue().erase(thread);
+			scheduler->getReadyQueue()->erase(thread);
 			break;
 
 		case RUNNING:
@@ -160,8 +160,8 @@ int uthread_terminate(int tid)
 			break;
 	}
 
-	scheduler->getThreadsMap().erase(thread->getTid());
-	scheduler->getTidsPool().push(thread->getTid());
+	scheduler->getThreadsMap()->erase(thread->getTid());
+	scheduler->getTidsPool()->push(thread->getTid());
 
 	delete thread;
 
@@ -259,7 +259,7 @@ int uthread_resume(int tid)
 	{
 		// printf("%d resumed %d\n", uthread_get_tid(), tid);
 		scheduler->ready(thread);
-		scheduler->getBlockedMap().erase(tid);
+		scheduler->getBlockedMap()->erase(tid);
 	}
 
 	thread = NULL;

@@ -49,7 +49,7 @@ class Scheduler
 		void setQuantum(int quantum);
 
 	private:
-		Scheduler(int quantum_usecs);
+		Scheduler();
 
 		static Scheduler *s_instance;
 	    static bool s_instanceFlag;

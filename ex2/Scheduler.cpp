@@ -14,7 +14,7 @@ Scheduler::Scheduler()
 
 bool Scheduler::isValidTid(int tid)
 {
-	if (getThreadsMap().find(tid) == getThreadsMap().end() || tid < 0)
+	if (getThreadsMap()->find(tid) == getThreadsMap()->end() || tid < 0)
 	{
 		return false;
 	}
@@ -49,7 +49,7 @@ Thread *Scheduler::getThread(int tid)
 		return NULL;
 	}
 
-	return getThreadsMap()[tid];
+	return getThreadsMap()->at(tid);
 }
 
 int Scheduler::ready(Thread *thread)
@@ -62,7 +62,7 @@ int Scheduler::ready(Thread *thread)
 	thread->setState(READY);
 	thread->setReadyFrom();
 
-	getReadyQueue().push(thread);
+	getReadyQueue()->push(thread);
 
 	return SUCCESS;
 }
@@ -76,20 +76,21 @@ int Scheduler::block(Thread *thread)
 
 	if (thread->getState() == READY)
 	{
-		getReadyQueue().erase(thread);
+		getReadyQueue()->erase(thread);
 	}
 
 	thread->setState(BLOCKED);
-	getBlockedMap()[thread->getTid()] = thread;
+	getBlockedMap()->at(thread->getTid()) = thread;
 	return SUCCESS;
 }
 
 unsigned int Scheduler::getMinTid()
 {
-	if (!getTidsPool().empty())
+	if (!getTidsPool()->empty())
 	{
-		unsigned int newTid = getTidsPool().top();
-		getTidsPool().pop();
+		// TODO as pq doesn't work good with top, change to list
+		unsigned int newTid = getTidsPool()->top();
+		getTidsPool()->pop();
 		return newTid;
 	}
 
@@ -173,8 +174,8 @@ void Scheduler::decrementTotalThreadsNum()
 
 void Scheduler::runNext()
 {
-	Thread *nextThread = getReadyQueue().top();
-	getReadyQueue().pop();
+	Thread *nextThread = getReadyQueue()->top();
+	getReadyQueue()->pop();
 
 	nextThread->setState(RUNNING);
 	setRunning(nextThread);
@@ -185,7 +186,7 @@ void Scheduler::switchThreads(State destination)
 	SignalManager::postponeSignals();
 	SignalManager::stopTimer();
 
-	if (getReadyQueue().size() == 0)
+	if (getReadyQueue()->size() == 0)
 	{
 		// Single thread exists, no need to switch
 		getRunning()->incrementQuantums();
@@ -235,5 +236,5 @@ void Scheduler::switchThreads(State destination)
 	// Set handler back
 	SignalManager::unblockSignals();
 	SignalManager::startTimer(getQuantum());
-	siglongjmp(*(running->getEnv()), CONTINUING);
+	siglongjmp(*(getRunning()->getEnv()), CONTINUING);
 }

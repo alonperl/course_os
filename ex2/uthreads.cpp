@@ -312,6 +312,7 @@ int uthread_suspend(int tid)
 		}
 
 		statesManager->block(thread);
+		printf("%d suspended %d\n", uthread_get_tid(), tid);
 	}
 
 	// Set handler back

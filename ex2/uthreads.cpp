@@ -1,12 +1,10 @@
-#include <stdio.h>
 #include <setjmp.h>
 #include <signal.h>
 #include <unistd.h>
 #include <sys/time.h>
-#include <stdlib.h>
-#include <deque>
+
+#include <cstdlib>
 #include <list>
-#include <assert.h>
 #include <iostream>
 
 #include "uthreads.h"
@@ -28,7 +26,7 @@
 
 Scheduler *gScheduler;
 
-int main(int argc, char const *argv[])
+int main()
 {
 	/* code */
 	return 0;

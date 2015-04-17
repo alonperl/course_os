@@ -6,7 +6,7 @@
 #include <setjmp.h>
 #include "Thread.hpp"
 #include "SignalManager.hpp"
-#include "ReadyQueue.hpp"
+#include "PriorityQueue.hpp"
 
 class Scheduler
 {

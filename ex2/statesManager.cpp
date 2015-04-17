@@ -121,15 +121,6 @@ void StatesManager::decrementTotalThreadsNum() {
 	totalThreadsNum--;
 }
 
-void StatesManager::staticSignalHandler(int sig) {
-	// printf("Time! ");
-	(*instance).signalHandler(sig);
-}
-
-void StatesManager::signalHandler(int sig) {
-	switchThreads(READY);
-}
-
 void StatesManager::runNext() {
 	Thread *nextThread = readyQueue.top();
 	readyQueue.pop();

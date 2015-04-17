@@ -11,9 +11,13 @@ public:
 	static void postponeSignals();
 	static void ignoreSignals();
 	static void unblockSignals();
+
+	static void staticSignalHandler(int sig);
+
 	static bool hasTimerSignalTriggered();
 	static void startTimer(void (*handler)(int sig), itimerval *quantum);
 	static void stopTimer();
+
 	static sigset_t blockedSignals;
 	static sigset_t pendingSignals;
 };

@@ -39,3 +39,8 @@ void SignalManager::stopTimer()
 	struct itimerval reset = {0, 0};
     setitimer(ITIMER_VIRTUAL, &reset, NULL);
 }
+
+void SignalManager::staticSignalHandler(int sig)
+{
+	(*StatesManager::getInstance()).switchThreads(READY);
+}

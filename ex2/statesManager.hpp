@@ -29,8 +29,6 @@ class StatesManager
 
 		static StatesManager *getInstance();
 
-		static void staticSignalHandler(int sig);
-
 		void switchThreads(State destination);
 
 		int ready(Thread *thread);
@@ -56,10 +54,9 @@ class StatesManager
 		void incrementTotalQuantums();
 
 		bool isValidTid(int tid);
+
 	private:
 		StatesManager();
-
-		void signalHandler(int sig);
 
 		static StatesManager *instance;
 	    static bool instanceFlag;

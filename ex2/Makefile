@@ -1,4 +1,4 @@
-CC=gcc
+CC=g++
 RANLIB=ranlib
 
 TARGETS=thread.cpp statesManager.cpp uthreads.cpp signalManager.cpp
@@ -19,7 +19,7 @@ TARNAME=ex2.tar
 TARSRCS=$(LIBSRC) Makefile README
 
 all: thread.cpp statesManager.cpp uthreads.cpp signalManager.cpp ReadyQueue.cpp
-	g++ -Wall -Wextra -Wvla -std=c++11 -g -o uthreads thread.cpp statesManager.cpp uthreads.cpp signalManager.cpp ReadyQueue.cpp
+	$(CC) $(CFLAGS) -o uthreads thread.cpp statesManager.cpp uthreads.cpp signalManager.cpp ReadyQueue.cpp
 
 $(TARGETS): $(LIBOBJ)
 	$(AR) $(ARFLAGS) $@ $^

@@ -22,21 +22,36 @@ tests: test1 test2 test3 test4 test5
 
 test1:
 	$(CC) $(CFLAGS) -o test1 tests/test1.cpp $(TARGETS)
+	./test1 > test1.out
+	diff test1.out tests/test1.out && echo ::: Passed 1 ::: || ::: Failed 1 :::
+	rm -rf test1.out test1
 
 test2:
 	$(CC) $(CFLAGS) -o test2 tests/test2.cpp $(TARGETS)
+	./test2 > test2.out
+	diff test2.out tests/test2.out && echo ::: Passed 2 ::: || ::: Failed 2 :::
+	rm -rf test1.out test2
 
 test3:
 	$(CC) $(CFLAGS) -o test3 tests/test3.cpp $(TARGETS)
+	./test1 > test3.out
+	diff test3.out tests/test3.out && echo ::: Passed 3 ::: || ::: Failed 3 :::
+	rm -rf test1.out test3
 
 test4:
 	$(CC) $(CFLAGS) -o test4 tests/test4.cpp $(TARGETS)
+	./test4 > test4.out
+	diff test4.out tests/test4.out && echo ::: Passed 4 ::: || ::: Failed 4 :::
+	rm -rf test4.out test4
 
 test5:
 	$(CC) $(CFLAGS) -o test5 tests/test5.cpp $(TARGETS)
+	./test5 > test5.out
+	diff test4.out tests/test4.out && echo ::: Passed 5 ::: || ::: Failed 5 :::
+	rm -rf test5.out test5
 
 clean:
-	rm -rf uthreads.o uthreads.a test1 test2 test3 test4 test5
+	rm -rf uthreads.o uthreads.a
 
 tar:
 	$(TAR) $(TARNAME) $(TARSRCS)

@@ -147,8 +147,8 @@ int main(void)
 	{
 		if (i == uthread_get_quantums(uthread_get_tid()))
 		{
-			cout << "main: i=" << i << "j=" << j <<  endl;
 			i++;
+			cout << "main: i=" << i << "j=" << j <<  endl;
 		}
 		if (i == 30 && j == 0)
 		{
@@ -273,6 +273,8 @@ int uthread_terminate(int tid)
 		SignalManager::unblockSignals();
 		return FAIL;
 	}
+
+	// Terminating main
 	if (tid == 0)
 	{
 		int totalThreadNum = statesManager->getTotalThreadsNum();
@@ -287,6 +289,13 @@ int uthread_terminate(int tid)
 				existingThreads[counter++] = threadsIterator->first;
 			}
 		}
+
+		printf("Need to terminate: ");
+		counter = 0;
+		for (; counter  < totalThreadNum - 1; counter ++)
+		{
+			printf("%d ", existingThreads[counter]);
+		}		
 
 		counter = 0;
 		for (; counter  < totalThreadNum - 1; counter ++)

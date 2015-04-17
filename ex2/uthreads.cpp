@@ -342,12 +342,12 @@ int uthread_terminate(int tid)
 	// , switch threads now.
 	if (SignalManager::hasTimerSignalTriggered() && !selfDestroy)
 	{
-		printf("Test\n");
 		statesManager->switchThreads(READY);
 	}
 
 	if (selfDestroy)
 	{
+		printf("Testn");
 		// Terminated last running thread, must switch to next
 		// TODO after f ends, g gets into running, but does not work (g q = 8)
 		siglongjmp(*(statesManager->running->getEnv()), 1);

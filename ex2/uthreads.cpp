@@ -137,69 +137,40 @@ void g (void)
 
 int main(void)
 {
-	if (uthread_init(100) == -1)
+	if (uthread_init(10000) == -1)
 	{
 		return 0;
 	}
+	for (int i = 0; i < 101; i++)
+		cout << uthread_spawn(f,GREEN) << endl;
 
-	int i = 1;
-	int j = 0;
-	while(1)
-	{
-		if (i == uthread_get_quantums(uthread_get_tid()))
-		{
-			cout << "m" << "  q:  " << i << endl;
-			if (i == 3 && j == 0)
-			{
-				j++;
-				cout << "          spawn f at (1) " << uthread_spawn(f, RED) << endl;
-				cout << "          spawn g at (2) " << uthread_spawn(g, RED) << endl;
-			}
-			if (i == 6 && j == 1)
-			{
-				j++;
-				cout << "          g suspend by main" << endl;
-				uthread_suspend(2);
-				cout << "          g suspend again by main" << endl;
-				uthread_suspend(2);
-			}
-			if (i == 9 && j == 2)
-			{
-				j++;
-				cout << "          f resume by main" << endl;
-				uthread_resume(1);
-				cout << "          f resume again by main" << endl;
-				uthread_resume(1);
-			}
-			if (i == 13 && j == 3)
-			{
-				j++;
-				cout << "          spawn f at (1) " << uthread_spawn(f, RED) << endl;
-				cout << "          f suspend by main" << endl;
-				uthread_suspend(1);
-			}
-			if (i == 17 && j == 4)
-			{
-				j++;
-				cout << "          spawn g at (2) " << uthread_spawn(g, RED) << endl;
-				cout << "          f terminate by main" << endl;
-				uthread_terminate(1);
-				cout << "          spawn f at (1) " << uthread_spawn(f, RED) << endl;
-				cout << "          f suspend by main" << endl;
-				uthread_suspend(1);
-			}
-			if (i == 20 && j == 5)
-			{
-				j++;
-				cout << "          ******end******" << endl;
-				cout << "total quantums:  " << uthread_get_total_quantums() << endl;
-				uthread_terminate(0);
-				return 0;
-			}
-			i++;
-		}
-	}
-	cout << "end" << endl;
+	uthread_terminate(5);
+
+	cout << uthread_spawn(f,GREEN) << endl;
+	cout << uthread_spawn(f,GREEN) << endl;
+
+	uthread_terminate(15);
+	uthread_terminate(25);
+	uthread_terminate(35);
+	uthread_terminate(45);
+	uthread_terminate(55);
+	uthread_terminate(65);
+	uthread_terminate(75);
+	uthread_terminate(85);
+
+	cout << uthread_spawn(f,GREEN) << endl;
+	cout << uthread_spawn(f,GREEN) << endl;
+	cout << uthread_spawn(f,GREEN) << endl;
+	cout << uthread_spawn(f,GREEN) << endl;
+	cout << uthread_spawn(f,GREEN) << endl;
+	cout << uthread_spawn(f,GREEN) << endl;
+	cout << uthread_spawn(f,GREEN) << endl;
+	cout << uthread_spawn(f,GREEN) << endl;
+	cout << uthread_spawn(f,GREEN) << endl;
+
+
+
+	uthread_terminate(0);
 	return 0;
 }
 

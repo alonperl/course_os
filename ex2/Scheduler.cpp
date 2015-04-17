@@ -118,7 +118,7 @@ std::priority_queue<unsigned int, std::vector<unsigned int>,
 	return &_tidsPool;
 }
 
-ReadyQueue *Scheduler::getReadyQueue()
+PriorityQueue *Scheduler::getReadyQueue()
 {
 	return &_readyQueue;
 }

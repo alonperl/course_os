@@ -83,44 +83,38 @@ void work()
 	return 0;
 }*/
 
-void f (void)
-{
-	while(1);
-}
+void f(void){}
 
 int main(void)
 {
-	if (uthread_init(10000) == -1)
+	if (uthread_init(1000000000) == -1)
 	{
 		return 0;
 	}
-	for (int i = 0; i < 101; i++)
-		cout << uthread_spawn(f,GREEN) << endl;
 
-	uthread_terminate(5);
 
-	cout << uthread_spawn(f,GREEN) << endl;
-	cout << uthread_spawn(f,GREEN) << endl;
+	uthread_terminate(-1);
+	uthread_suspend(-1);
+	uthread_resume(-1);
+	uthread_get_quantums(-1);
 
-	uthread_terminate(15);
-	uthread_terminate(25);
-	uthread_terminate(35);
-	uthread_terminate(45);
-	uthread_terminate(55);
-	uthread_terminate(65);
-	uthread_terminate(75);
-	uthread_terminate(85);
+	uthread_terminate(1);
+	uthread_suspend(1);
+	uthread_resume(1);
+	uthread_get_quantums(1);
 
-	cout << uthread_spawn(f,GREEN) << endl;
-	cout << uthread_spawn(f,GREEN) << endl;
-	cout << uthread_spawn(f,GREEN) << endl;
-	cout << uthread_spawn(f,GREEN) << endl;
-	cout << uthread_spawn(f,GREEN) << endl;
-	cout << uthread_spawn(f,GREEN) << endl;
-	cout << uthread_spawn(f,GREEN) << endl;
-	cout << uthread_spawn(f,GREEN) << endl;
-	cout << uthread_spawn(f,GREEN) << endl;
+	uthread_suspend(0);
 
+	uthread_spawn(f,GREEN);
+	uthread_terminate(1);
+
+	uthread_terminate(1);
+	uthread_suspend(1);
+	uthread_resume(1);
+	uthread_get_quantums(1);
+
+	uthread_init(0);
+	uthread_init(-5);
 
 
 	uthread_terminate(0);
@@ -157,7 +151,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 
 	if (statesManager->getTotalThreadsNum() >= MAX_THREAD_NUM)
 	{
-		cout << LIBERR_MAX_THREAD_NUM;
+		cerr << LIBERR_MAX_THREAD_NUM;
 		return FAIL;
 	}
 	

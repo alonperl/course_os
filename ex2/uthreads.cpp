@@ -10,7 +10,7 @@
 #include <iostream>
 
 #include "uthreads.h"
-#include "StatesManager.hpp"
+#include "Scheduler.hpp"
 #include "SignalManager.hpp"
 
 #define CONTINUING 1
@@ -26,7 +26,7 @@
 #define LIBERR_SUSPEND_ONLY_THREAD ": cannot suspend main thread\n"
 
 
-StatesManager *statesManager;
+Scheduler *statesManager;
 
 using namespace std;
 
@@ -195,7 +195,7 @@ int uthread_init(int quantum_usecs)
 		return FAIL;
 	}
 
-	statesManager = StatesManager::getInstance(quantum_usecs);
+	statesManager = Scheduler::getInstance(quantum_usecs);
 
 	// If init was called before, statesManager will contain at least main thread
 	if (statesManager->getTotalThreadsNum() > 0)

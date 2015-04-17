@@ -35,7 +35,7 @@ Type PQueue<Type, Compare>::get()
 	return list.front();
 }
 
-struct Compare
+struct CompareThreads
 {
 	bool operator()(Thread *t1, Thread *t2)
 	{
@@ -59,7 +59,7 @@ struct Compare
 
 int main()
 {
-	PQueue<Thread*, compareThreads> pq;
+	PQueue<Thread*, CompareThreads> pq;
 	Thread *t = new Thread(NULL, ORANGE, )
 	pq.set(t);
 	printf("%d", pq.get()->getTid());

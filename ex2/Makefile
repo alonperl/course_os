@@ -1,7 +1,7 @@
 CC=g++
 RANLIB=ranlib
 
-TARGETS=thread.cpp StatesManager.cpp uthreads.cpp SignalManager.cpp
+TARGETS=Thread.cpp StatesManager.cpp uthreads.cpp SignalManager.cpp
 
 LIBSRC=uthreads.cpp
 LIBOBJ=$(LIBSRC:.c=.o)

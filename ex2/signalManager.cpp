@@ -41,7 +41,7 @@ void SignalManager::stopTimer()
     setitimer(ITIMER_VIRTUAL, &reset, NULL);
 }
 
-void SignalManager::staticSignalHandler(int sig)
+void SignalManager::staticSignalHandler(((void)(sig)))
 {
 	(*StatesManager::getInstance()).switchThreads(READY);
 }

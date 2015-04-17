@@ -12,7 +12,7 @@ public:
 	static void ignoreSignals();
 	static void unblockSignals();
 
-	static void staticSignalHandler(int sig);
+	static void staticSignalHandler(((void)(sig)));
 
 	static bool hasTimerSignalTriggered();
 	static void startTimer(itimerval *quantum);

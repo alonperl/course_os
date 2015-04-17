@@ -24,7 +24,7 @@ class StatesManager
 	  	// Current running thread
 		Thread *running;
 
-		static StatesManager *getInstance();
+		static StatesManager *getInstance(int quantum_usecs);
 
 		void switchThreads(State destination);
 

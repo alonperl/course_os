@@ -13,10 +13,10 @@
 template <class Type, bool (*compare)(const Type *t1, const Type *t2)>
 class PQueue
 {
-	template <class Type, bool (*compare)(const Type *t1, const Type *t2)>
+	template <Type, compare>
 	Type get();
 
-	template <class Type, bool (*compare)(const Type *t1, const Type *t2)>
+	template <Type, compare>
 	void set(Type t);
 
 	std::list<Type*> list;

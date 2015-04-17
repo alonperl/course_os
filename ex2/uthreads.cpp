@@ -71,11 +71,8 @@ int main(void)
 	while(uthread_get_total_quantums() < 10)
 	{
 		uthread_resume(1);
-		printf("%d resumed 1\n", uthread_get_tid());
 		uthread_resume(2);
-		printf("%d resumed 2\n", uthread_get_tid());
 		uthread_resume(3);
-		printf("%d resumed 3\n", uthread_get_tid());
 	}
 
 	cout << uthread_get_quantums(0) << " + " << endl;
@@ -345,6 +342,7 @@ int uthread_resume(int tid)
 	// If the thread is not blocked, do nothing.
 	if (thread->getState() == BLOCKED)
 	{
+		printf("%d resumed 1\n", uthread_get_tid());
 		statesManager->ready(thread);
 		statesManager->blockedMap.erase(tid);
 	}

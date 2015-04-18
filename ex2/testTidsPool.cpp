@@ -14,17 +14,17 @@
 
 int main(int argc, char const *argv[])
 {
-	uthreads_init(100);
-	uthreads_spawn(NULL, ORANGE);
-	uthreads_spawn(NULL, ORANGE);
-	uthreads_spawn(NULL, ORANGE);
-	uthreads_spawn(NULL, ORANGE);
-	uthreads_terminate(1);
-	printf("New thread %d\n", uthreads_spawn(NULL, ORANGE));
-	uthreads_terminate(2);
-	printf("New thread %d\n", uthreads_spawn(NULL, ORANGE));
-	uthreads_terminate(3);
-	printf("New thread %d\n", uthreads_spawn(NULL, ORANGE));
+	uthread_init(100);
+	uthread_spawn(NULL, ORANGE);
+	uthread_spawn(NULL, ORANGE);
+	uthread_spawn(NULL, ORANGE);
+	uthread_spawn(NULL, ORANGE);
+	uthread_terminate(1);
+	printf("New thread %d\n", uthread_spawn(NULL, ORANGE));
+	uthread_terminate(2);
+	printf("New thread %d\n", uthread_spawn(NULL, ORANGE));
+	uthread_terminate(3);
+	printf("New thread %d\n", uthread_spawn(NULL, ORANGE));
 
-	uthreads_terminate(0);
+	uthread_terminate(0);
 }

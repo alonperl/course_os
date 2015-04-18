@@ -59,19 +59,19 @@ class Scheduler
 
 		// Min-queue of freed tids for second use
 		std::priority_queue<unsigned int, std::vector<unsigned int>,
-							std::greater<unsigned int> > _tidsPool;
+							std::greater<unsigned int> > *_tidsPool;
 		
-		PriorityQueue _readyQueue;
+		PriorityQueue *_readyQueue;
 	  	
-	  	std::map<unsigned int, Thread*> _blockedMap;
+	  	std::map<unsigned int, Thread*> *_blockedMap;
 
 	  	// General threads map
-	  	std::map<unsigned int, Thread*> _threadsMap;
+	  	std::map<unsigned int, Thread*> *_threadsMap;
 
 	  	// Current running thread
 		Thread *_running;
 
-	    struct itimerval _quantum;
+	    struct itimerval *_quantum;
 
 		int _totalQuantums;
 		int _totalThreadsNum;

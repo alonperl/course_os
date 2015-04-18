@@ -4,6 +4,8 @@
 class PriorityQueue
 {
 public:
+	~PriorityQueue();
+
 	int size();
 
 	void pop();

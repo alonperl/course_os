@@ -16,7 +16,7 @@ void Scheduler::destroy()
 {
 	// delete &_readyQueue;
 	// delete &_blockedMap;
-	delete &_threadsMap;
+	// delete &_threadsMap;
 
 	delete &_quantum;
 

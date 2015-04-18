@@ -21,7 +21,7 @@ bool compareThreads(Thread *t1, Thread *t2)
 
 PriorityQueue::~PriorityQueue()
 {
-	delete _ready;
+	delete &_ready;
 }
 
 void PriorityQueue::pop()

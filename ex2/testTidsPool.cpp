@@ -61,8 +61,8 @@ int main(int argc, char const *argv[])
 	printf("New thread %d\n", uthread_spawn(NULL, ORANGE));
 	printf("Next free tid %d\n", Scheduler::getInstance()->getMinTid());
 
-	std::map<unsigned int, Thread*>::iterator it = Scheduler::getInstance()->getThreadsMap().begin();
-	for (; it != Scheduler::getInstance()->getThreadsMap().end(); it++)
+	std::map<unsigned int, Thread*>::iterator it = Scheduler::getInstance()->getThreadsMap()->begin();
+	for (; it != Scheduler::getInstance()->getThreadsMap()->end(); it++)
 	{
 		printf("%d in mapn", it->second->getTid());
 	}

@@ -64,7 +64,7 @@ int main(int argc, char const *argv[])
 	std::map<unsigned int, Thread*>::iterator it = Scheduler::getInstance()->getThreadsMap()->begin();
 	for (; it != Scheduler::getInstance()->getThreadsMap()->end(); it++)
 	{
-		printf("%d in mapn", it->second->getTid());
+		printf("%d in map\n", it->second->getTid());
 	}
 	uthread_terminate(0);
 }

@@ -232,9 +232,9 @@ int uthread_terminate(int tid)
 		scheduler->getRunning()->incrementQuantums();
 		scheduler->incrementTotalQuantums();
 
-		scheduler = NULL;
-
 		// Terminated last running thread, must switch to next
+		// As the program jumps elsewhere on siglongjmp, there is still one
+		// pointer (here - to scheduler) that cannot be freed...
 		siglongjmp(*(scheduler->getRunning()->getEnv()), 1);
 	}
 

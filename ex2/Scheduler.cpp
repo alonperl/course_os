@@ -22,7 +22,7 @@ void Scheduler::destroy()
 
 	_running = NULL;
 
-	delete s_instance;
+	// delete s_instance;
 	s_instance = NULL;
 }
 

@@ -1,8 +1,8 @@
 #include "SignalManager.hpp"
 #include "Scheduler.hpp"
 
-sigset_t SignalManager::blockedSignals;
-sigset_t SignalManager::pendingSignals;
+sigset_t SignalManager::_blockedSignals;
+sigset_t SignalManager::_pendingSignals;
 
 void SignalManager::ignoreSignals()
 {
@@ -11,21 +11,21 @@ void SignalManager::ignoreSignals()
 
 void SignalManager::postponeSignals()
 {
-	sigfillset(&blockedSignals);
-	sigprocmask(SIG_BLOCK, &blockedSignals, NULL);
+	sigfillset(&_blockedSignals);
+	sigprocmask(SIG_BLOCK, &_blockedSignals, NULL);
 }
 
 void SignalManager::unblockSignals()
 {
-	sigfillset(&blockedSignals);
-	sigprocmask(SIG_UNBLOCK, &blockedSignals, NULL);
+	sigfillset(&_blockedSignals);
+	sigprocmask(SIG_UNBLOCK, &_blockedSignals, NULL);
 }
 
 bool SignalManager::hasTimerSignalTriggered()
 {
-	sigemptyset(&pendingSignals);
-	sigpending(&pendingSignals);
-	return sigismember(&pendingSignals, SIGVTALRM);
+	sigemptyset(&_pendingSignals);
+	sigpending(&_pendingSignals);
+	return sigismember(&_pendingSignals, SIGVTALRM);
 }
 
 void SignalManager::startTimer(itimerval *quantum)
@@ -43,6 +43,6 @@ void SignalManager::stopTimer()
 
 void SignalManager::staticSignalHandler(int sig)
 {
-	(void)(sig); // unused, suppress compiler warning
+	(void)(sig); // Unused, suppress compiler warning
 	(*Scheduler::getInstance()).switchThreads(READY);
 }

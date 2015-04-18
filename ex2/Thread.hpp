@@ -45,17 +45,17 @@ public:
 	void incrementQuantums();
 
 private:
-	sigjmp_buf threadEnv;
-	char stack[STACK_SIZE];
-	address_t programCounter;
-	Priority priority;
-	State state;
+	sigjmp_buf _threadEnv;
+	char _stack[STACK_SIZE];
+	address_t _programCounter;
+	Priority _priority;
+	State _state;
 
-	struct timeval readyFrom;
-	unsigned int quantums;
-	unsigned int tid;
+	struct timeval _readyFrom;
+	unsigned int _quantums;
+	unsigned int _tid;
 
-	bool _isValidPriority(Priority pr);
+	bool isValidPriority(Priority pr);
 };
 
 #endif

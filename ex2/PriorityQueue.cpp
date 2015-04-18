@@ -19,6 +19,11 @@ bool compareThreads(Thread *t1, Thread *t2)
 	return t1->getPriority() < t2->getPriority();
 }
 
+PriorityQueue::~PriorityQueue()
+{
+	delete _ready;
+}
+
 void PriorityQueue::pop()
 {
 	if (!_ready.empty())

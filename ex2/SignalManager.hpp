@@ -17,8 +17,8 @@ public:
 	static void startTimer(itimerval *quantum);
 	static void stopTimer();
 
-	static sigset_t blockedSignals;
-	static sigset_t pendingSignals;
+	static sigset_t _blockedSignals;
+	static sigset_t _pendingSignals;
 };
 
 #endif

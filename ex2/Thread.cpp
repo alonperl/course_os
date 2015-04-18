@@ -42,63 +42,63 @@ address_t translate_address(address_t addr)
 
 Thread::Thread(void (*f)(void), Priority pr, unsigned int newTid)
 {
-	tid = newTid;
+	_tid = newTid;
 
-	if (!_isValidPriority(pr))
+	if (!isValidPriority(pr))
 	{
 		throw FAIL;
 	}
 
-	address_t stackPointer = (address_t)stack + STACK_SIZE - sizeof(address_t);
-	programCounter = (address_t)f;
-	sigsetjmp(threadEnv, 1);
+	address_t stackPointer = (address_t)_stack + STACK_SIZE - sizeof(address_t);
+	_programCounter = (address_t)f;
+	sigsetjmp(_threadEnv, 1);
 	(threadEnv->__jmpbuf)[JB_SP] = translate_address(stackPointer);
-	(threadEnv->__jmpbuf)[JB_PC] = translate_address(programCounter);
-	sigemptyset(&threadEnv->__saved_mask);
+	(threadEnv->__jmpbuf)[JB_PC] = translate_address(_programCounter);
+	sigemptyset(&_threadEnv->__saved_mask);
 
-	priority = pr;
-	quantums = 0;
-	state = NEW;
+	_priority = pr;
+	_quantums = 0;
+	_state = NEW;
 }
 
 Priority Thread::getPriority()
 {
-	return priority;
+	return _priority;
 }
 
 address_t Thread::getProgramCounter()
 {
-	return programCounter;
+	return _programCounter;
 }
 
 struct timeval Thread::getReadyFrom()
 {
-	return readyFrom;
+	return _readyFrom;
 }
 
 State Thread::getState()
 {
-	return state;
+	return _state;
 }
 
 void Thread::setState(State st)
 {
-	state = st;
+	_state = st;
 }
 
 unsigned int Thread::getQuantums()
 {
-	return quantums;
+	return _quantums;
 }
 
 unsigned int Thread::getTid()
 {
-	return tid;
+	return _tid;
 }
 
 sigjmp_buf *Thread::getEnv()
 {
-	return &threadEnv;
+	return &_threadEnv;
 }
 
 bool Thread::_isValidPriority(Priority pr)
@@ -117,8 +117,7 @@ bool Thread::_isValidPriority(Priority pr)
 
 void Thread::incrementQuantums()
 {
-	quantums++;
-	// printf("Incrementing quantum of %d to %d\n", tid, quantums);
+	_quantums++;
 }
 
 void Thread::setReadyFrom()
@@ -131,13 +130,13 @@ void Thread::setReadyFrom()
 		throw FAIL;
 	}
 	
-	readyFrom = ts;
+	_readyFrom = ts;
 }
 
 void Thread::resetReadyFrom()
 {
-	readyFrom.tv_sec = 0;
-	readyFrom.tv_usec = 0;
+	_readyFrom.tv_sec = 0;
+	_readyFrom.tv_usec = 0;
 }
 
 Thread::~Thread()

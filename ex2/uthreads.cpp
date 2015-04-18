@@ -1,3 +1,19 @@
+/**
+ * @file uthreads.c
+ * @author  griffonn ednussi
+ * @version 1.0
+ * @date 18 April 2015
+ * 
+ * @brief User level threads library - contains library functions
+ *
+ * @section LICENSE
+ * This program is a free software. You can freely redistribute it.
+ *
+ * @section DESCRIPTION
+ * Implementing the given uthread.h library and all ot its functions which
+ * enables us to work with the threads, create main thread, delete, suspend and
+ * block threads, and get some information about them.
+ */
 #include <setjmp.h>
 #include <signal.h>
 #include <unistd.h>
@@ -11,17 +27,28 @@
 #include "Scheduler.hpp"
 #include "SignalManager.hpp"
 
-#define CONTINUING 1
+/* Definitions */
+#define RESUMING 1
 #define MAIN 0
 
+/* Error messages */
 #define LIBERR "thread library error: "
 #define LIBERR_INVALID_QUANTUM ": invalid quantum\n"
 #define LIBERR_INIT_CALLED ": cannot call init more then once\n"
 #define LIBERR_MAX_THREAD_NUM ": maximum threads reached\n"
 #define LIBERR_INVALID_TID ": no such thread\n"
 #define LIBERR_THREAD_CREATION_FAILED ": cannot create thread object\n"
+#define LIBERR_SCHEDULER_CREATION_FAILED ": cannot create scheduler object\n"
 #define LIBERR_SUSPEND_ONLY_THREAD ": cannot suspend main thread\n"
 
+/**
+ * @brief Initiate the library
+ * @details Initializes Scheduler, creates main thread, registers virtual alarm 
+ * signal and starts virtual times
+ * 
+ * @param quantum_usecs time for each run per thread
+ * @return -1 iff something failed, 0 otherwise
+ */
 int uthread_init(int quantum_usecs)
 {
 	if (quantum_usecs <= 0)
@@ -30,7 +57,16 @@ int uthread_init(int quantum_usecs)
 		return FAIL;
 	}
 
-	Scheduler *scheduler = Scheduler::getInstance();
+	try
+	{
+		Scheduler *scheduler = Scheduler::getInstance();
+	}
+	catch (int e)
+	{
+		std::cout << LIBERR << __FUNCTION__ << LIBERR_SCHEDULER_CREATION_FAILED;
+		return FAIL;
+	}
+
 
 	// If init was called before, scheduler will contain at least main thread
 	if (scheduler->getTotalThreadsNum() > 0)
@@ -41,19 +77,30 @@ int uthread_init(int quantum_usecs)
 
 	scheduler->setQuantum(quantum_usecs);
 
+	// Spawn main thread
 	uthread_spawn(NULL, ORANGE);
+
+	// It starts its "work" rightaway
 	scheduler->getThread(MAIN)->incrementQuantums();
 	scheduler->incrementTotalQuantums();
 
 	scheduler->runNext();
 
+	// Start the timer
 	signal(SIGVTALRM, SignalManager::staticSignalHandler);
 	setitimer(ITIMER_VIRTUAL, scheduler->getQuantum(), NULL);
 
 	return 0;
 }
 
-/* Create a new thread whose entry point is f */
+/**
+ * @brief Create a new thread
+ * 
+ * @param f New thread start routine
+ * @param pr Priority
+ * 
+ * @return Thread ID iff succeeded, -1 otherwise
+ */
 int uthread_spawn(void (*f)(void), Priority pr)
 {
 	SignalManager::postponeSignals();
@@ -124,6 +171,8 @@ int uthread_terminate(int tid)
 				delete threadIter->second;
 			}
 		}
+
+		Scheduler::destroy();
 
 		exit(0);
 	}
@@ -213,7 +262,7 @@ int uthread_suspend(int tid)
 			/*scheduler->runNext();
 
 			SignalManager::unblockSignals();
-			siglongjmp(*(scheduler->running->getEnv()), CONTINUING);*/
+			siglongjmp(*(scheduler->running->getEnv()), RESUMING);*/
 		}
 		else
 		{

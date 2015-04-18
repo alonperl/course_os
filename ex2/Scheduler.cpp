@@ -12,6 +12,20 @@ Scheduler::Scheduler()
 	_totalQuantums = 0;
 }
 
+void Scheduler::destroy()
+{
+	delete _readyQueue;
+	delete _blockedMap;
+	delete _threadsMap;
+
+	delete _quantum;
+
+	_running = NULL;
+
+	delete s_instance;
+	s_instance = NULL;
+}
+
 bool Scheduler::isValidTid(int tid)
 {
 	if (getThreadsMap()->find(tid) == getThreadsMap()->end() || tid < 0)

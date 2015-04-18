@@ -298,62 +298,6 @@
 				"buffer_size": 209,
 				"line_ending": "Windows"
 			}
-		},
-		{
-			"file": "PriorityQueue.cpp",
-			"settings":
-			{
-				"buffer_size": 1251,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "Scheduler.hpp",
-			"settings":
-			{
-				"buffer_size": 1560,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "Scheduler.cpp",
-			"settings":
-			{
-				"buffer_size": 4277,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "Thread.cpp",
-			"settings":
-			{
-				"buffer_size": 2265,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "Thread.hpp",
-			"settings":
-			{
-				"buffer_size": 950,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "uthreads.cpp",
-			"settings":
-			{
-				"buffer_size": 6555,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "generic.cpp",
-			"settings":
-			{
-				"buffer_size": 1399,
-				"line_ending": "Windows"
-			}
 		}
 	],
 	"build_system": "",
@@ -400,23 +344,31 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
+	"expanded_folders":
+	[
+		"/D/Code/course_os/ex2"
+	],
 	"file_history":
 	[
+		"/D/Code/course_os/ex2/README",
+		"/D/Code/course_os/ex1/README",
+		"/D/Code/course_os/ex2/uthreads.cpp",
+		"/D/Code/course_os/ex2/Thread.hpp",
+		"/D/Code/course_os/ex2/Thread.cpp",
+		"/D/Code/course_os/ex2/PriorityQueue.hpp",
+		"/D/Code/course_os/ex2/PriorityQueue.cpp",
+		"/D/Code/course_os/ex2/Scheduler.hpp",
+		"/D/Code/course_os/ex2/Scheduler.cpp",
 		"/D/Code/course_os/ex2/generic.cpp",
 		"/D/Code/course_os/ex2/testTidsPool.cpp",
 		"/D/Code/labc/misc/generic.cpp",
 		"/D/Code/course_os/ex2/Makefile",
 		"/D/Code/bitterdb/src/similaritySearch/run.sh",
-		"/D/Code/course_os/ex2/Scheduler.cpp",
-		"/D/Code/course_os/ex2/Scheduler.hpp",
 		"/D/Code/course_os/ex2/ReadyQueue.cpp",
 		"/D/Code/course_os/ex2/ReadyQueue.hpp",
-		"/D/Code/course_os/ex2/uthreads.cpp",
 		"/D/Code/course_os/ex2/SignalManager.cpp",
 		"/D/Code/course_os/ex2/tests/test5.cpp",
 		"/D/Code/course_os/ex2/codingStyleErrs",
-		"/D/Code/course_os/ex2/Thread.cpp",
-		"/D/Code/course_os/ex2/Thread.hpp",
 		"/D/Code/course_os/ex2/uthreads",
 		"/D/Code/course_os/ex2/SignalManager.hpp",
 		"/D/Code/course_os/ex2/StatesManager.cpp",
@@ -609,7 +561,7 @@
 	"groups":
 	[
 		{
-			"selected": 3,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -625,8 +577,8 @@
 						"selection":
 						[
 							[
-								36,
-								36
+								38,
+								38
 							]
 						],
 						"settings":
@@ -634,229 +586,6 @@
 							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\PriorityQueue.hpp",
 							"git_savvy.repo_path": "D:/Code/course_os",
 							"syntax": "Packages/C++/C++.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "PriorityQueue.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1251,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								632,
-								632
-							]
-						],
-						"settings":
-						{
-							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\PriorityQueue.cpp",
-							"git_savvy.repo_path": "D:/Code/course_os",
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "Scheduler.hpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1560,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								175,
-								175
-							]
-						],
-						"settings":
-						{
-							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\Scheduler.hpp",
-							"git_savvy.repo_path": "D:/Code/course_os",
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 114.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "Scheduler.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4277,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1528,
-								1528
-							]
-						],
-						"settings":
-						{
-							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\Scheduler.cpp",
-							"git_savvy.repo_path": "D:/Code/course_os",
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1180.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "Thread.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2265,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2241,
-								2241
-							]
-						],
-						"settings":
-						{
-							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\Thread.cpp",
-							"git_savvy.repo_path": "D:/Code/course_os",
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 2301.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "Thread.hpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 950,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								410,
-								410
-							]
-						],
-						"settings":
-						{
-							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\Thread.hpp",
-							"git_savvy.repo_path": "D:/Code/course_os",
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": -0.0,
-						"translation.y": 180.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "uthreads.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 6555,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1099,
-								1099
-							]
-						],
-						"settings":
-						{
-							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\uthreads.cpp",
-							"git_savvy.repo_path": "D:/Code/course_os",
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 989.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				}
-			]
-		},
-		{
-			"selected": 0,
-			"sheets":
-			[
-				{
-					"buffer": 7,
-					"file": "generic.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1399,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\generic.cpp",
-							"git_savvy.repo_path": "D:/Code/course_os",
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -885,18 +614,11 @@
 				0,
 				1,
 				1
-			],
-			[
-				1,
-				0,
-				2,
-				1
 			]
 		],
 		"cols":
 		[
 			0.0,
-			0.5,
 			1.0
 		],
 		"rows":
@@ -948,7 +670,7 @@
 		],
 		"width": 408.0
 	},
-	"selected_group": 1,
+	"selected_group": 0,
 	"settings":
 	{
 	},

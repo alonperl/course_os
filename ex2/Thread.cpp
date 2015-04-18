@@ -52,8 +52,8 @@ Thread::Thread(void (*f)(void), Priority pr, unsigned int newTid)
 	address_t stackPointer = (address_t)_stack + STACK_SIZE - sizeof(address_t);
 	_programCounter = (address_t)f;
 	sigsetjmp(_threadEnv, 1);
-	(threadEnv->__jmpbuf)[JB_SP] = translate_address(stackPointer);
-	(threadEnv->__jmpbuf)[JB_PC] = translate_address(_programCounter);
+	(_threadEnv->__jmpbuf)[JB_SP] = translate_address(stackPointer);
+	(_threadEnv->__jmpbuf)[JB_PC] = translate_address(_programCounter);
 	sigemptyset(&_threadEnv->__saved_mask);
 
 	_priority = pr;
@@ -101,7 +101,7 @@ sigjmp_buf *Thread::getEnv()
 	return &_threadEnv;
 }
 
-bool Thread::_isValidPriority(Priority pr)
+bool Thread::isValidPriority(Priority pr)
 {
 	switch (pr)
 	{

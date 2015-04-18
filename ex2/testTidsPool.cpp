@@ -34,5 +34,7 @@ int main(int argc, char const *argv[])
 	printf("New thread %d\n", uthread_spawn(NULL, ORANGE));
 
 	printf("New thread %d\n", uthread_spawn(NULL, ORANGE));
+	
+	printf("Next free tid %d\n", Scheduler::getInstance()->getMinTid());
 	uthread_terminate(0);
 }

@@ -15,10 +15,10 @@
 int main(int argc, char const *argv[])
 {
 	uthread_init(100);
-	uthread_spawn(NULL, ORANGE);
-	uthread_spawn(NULL, ORANGE);
-	uthread_spawn(NULL, ORANGE);
-	uthread_spawn(NULL, ORANGE);
+	printf("New thread %d\n", uthread_spawn(NULL, ORANGE));
+	printf("New thread %d\n", uthread_spawn(NULL, ORANGE));
+	printf("New thread %d\n", uthread_spawn(NULL, ORANGE));
+
 	uthread_terminate(1);
 	printf("New thread %d\n", uthread_spawn(NULL, ORANGE));
 	uthread_terminate(2);
@@ -26,5 +26,13 @@ int main(int argc, char const *argv[])
 	uthread_terminate(3);
 	printf("New thread %d\n", uthread_spawn(NULL, ORANGE));
 
+	uthread_terminate(1);
+	uthread_terminate(2);
+	uthread_terminate(3);
+	printf("New thread %d\n", uthread_spawn(NULL, ORANGE));
+	printf("New thread %d\n", uthread_spawn(NULL, ORANGE));
+	printf("New thread %d\n", uthread_spawn(NULL, ORANGE));
+
+	printf("New thread %d\n", uthread_spawn(NULL, ORANGE));
 	uthread_terminate(0);
 }

@@ -11,10 +11,12 @@
 #include "Thread.hpp"
 #include "Scheduler.hpp"
 
+using namespace std;
+
 int main(int argc, char const *argv[])
 {
 	cout << "Top " << Scheduler::getInstance()->getTidsPool()->top() << endl;
-	
+
 	Scheduler::getInstance()->getTidsPool()->push(1);
 	Scheduler::getInstance()->getTidsPool()->push(2);
 

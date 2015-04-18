@@ -52,7 +52,7 @@ int main(int argc, char const *argv[])
 	
 	
 	printf("Terminate 3\n");
-	uthread_terminate(3);
+	uthread_terminate(-3);
 	
 	
 	printf("New thread %d\n", uthread_spawn(NULL, ORANGE));

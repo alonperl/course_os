@@ -52,7 +52,6 @@ class Scheduler
 
 	private:
 		Scheduler();
-		~Scheduler();
 
 		static Scheduler *s_instance;
 	    static bool s_instanceFlag;

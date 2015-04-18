@@ -13,17 +13,18 @@
 
 int main(int argc, char const *argv[])
 {
-	printf("Top %dn", (*Scheduler::getInstance())->getTidsPool()->top());
+	Scheduler *s = Scheduler::getInstance();
+	printf("Top %dn", s->getTidsPool()->top());
 
-	Scheduler::getInstance()->getTidsPool()->push(1);
-	Scheduler::getInstance()->getTidsPool()->push(2);
+	s->getTidsPool()->push(1);
+	s->getTidsPool()->push(2);
 
-	printf("Top %d\n", Scheduler::getInstance()->getTidsPool()->top());
-	Scheduler::getInstance()->getTidsPool()->pop();
+	printf("Top %d\n", s->getTidsPool()->top());
+	s->getTidsPool()->pop();
 	printf("Pop\n");
-	printf("Top %d\n", Scheduler::getInstance()->getTidsPool()->top());
-	Scheduler::getInstance()->getTidsPool()->pop();
+	printf("Top %d\n", s->getTidsPool()->top());
+	s->getTidsPool()->pop();
 	printf("Pop\n");
-	printf("Top %d\n", Scheduler::getInstance()->getTidsPool()->top());
+	printf("Top %d\n", s->getTidsPool()->top());
 	return 0;
 }

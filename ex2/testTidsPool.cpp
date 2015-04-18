@@ -9,10 +9,11 @@
 
 #include "Thread.hpp"
 #include "Scheduler.hpp"
+#include "SignalManager.hpp"
 
 int main(int argc, char const *argv[])
 {
-	printf("Top %dn", Scheduler::getInstance()->getTidsPool()->top());
+	printf("Top %dn", (*Scheduler::getInstance())->getTidsPool()->top());
 
 	Scheduler::getInstance()->getTidsPool()->push(1);
 	Scheduler::getInstance()->getTidsPool()->push(2);

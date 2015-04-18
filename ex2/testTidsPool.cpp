@@ -7,10 +7,8 @@
 #include <list>
 #include <iostream>
 
-#include "uthreads.h"
 #include "Thread.hpp"
 #include "Scheduler.hpp"
-#include "SignalManager.hpp"
 
 int main(int argc, char const *argv[])
 {

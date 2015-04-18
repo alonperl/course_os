@@ -19,9 +19,11 @@ int main(int argc, char const *argv[])
 	Scheduler::getInstance()->getTidsPool()->push(2);
 
 	printf("Top %d\n", Scheduler::getInstance()->getTidsPool()->top());
-	printf("Pop %d\n", Scheduler::getInstance()->getTidsPool()->pop());
+	Scheduler::getInstance()->getTidsPool()->pop()
+	printf("Pop\n");
 	printf("Top %d\n", Scheduler::getInstance()->getTidsPool()->top());
-	printf("Pop %d\n", Scheduler::getInstance()->getTidsPool()->pop());
+	Scheduler::getInstance()->getTidsPool()->pop()
+	printf("Pop\n");
 	printf("Top %d\n", Scheduler::getInstance()->getTidsPool()->top());
 	return 0;
 }

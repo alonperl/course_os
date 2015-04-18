@@ -57,9 +57,11 @@ int uthread_init(int quantum_usecs)
 		return FAIL;
 	}
 
+	Scheduler *scheduler;
+
 	try
 	{
-		Scheduler *scheduler = Scheduler::getInstance();
+		scheduler = Scheduler::getInstance();
 	}
 	catch (int e)
 	{
@@ -207,6 +209,8 @@ int uthread_terminate(int tid)
 	scheduler->getTidsPool()->push(thread->getTid());
 
 	delete thread;
+
+	thread = NULL;
 
 	scheduler->decrementTotalThreadsNum();
 

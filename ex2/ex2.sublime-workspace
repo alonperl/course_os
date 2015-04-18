@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"com",
+				"compareThreads"
+			],
+			[
+				"rea",
+				"_readyQueue"
+			],
+			[
 				"TAR",
 				"TARGETS"
 			],
@@ -58,10 +66,6 @@
 			[
 				"LIB",
 				"LIBERR_MAX_THREAD_NUM"
-			],
-			[
-				"rea",
-				"ReadyQueue"
 			],
 			[
 				"thread",
@@ -276,21 +280,50 @@
 	"buffers":
 	[
 		{
-			"contents": "CC=g++\nCFLAGS = -Wall -Wextra $(INCS)\n\nAR=ar rvs\nTAR=tar -cvs\nTARNAME=ex2.tar\n\nTARGETS=uthreads.cpp Thread.cpp Scheduler.cpp SignalManager.cpp PriorityQueue.cpp\nLIBUTHREADS = libuthreads.a\n\nTARSRCS=$(TARGETS) Makefile README\n\nall: uthreads.a\n\nuthreads.o: $(TARGETS)\n	$(CC) $(CFLAGS) -c $(TARGETS)\n\nuthreads.a: uthreads.o\n	$(AR) uthreads.a uthreads.o\n\ntests: test1 test2 test3 test4 test5\n\ntest1:\n	echo off\n	$(CC) $(CFLAGS) -o test1 tests/test1.cpp $(TARGETS)\n	./test1 > test1.out\n	diff test1.out tests/test1.out && echo ::: Passed 1 ::: || echo ::: Failed 1 :::\n	rm -rf test1.out test1\n\ntest2:\n	echo off\n	$(CC) $(CFLAGS) -o test2 tests/test2.cpp $(TARGETS)\n	./test2 > test2.out\n	diff test2.out tests/test2.out && echo ::: Passed 2 ::: || echo ::: Failed 2 :::\n	rm -rf test2.out test2\n\ntest3:\n	echo off\n	$(CC) $(CFLAGS) -o test3 tests/test3.cpp $(TARGETS)\n	./test3 > test3.out\n	diff test3.out tests/test3.out && echo ::: Passed 3 ::: || echo ::: Failed 3 :::\n	rm -rf test3.out test3\n\ntest4:\n	echo off\n	$(CC) $(CFLAGS) -o test4 tests/test4.cpp $(TARGETS)\n	./test4 > test4.out\n	diff test4.out tests/test4.out && echo ::: Passed 4 ::: || echo ::: Failed 4 :::\n	rm -rf test4.out test4\n\ntest5:\n	echo off\n	$(CC) $(CFLAGS) -o test5 tests/test5.cpp $(TARGETS)\n	./test5 > test5.out\n	diff test5.out tests/test5.out && echo ::: Passed 5 ::: || echo ::: Failed 5 :::\n	rm -rf test5.out test5\n\nclean:\n	rm -rf uthreads.o uthreads.a\n\ntar:\n	$(TAR) $(TARNAME) $(TARSRCS)\n\n.PHONY: all",
-			"file": "Makefile",
-			"file_size": 1472,
-			"file_write_time": 130737802894058469,
+			"file": "PriorityQueue.hpp",
 			"settings":
 			{
-				"buffer_size": 1464,
+				"buffer_size": 228,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "/D/Code/bitterdb/src/similaritySearch/run.sh",
+			"file": "PriorityQueue.cpp",
 			"settings":
 			{
-				"buffer_size": 2714,
+				"buffer_size": 1251,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Scheduler.hpp",
+			"settings":
+			{
+				"buffer_size": 1560,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Scheduler.cpp",
+			"settings":
+			{
+				"buffer_size": 4277,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Thread.cpp",
+			"settings":
+			{
+				"buffer_size": 2265,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Thread.hpp",
+			"settings":
+			{
+				"buffer_size": 950,
 				"line_ending": "Windows"
 			}
 		},
@@ -299,6 +332,14 @@
 			"settings":
 			{
 				"buffer_size": 6555,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "generic.cpp",
+			"settings":
+			{
+				"buffer_size": 1399,
 				"line_ending": "Windows"
 			}
 		}
@@ -347,13 +388,11 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
-	"expanded_folders":
-	[
-		"/D/Code/course_os/ex2",
-		"/D/Code/course_os/ex2/tests"
-	],
 	"file_history":
 	[
+		"/D/Code/labc/misc/generic.cpp",
+		"/D/Code/course_os/ex2/Makefile",
+		"/D/Code/bitterdb/src/similaritySearch/run.sh",
 		"/D/Code/course_os/ex2/Scheduler.cpp",
 		"/D/Code/course_os/ex2/Scheduler.hpp",
 		"/D/Code/course_os/ex2/ReadyQueue.cpp",
@@ -368,7 +407,6 @@
 		"/D/Code/course_os/ex2/SignalManager.hpp",
 		"/D/Code/course_os/ex2/StatesManager.cpp",
 		"/D/Code/course_os/ex2/StatesManager.hpp",
-		"/D/Code/course_os/ex2/Makefile",
 		"/D/Code/course_os/ex2/thread.hpp",
 		"/D/Code/course_os/ex2/thread.cpp",
 		"/D/Code/course_os/ex2/signalManager.cpp",
@@ -431,6 +469,9 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"PriorityQueue::",
+			"_compare",
+			"Thread",
 			"std::cerr",
 			"cerr <<",
 			"ReadyQueue",
@@ -505,6 +546,10 @@
 		"regex": false,
 		"replace_history":
 		[
+			"PriorityQueue<Type, compare>::",
+			"PriorityQueue<T>::",
+			"compare",
+			"T",
 			"std::cout",
 			"PriorityQueue",
 			"scheduler",
@@ -543,84 +588,191 @@
 			[
 				{
 					"buffer": 0,
-					"file": "Makefile",
+					"file": "PriorityQueue.hpp",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1464,
+						"buffer_size": 228,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								405,
-								405
-							],
-							[
-								603,
-								603
-							],
-							[
-								801,
-								801
-							],
-							[
-								999,
-								999
-							],
-							[
-								1197,
-								1197
+								36,
+								85
 							]
 						],
 						"settings":
 						{
-							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\Makefile",
+							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\PriorityQueue.hpp",
 							"git_savvy.repo_path": "D:/Code/course_os",
-							"syntax": "Packages/Makefile/Makefile.tmLanguage"
+							"syntax": "Packages/C++/C++.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 114.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "PriorityQueue.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1251,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								29,
+								29
+							]
+						],
+						"settings":
+						{
+							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\PriorityQueue.cpp",
+							"git_savvy.repo_path": "D:/Code/course_os",
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
 					"type": "text"
 				},
 				{
-					"buffer": 1,
-					"file": "/D/Code/bitterdb/src/similaritySearch/run.sh",
+					"buffer": 2,
+					"file": "Scheduler.hpp",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2714,
+						"buffer_size": 1560,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								175,
+								175
 							]
 						],
 						"settings":
 						{
-							"git_savvy.file_path": "D:\\Code\\bitterdb\\src\\similaritySearch\\run.sh",
-							"git_savvy.repo_path": "D:/Code/bitterdb/src",
-							"syntax": "Packages/ShellScript/Shell-Unix-Generic.tmLanguage",
-							"tab_size": 8,
-							"translate_tabs_to_spaces": true
+							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\Scheduler.hpp",
+							"git_savvy.repo_path": "D:/Code/course_os",
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
 						},
-						"translation.x": 0.0,
-						"translation.y": 798.0,
+						"translation.x": -0.0,
+						"translation.y": 114.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 6,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
+					"buffer": 3,
+					"file": "Scheduler.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4277,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4277,
+								4277
+							]
+						],
+						"settings":
+						{
+							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\Scheduler.cpp",
+							"git_savvy.repo_path": "D:/Code/course_os",
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 3593.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "Thread.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2265,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2241,
+								2241
+							]
+						],
+						"settings":
+						{
+							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\Thread.cpp",
+							"git_savvy.repo_path": "D:/Code/course_os",
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 2301.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "Thread.hpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 950,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								410,
+								410
+							]
+						],
+						"settings":
+						{
+							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\Thread.hpp",
+							"git_savvy.repo_path": "D:/Code/course_os",
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": -0.0,
+						"translation.y": 180.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
 					"file": "uthreads.cpp",
 					"semi_transient": false,
 					"settings":
@@ -632,8 +784,8 @@
 						"selection":
 						[
 							[
-								983,
-								983
+								160,
+								160
 							]
 						],
 						"settings":
@@ -644,17 +796,49 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 114.0,
+						"translation.y": 684.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 3,
 					"type": "text"
 				}
 			]
 		},
 		{
+			"selected": 0,
 			"sheets":
 			[
+				{
+					"buffer": 7,
+					"file": "generic.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1399,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1399,
+								1399
+							]
+						],
+						"settings":
+						{
+							"git_savvy.file_path": "D:\\Code\\course_os\\ex2\\generic.cpp",
+							"git_savvy.repo_path": "D:/Code/course_os",
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 513.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
 			]
 		}
 	],
@@ -738,7 +922,7 @@
 		],
 		"width": 408.0
 	},
-	"selected_group": 0,
+	"selected_group": 1,
 	"settings":
 	{
 	},

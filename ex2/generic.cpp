@@ -65,3 +65,5 @@ int main()
 	printf("%d", pq.get()->getTid());
 	return 0;
 }
+
+TODO Look for memory leaks!

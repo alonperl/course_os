@@ -11,19 +11,17 @@
 #include "Thread.hpp"
 #include "Scheduler.hpp"
 
-using namespace std;
-
 int main(int argc, char const *argv[])
 {
-	cout << "Top " << Scheduler::getInstance()->getTidsPool()->top() << endl;
+	printf("Top %dn", Scheduler::getInstance()->getTidsPool()->top();
 
 	Scheduler::getInstance()->getTidsPool()->push(1);
 	Scheduler::getInstance()->getTidsPool()->push(2);
 
-	cout << "Top " << Scheduler::getInstance()->getTidsPool()->top() << endl;
-	cout << "Pop " << Scheduler::getInstance()->getTidsPool()->pop() << endl;
-	cout << "Top " << Scheduler::getInstance()->getTidsPool()->top() << endl;
-	cout << "Pop " << Scheduler::getInstance()->getTidsPool()->pop() << endl;
-	cout << "Top " << Scheduler::getInstance()->getTidsPool()->top() << endl;
+	printf("Top %d\n", Scheduler::getInstance()->getTidsPool()->top();
+	printf("Pop %d\n", Scheduler::getInstance()->getTidsPool()->pop();
+	printf("Top %d\n", Scheduler::getInstance()->getTidsPool()->top();
+	printf("Pop %d\n", Scheduler::getInstance()->getTidsPool()->pop();
+	printf("Top %d\n", Scheduler::getInstance()->getTidsPool()->top();
 	return 0;
 }

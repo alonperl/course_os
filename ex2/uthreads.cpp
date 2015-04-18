@@ -92,6 +92,8 @@ int uthread_init(int quantum_usecs)
 	signal(SIGVTALRM, SignalManager::staticSignalHandler);
 	setitimer(ITIMER_VIRTUAL, scheduler->getQuantum(), NULL);
 
+	scheduler = NULL;
+
 	return 0;
 }
 
@@ -112,6 +114,7 @@ int uthread_spawn(void (*f)(void), Priority pr)
 	if (scheduler->getTotalThreadsNum() >= MAX_THREAD_NUM)
 	{
 		std::cout << LIBERR << __FUNCTION__ << LIBERR_MAX_THREAD_NUM;
+		scheduler = NULL;
 		return FAIL;
 	}
 	
@@ -145,6 +148,8 @@ int uthread_spawn(void (*f)(void), Priority pr)
 		scheduler->switchThreads(READY);
 	}
 
+	scheduler = NULL;
+
 	return newTid;
 }
 
@@ -158,6 +163,7 @@ int uthread_terminate(int tid)
 	if (!scheduler->isValidTid(tid))
 	{
 		std::cout << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
+		scheduler = NULL;
 		SignalManager::unblockSignals();
 		return FAIL;
 	}
@@ -174,7 +180,7 @@ int uthread_terminate(int tid)
 			}
 		}
 
-		Scheduler::destroy();
+		scheduler->destroy();
 
 		exit(0);
 	}
@@ -226,10 +232,13 @@ int uthread_terminate(int tid)
 		scheduler->getRunning()->incrementQuantums();
 		scheduler->incrementTotalQuantums();
 
+		scheduler = NULL;
+
 		// Terminated last running thread, must switch to next
-		// TODO after f ends, g gets into running, but does not work (g q = 8)
 		siglongjmp(*(scheduler->getRunning()->getEnv()), 1);
 	}
+
+	scheduler = NULL;
 
 	return 0;
 }
@@ -245,12 +254,14 @@ int uthread_suspend(int tid)
 	if (!scheduler->isValidTid(tid))
 	{
 		std::cout << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
+		scheduler = NULL;
 		return FAIL;
 	}
 
 	if (scheduler->getTotalThreadsNum() == 1)
 	{
 		std::cout << LIBERR << __FUNCTION__ << LIBERR_SUSPEND_ONLY_THREAD;
+		scheduler = NULL;
 		return FAIL;
 	}
 
@@ -283,6 +294,8 @@ int uthread_suspend(int tid)
 		scheduler->switchThreads(READY);
 	}
 
+	scheduler = NULL;
+
 	return 0;
 }
 
@@ -296,6 +309,7 @@ int uthread_resume(int tid)
 	if (!scheduler->isValidTid(tid))
 	{
 		std::cout << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
+		scheduler = NULL;
 		return FAIL;
 	}
 
@@ -319,6 +333,8 @@ int uthread_resume(int tid)
 	{
 		scheduler->switchThreads(READY);
 	}
+
+	scheduler = NULL;
 
 	return 0;
 }
@@ -344,10 +360,15 @@ int uthread_get_quantums(int tid)
 	if (!scheduler->isValidTid(tid))
 	{
 		std::cout << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
+		scheduler = NULL;
 		return FAIL;
 	}
 	
-	return scheduler->getThread(tid)->getQuantums();
+	int quantums = scheduler->getThread(tid)->getQuantums();
+
+	scheduler = NULL;
+
+	return quantums;
 }
 
 unsigned int getMinTid()

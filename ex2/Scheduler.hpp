@@ -48,7 +48,7 @@ class Scheduler
 
 		void setQuantum(int quantum);
 
-		static void destroy();
+		void destroy();
 
 	private:
 		Scheduler();

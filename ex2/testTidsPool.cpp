@@ -14,6 +14,9 @@
 int main(int argc, char const *argv[])
 {
 	Scheduler *s = Scheduler::getInstance();
+	
+	s->setQuantum(100);
+
 	printf("Top %dn", s->getTidsPool()->top());
 
 	s->getTidsPool()->push(1);

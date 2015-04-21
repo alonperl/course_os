@@ -38,5 +38,6 @@ ANSWERS:
 	GREEN a chance to run, until one of them finishes).
 
 2.
-	Waiting for user input: in simple Calculator a process will wait for user to
-	type a statement before it can continue any further.
+	Example of such an event: waiting for user input: in simple Calculator a 
+	process will wait for user to type a statement before it can continue any 
+	further.

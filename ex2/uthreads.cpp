@@ -29,7 +29,10 @@
 
 /* Definitions */
 #define RESUMING 1
+#define SINGLE_THREAD 1
 #define MAIN 0
+#define SUCCESS 0
+#define FAIL -1
 
 /* Error messages */
 #define LIBERR "thread library error: "
@@ -40,6 +43,11 @@
 #define LIBERR_THREAD_CREATION_FAILED ": cannot create thread object\n"
 #define LIBERR_SCHEDULER_CREATION_FAILED ": cannot create scheduler object\n"
 #define LIBERR_SUSPEND_ONLY_THREAD ": cannot suspend main thread\n"
+
+#ifndef _SYSERR_MESSAGES
+#define SYSERR_SIGNAL "couldn't set signal handler\n"
+#define SYSERR_SETITIMER "couldn't set timer\n"
+#endif
 
 /**
  * @brief Initiate the library
@@ -89,12 +97,19 @@ int uthread_init(int quantum_usecs)
 	scheduler->runNext();
 
 	// Start the timer
-	signal(SIGVTALRM, SignalManager::staticSignalHandler);
-	setitimer(ITIMER_VIRTUAL, scheduler->getQuantum(), NULL);
+	if (signal(SIGVTALRM, SignalManager::staticSignalHandler) == SIG_ERR)
+	{
+		SignalManager::systemErrorHandler(SYSERR_SIGNAL);
+	}
+
+	if (setitimer(ITIMER_VIRTUAL, scheduler->getQuantum(), NULL) == FAIL)
+	{
+		SignalManager::systemErrorHandler(SYSERR_SETITIMER);
+	}
 
 	scheduler = NULL;
 
-	return 0;
+	return SUCCESS;
 }
 
 /**
@@ -153,7 +168,12 @@ int uthread_spawn(void (*f)(void), Priority pr)
 	return newTid;
 }
 
-/* Terminate a thread */
+/**
+ *  @brief Terminate a thread
+ *  @param int tid - the tid of the thread to terminate
+ *  @return 0 iff succeeds, -1 otherwise. Exits with 0 status if main thread
+ *  terminates
+ */
 int uthread_terminate(int tid)
 {
 	SignalManager::postponeSignals();
@@ -169,12 +189,14 @@ int uthread_terminate(int tid)
 	}
 
 	// Terminating main
-	if (tid == 0)
+	if (tid == MAIN)
 	{
-		std::map<unsigned int, Thread*>::iterator threadIter = scheduler->getThreadsMap()->begin();
+		std::map<unsigned int, Thread*>::iterator threadIter = 
+			scheduler->getThreadsMap()->begin();
+
 		for (; threadIter != scheduler->getThreadsMap()->end(); ++threadIter)
 		{
-			if (threadIter->first != 0)
+			if (threadIter->first != MAIN)
 			{
 				delete threadIter->second;
 			}
@@ -182,7 +204,7 @@ int uthread_terminate(int tid)
 
 		scheduler->destroy();
 
-		exit(0);
+		exit(SUCCESS);
 	}
 
 	Thread *thread = scheduler->getThread(tid);
@@ -240,17 +262,21 @@ int uthread_terminate(int tid)
 
 	scheduler = NULL;
 
-	return 0;
+	return SUCCESS;
 }
 
-/* Suspend a thread */
+/**
+ *  @brief Suspends a thread
+ *  @param int tid - the tid of the thread to suspend
+ *  @return 0 iff succeseed to suspend, -1 otherwise
+ */
 int uthread_suspend(int tid)
 {
 	SignalManager::postponeSignals();
 
 	Scheduler *scheduler = Scheduler::getInstance();
 
-	// If got invalid tid or if there if only one existing thread, cannot suspend
+	// If got invalid tid or if there if only one existing thread, can't suspend
 	if (!scheduler->isValidTid(tid))
 	{
 		std::cout << LIBERR << __FUNCTION__ << LIBERR_INVALID_TID;
@@ -258,7 +284,7 @@ int uthread_suspend(int tid)
 		return FAIL;
 	}
 
-	if (scheduler->getTotalThreadsNum() == 1)
+	if (scheduler->getTotalThreadsNum() == SINGLE_THREAD)
 	{
 		std::cout << LIBERR << __FUNCTION__ << LIBERR_SUSPEND_ONLY_THREAD;
 		scheduler = NULL;
@@ -269,15 +295,10 @@ int uthread_suspend(int tid)
 
 	if (thread->getState() != BLOCKED)
 	{
-		// printf("%d suspending %d\n", uthread_get_tid(), tid);
 		if (thread->getState() == RUNNING)
 		{
 			// Get next ready thread and set it as current
 			scheduler->switchThreads(BLOCKED);
-			/*scheduler->runNext();
-
-			SignalManager::unblockSignals();
-			siglongjmp(*(scheduler->running->getEnv()), RESUMING);*/
 		}
 		else
 		{
@@ -296,10 +317,14 @@ int uthread_suspend(int tid)
 
 	scheduler = NULL;
 
-	return 0;
+	return SUCCESS;
 }
 
-/* Resume a thread */
+/**
+ *  @brief Resume a thread
+ *  @param int tid - the tid of the thread to resume
+ *  @return 0 if succeseed, -1 otherwise
+ */
 int uthread_resume(int tid)
 {
 	SignalManager::postponeSignals();
@@ -318,7 +343,6 @@ int uthread_resume(int tid)
 	// If the thread is not blocked, do nothing.
 	if (thread->getState() == BLOCKED)
 	{
-		// printf("%d resumed %d\n", uthread_get_tid(), tid);
 		scheduler->ready(thread);
 		scheduler->getBlockedMap()->erase(tid);
 	}
@@ -336,23 +360,30 @@ int uthread_resume(int tid)
 
 	scheduler = NULL;
 
-	return 0;
+	return SUCCESS;
 }
 
 
-/* Get the id of the calling thread */
+/**
+ *  @return the ID of the calling thread
+ */
 int uthread_get_tid()
 {
 	return Scheduler::getInstance()->getRunning()->getTid();
 }
 
-/* Get the total number of library quantums */
+/**
+ * @return the total number of library quantums
+ */
 int uthread_get_total_quantums()
 {
 	return Scheduler::getInstance()->getTotalQuantums();
 }
 
-/* Get the number of thread quantums */
+/**
+ * @param tid Thread ID
+ * @return the number of calling thread quantums
+ */
 int uthread_get_quantums(int tid)
 {
 	Scheduler *scheduler = Scheduler::getInstance();
@@ -371,6 +402,9 @@ int uthread_get_quantums(int tid)
 	return quantums;
 }
 
+/**
+ *  @return the minimal available TID
+ */
 unsigned int getMinTid()
 {
 	return 	Scheduler::getInstance()->getMinTid();

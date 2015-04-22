@@ -1,9 +1,11 @@
 #include "blockchain.h"
+#include "Chain.hpp"
 
 /*
  *       A multi threaded blockchain database manager
  *       Author: OS, os@cs.huji.ac.il
  */
+
 
 
 /*
@@ -13,7 +15,18 @@
  *      return with an error otherwise).
  * RETURN VALUE: On success 0, otherwise -1.
  */
-int init_blockchain();
+int init_blockchain()
+{
+if (Chain::initiated())
+{
+	return FAIL;
+}
+Chain::create();
+Chain::
+}
+
+
+
 
 /*
  * DESCRIPTION: Ultimately, the function adds the hash of the data to the Block chain.

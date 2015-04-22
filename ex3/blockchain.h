@@ -1,6 +1,5 @@
 #ifndef _BLOCKCHAIN_H
 #define _BLOCKCHAIN_H
-
 /*
  *       A multi threaded blockchain database manager
  *       Author: OS, os@cs.huji.ac.il

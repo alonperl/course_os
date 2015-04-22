@@ -1,7 +1,18 @@
+#include "Block.hpp"
+#include <time.h>
 
-Block::Block(arguments)
+/**
+ * @brief 
+ * @param 
+ * @return 
+ */
+Block::Block(int id, string dataHash, Block* father, int height)
 {
-
+	_blockId = id;
+	_height = height;
+	_hashData = dataHash;
+	_prevBlock = father;
+	_timestamp = time();
 }
 
 Block::~Block()
@@ -20,7 +31,7 @@ int Block::getId(void)
 /**
  * @return the block's timestamp
  */
-int Block::getTimestamp(void)
+time_t Block::getTimestamp(void)
 {
 	return _timestamp;
 }
@@ -44,7 +55,7 @@ string Block::getHashData(void)
 /**
  * @return the blocks father
  */
-*Block Block::getPrevBlock(void)
+Block* Block::getPrevBlock(void)
 {
 	return _prevBlock;
 }

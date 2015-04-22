@@ -22,7 +22,7 @@ if (Chain::initiated())
 	return FAIL;
 }
 Chain::create();
-Chain::
+// TODO singelton of chain was created
 }
 
 

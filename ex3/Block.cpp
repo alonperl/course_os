@@ -45,7 +45,7 @@ int Block::getHeight(void)
 }
 
 /**
- * @return the block's hash data
+ * @return the block's hashdata
  */
 string Block::getHashData(void)
 {

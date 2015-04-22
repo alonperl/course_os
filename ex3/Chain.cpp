@@ -6,7 +6,9 @@ _maxHeight = 0;
 _size = 0;
 _initiated = true;
 }
-	Chain::~Chain();
+
+Chain::~Chain();
+
 /**
  * @return the chain's max height
  */
@@ -24,18 +26,24 @@ int Chain::getSize(void)
 }
 
 /**
- * @return the chain's tails
+ * @return iterator to the chain's tails
  */
 std::vector<Block*>::iterator Chain::getTails(void)
 {
 	return _tails.begin();
 }
 
+/**
+ * @return true if was initiated
+ */ 
 bool Chain::initiated(void)
 {
 	return s_initiated;
 }
 
+/**
+ *
+ */
 void Chain::create()
 {
 	s_instance = new Chain();

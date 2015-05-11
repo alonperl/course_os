@@ -26,7 +26,7 @@ int init_blockchain();
  *      which is assigned from now on to this individual piece of data.
  *      On failure, -1 will be returned.
  */
-int add_block(char *data , int length, int nonce);
+int add_block(char *data , int length);
 
 /*
  * DESCRIPTION: Without blocking, enforce the policy that this block_num should be attached to the longest chain at the time of attachment of 

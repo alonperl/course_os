@@ -2,6 +2,7 @@
 #include "Block.hpp"
 
 #define FAIL -1
+#define EMPTY 0
 class Chain
 {
 public:
@@ -23,7 +24,18 @@ public:
 	 * @return iterator to the chain's tails
 	 */
 	std::vector<Block*>::iterator getTails(void);
+	
+	/**
+	 *
+	 */
 	void pushBlock(Block *newTail);
+
+	void deleteBlock(Block *toDelete);
+
+	/**
+	 * @return the lowest ID available
+	 */
+	int getLowestID();
 	
 	/**
 	 * @return true if was initiated
@@ -33,12 +45,16 @@ public:
 	static Chain *getInstance();
 
 private:
+	static bool s_initiated = false;
+	static Chain *s_instance;
+
 	Chain(arguments);
+	
 	int _maxHeight;
 	int _size;
 	std::vector<Block*> *_tails;
+	std::list<int> usedIDList; 
 	Block *tip;
-	static bool s_initiated = false;
-	static Chain *s_instance;
+	Block *root;
 
 };

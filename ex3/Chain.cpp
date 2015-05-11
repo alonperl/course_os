@@ -2,9 +2,10 @@
 
 Chain::Chain()
 {
-_maxHeight = 0;
-_size = 0;
-_initiated = true;
+	// TODO make singelton
+	_maxHeight = 0;
+	_size = EMPTY;
+	s_initiated = true;
 }
 
 Chain::~Chain();
@@ -56,12 +57,58 @@ Chain *Chain::getInstance()
 	{
 		return s_instance;
 	}
-		throw FAIL;
+	throw FAIL;
 }
 
-void pushBlock(Block *newTail)
+void Chain::pushBlock(Block *newTail)
 {
-	// TODO: think on how to add a child
-	if(newTail.getPrevBlock().get)
+	// add myself to tails list
 	_tails.push(newTail);
+	// make me the tip
+	tip = newTail; 
+	//Anyways add size
+	_size++;
+
+	//TODO maybe height should be determint here??
+	// in case the new block is of bigger height update height
+	if (Chain::getMaxHeight() < newTail.getHeight())
+	{
+		_maxHeight++;
+	}
+
+	if (_size == EMPTY)
+	{
+		root = newTail;
+	}
+	else
+	{
+		//delete my father from tails list
+		Block *fatherBlock = newTail.getPrevBlock();
+		_tails.erease(newTail.getPrevBlock());
+
+	}
+}
+
+void deleteBlock(Block *toDelete)
+{
+
+}
+
+/**
+ * @return the lowest ID available
+ */
+int getLowestID()
+{
+	if (usedIDList.empty())
+	{
+		return _size;
+	}
+
+	smallestUsedId = usedIDList.front(); //assuming usedID list is always sorted after adding an element there -if not change the .front())
+	if (_size > smallestUsedId) 
+	{
+		usedIDList.remove(smallestUsedId); // erase from used list
+		return smallestUsedId;
+	}
+	return _size;
 }

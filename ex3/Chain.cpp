@@ -151,7 +151,7 @@ Block *Chain::getFather()
 	return _tip; //TODO change - just for compiling
 }
 
-int Chain::maintainChain(Chain *chain)
+static int Chain::maintainChain(Chain *chain)
 {
 	//TODO logic of the deamon thread
 

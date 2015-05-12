@@ -45,7 +45,7 @@ public:
 	int getLowestID();
 	bool getDaemonWorkFlag();
 	bool isPendingBlocksEmpty();
-	int maintainChain(Chain *chain);
+	static int maintainChain(Chain *chain);
 	Block *getFather();
 
 	//funcs that blockchain call

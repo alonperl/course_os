@@ -164,6 +164,7 @@ void *Chain::maintainChain(void *c)
 	}
 	//TODO if closed was called and there are still pending blocks
 	//TODO should print them out than delete them
+	return NULL;
 }
 
 int Chain::initiateBlockchain()

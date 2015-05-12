@@ -1,8 +1,17 @@
 #include "Chain.hpp"
 
+#define RESET_BLOCK_ID -1
 #define GENESIS_BLOCK_NUM 0
+#define FLAG_NEW_PENDING_BLOCK 1
+#define FLAG_HASHING_FINISHED 2
 
 pthread_t daemonThread;
+
+unsigned int event = 0;
+
+// When worker finishes, this points to number of the relevant block
+int lastHashedBlockId = RESET_BLOCK_ID;
+char *lastHash;
 
 Chain::Chain()
 {
@@ -151,21 +160,127 @@ Block *Chain::getFather()
 	return _tip; //TODO change - just for compiling
 }
 
-void *Chain::maintainChain(void *c)
+/**
+ * @brief Daemon thread routine
+ * @details This function is passed as start_routine to daemon thread,
+ *          it mainly waits for two event types:
+ *          	- when new block enters _pendingBlocks queue, it creates
+ *          	a worker to hash its data
+ *          	- when hashing finished, it adds the block to chain and 
+ *          	pops it from _pending
+ * 
+ * @param chain_ptr pointer to chain
+ * @return NULL
+ */
+void *Chain::maintainChain(void *chain_ptr)
 {
-	//TODO logic of the deamon thread
-	Chain* chain = (Chain*) c;
-	while(chain->getDaemonWorkFlag())
+	// Lock _pendingBlocks
+	pthread_mutex_lock(&_pendingBlocksMutex);
+	while (!isClosed())
 	{
-		if (chain->isPendingBlocksEmpty())
-		{
+		// Wait for "hey! someone pending" signal
+		pthread_cond_wait(&_pendingBlocksCV, &_pendingBlocksMutex);
 
+		if (event & FLAG_NEW_PENDING_BLOCK)
+		{	// Run hashing for new blocks
+			for (std::deque<Block*>::iterator it = _pendingBlocks.begin(); it != _pendingBlocks.end(); ++it)
+			{
+				// Get next pending block
+				Block* nextBlock = *it;
+
+				// Create worker thread
+				pthread_t *worker;
+				_workers.push_back(worker);
+
+				pthread_create(worker, NULL, Chain::hash, nextBlock);	// master thread created
+				pthread_join(*worker, NULL);
+				// TODO: do we need to NULLify nextBlock? worker?
+			}
+
+			event ^= FLAG_NEW_PENDING_BLOCK;
+		}
+
+		if (event & FLAG_HASHING_FINISHED)
+		{	// Update block hash
+			// Get block
+			Block *block;
+			for (std::deque<Block*>::iterator it = _pendingBlocks.begin(); it != _pendingBlocks.end(); ++it)
+			{
+				if (*it->getId() == lastHashedBlockId);
+				{
+					block = *it;
+					_pendingBlocks.erase(it);
+					break;
+				}
+			}
+
+			// Update the block hash
+			pthread_mutex_lock(&(block->blockMutex));
+			block->setHash(hash);
+			pthread_mutex_unlock(&(block->blockMutex));
+
+			// Attach block to chain
+			// TODO Not sure about locking!
+			pthread_mutex_lock(&chainMutex);
+			_blocksInChain[block->getId()] = block;
+			pthread_mutex_unlock(&chainMutex);
+
+			// Reset blockId
+			lastHashedBlockId = RESET_BLOCK_ID;
+			event ^= FLAG_HASHING_FINISHED;
 		}
 	}
-	//TODO if closed was called and there are still pending blocks
-	//TODO should print them out than delete them
+	// Unlock _pendingBlocks
+	pthread_mutex_unlock(&_pendingBlocksMutex);
+
 	return NULL;
 }
+
+/**
+ * @brief Hashing routine
+ * @details This function is passed as start_routine of workers.
+ *          Its job is to calculate the hash of given block (and
+ *          possibly rehash if its father was changed)
+ * 
+ * @param block_ptr Desired block
+ * @return NULL
+ */
+void *Chain::hash(void *block_ptr)
+{
+	// TODO consider maybe split block and its data, we don't really 
+	// need block here, only its and it father's id and the data
+	
+	Block *block = (Block*) block_ptr;
+	int id = block->getId();
+
+	// Save father id
+	int fatherID = block->getPrevBlock()->getId();
+
+	// Calculate hash
+	do
+	{	
+		int nonce = generate_nonce(block->getId(), block->getPrevBlock()->getId());
+		char* hash = generate_hash(block->getData(), block->getDataLength(), nonce);
+
+		// If the father was changed meanwhile, update it and recalculate the hash
+		fatherID = block->getPrevBlock()->getId();
+	} while (block->getPrevBlock()->getId() != fatherID);
+
+	// TODO Consider using retval of pthread_join
+	// Busy wait, not good!
+	while(lastHashedBlockId != RESET_BLOCK_ID);  //		\ 
+	lastHashedBlockId = id;						 //		| TODO Must be atomic
+	strcpy(lastHash, hash);						 //		/
+
+	// Send signal to daemon that hashing is finished
+	pthread_mutex_lock(&_pendingBlocksMutex);
+	event |= FLAG_HASHING_FINISHED;
+    pthread_cond_signal(&var);
+	pthread_mutex_unlock(&_pendingBlocksMutex);
+    
+	return NULL;
+}
+
 
 int Chain::initiateBlockchain()
 {

@@ -29,6 +29,6 @@ public:
 	private:
 		int _blockId;
 		int _height;
-		std::string _hashData;
+		std::string _dataHash;
 		Block* _prevBlock;
 };

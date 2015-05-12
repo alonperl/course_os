@@ -10,7 +10,7 @@ Block::Block(int id, std::string dataHash, int dataLength, Block* father, int he
 {
 	_blockId = id;
 	_height = height;
-	_hashData = dataHash;
+	_dataHash = dataHash;
 	_hashDataLength = dataLength;
 	_prevBlock = father;
 }
@@ -39,9 +39,9 @@ int Block::getHeight(void)
 /**
  * @return the block's hashdata
  */
-std::string Block::getHashData(void)
+std::string Block::getHash(void)
 {
-	return _hashData;
+	return _dataHash;
 }
 
 /**

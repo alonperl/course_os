@@ -78,6 +78,9 @@ private:
 	pthread_mutex_t _usedIDListMutex;
 	pthread_mutex_t _deepestTailsMutex;
 	pthread_mutex_t _blocksInChainMutex;
+	pthread_mutex_t _pendingBlocksMutex;
+
+	pthread_cond_t _pendingBlocksCV;
 
 	int _maxHeight;
 	int _size;
@@ -86,6 +89,8 @@ private:
 	std::vector<Block*> _deepestTails;
 	std::list<int> _usedIDList;
 	std::deque<Block*> _pendingBlocks;
+
+	std::vector<pthread_t*> _workers;
 
 	bool _daemonWorkFlag;
 	Block *_tip;

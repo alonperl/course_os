@@ -6,7 +6,7 @@
  * @param 
  * @return 
  */
-Block::Block(int id, string dataHash, Block* father, int height)
+Block::Block(int id, std::string dataHash, Block* father, int height)
 {
 	_blockId = id;
 	_height = height;
@@ -47,7 +47,7 @@ int Block::getHeight(void)
 /**
  * @return the block's hashdata
  */
-string Block::getHashData(void)
+std::string Block::getHashData(void)
 {
 	return _hashData;
 }

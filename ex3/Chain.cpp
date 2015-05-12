@@ -12,7 +12,7 @@ Chain::Chain()
 	s_initiated = true;
 }
 
-Chain::~Chain();
+//Chain::~Chain(); //TODO doesn't compile with destructor
 
 /**
  * @return the chain's max height
@@ -30,12 +30,12 @@ int Chain::getSize(void)
 	return _size;
 }
 
-bool getDaemonWorkFlag()
+bool Chain::getDaemonWorkFlag()
 {
 	return _daemonWorkFlag;
 }
 
-bool isPendingBlocksEmpty()
+bool Chain::isPendingBlocksEmpty()
 {
 	if (_pendingBlocks.empty())
 	{
@@ -49,7 +49,7 @@ bool isPendingBlocksEmpty()
  */
 std::vector<Block*>::iterator Chain::getTails(void)
 {
-	return _tails.begin();
+	return _allTails.begin();
 }
 
 /**
@@ -80,6 +80,8 @@ Chain *Chain::getInstance()
 
 void Chain::pushBlock(Block *newTail)
 {
+	(void) newTail; // supress unused warnnig
+	/**
 	//REWRITE AFTER FINISHED ADDBLOCK THREAD
 	//___________________________________________________________
 	//___________________________________________________________
@@ -109,11 +111,12 @@ void Chain::pushBlock(Block *newTail)
 	}
 	//___________________________________________________________
 	//___________________________________________________________
+	*/
 }
 
 void Chain::deleteBlock(Block *toDelete)
 {
-
+	(void) toDelete;
 }
 
 /**
@@ -124,43 +127,44 @@ int Chain::getLowestID()
 	// TODO: looks for the lowest number available and returns it:
 	// get lowest number from usedID list
 	// get size of list - chose the smaller of the two
-	pthread_mutex_lock(&chain->usedIDListMutex);
-	if (usedIDList.empty())
+	pthread_mutex_lock(&_usedIDListMutex);
+	if (_usedIDList.empty())
 	{
 		return _size;
 	}
 
-	smallestUsedId = usedIDList.front(); //assuming usedID list is always sorted after adding an element there -if not change the .front())
+	int smallestUsedId = _usedIDList.front(); //assuming usedID list is always sorted after adding an element there -if not change the .front())
 	if (_size > smallestUsedId) 
 	{
-		usedIDList.remove(smallestUsedId); // erase from used list
+		_usedIDList.remove(smallestUsedId); // erase from used list
 		return smallestUsedId;
 	}
-	pthread_mutex_unlock(&chain->usedIDListMutex);
+	pthread_mutex_unlock(&_usedIDListMutex);
 	return _size;
 }
 
-Block *getFather()
+Block *Chain::getFather()
 {
-	pthread_mutex_lock(&chain->deepestTails);
+	pthread_mutex_lock(&_deepestTailsMutex);
 
-	pthread_mutex_unlock(&chain->deepestTails);
+	pthread_mutex_unlock(&_deepestTailsMutex);
+	return _tip; //TODO change - just for compiling
 }
 
 int Chain::maintain_chain(Chain *chain)
 {
 	//TODO logic of the deamon thread
 
-	while(chain.getDaemonWorkFlag())
+	while(chain->getDaemonWorkFlag())
 	{
-		if (chain.isPendingBlocksEmpty())
+		if (chain->isPendingBlocksEmpty())
 		{
 
 		}
 	}
 	//TODO if closed was called and there are still pending blocks
 	//TODO should print them out than delete them
-
+	return 0; //TODO change - just for compiling
 }
 
 Block *Chain::genesis_Block_creator()
@@ -183,6 +187,8 @@ int Chain::initiateBlockchain()
 
 int Chain::addBlock(char *data, int length)
 {
+	(void) length; //TODO -erase - to compile
+
 	if (!Chain::initiated())
 	{
 		return FAIL;
@@ -194,7 +200,7 @@ int Chain::addBlock(char *data, int length)
 	_pendingBlocks.push_back(&newBlock); 
 	// TODO: don't forget the thread that manges this needs to check in the end if the father still exists otherwise recalculate the hashed-data
 
-	return BlockID;
+	return blockID;
 }
 
 int Chain::toLongest(int blockNum)

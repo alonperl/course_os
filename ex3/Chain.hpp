@@ -1,5 +1,10 @@
 #include <vector>
 #include "Block.hpp"
+#include <unordered_map>
+#include <deque>
+#include <list> 
+#include "hash.h"
+
 
 #define FAIL -1
 #define EMPTY 0
@@ -7,7 +12,7 @@ class Chain
 {
 public:
 	
-	~Chain();
+	//~Chain();
 
 	/**
 	 * @return the chain's max height
@@ -36,9 +41,11 @@ public:
 	 * @return the lowest ID available
 	 */
 	int getLowestID();
-	
 	bool getDaemonWorkFlag();
 	bool isPendingBlocksEmpty();
+	Block *genesis_Block_creator();
+	int maintain_chain(Chain *chain);
+	Block *getFather();
 
 	//funcs that blockchain call
 	int initiateBlockchain();
@@ -62,10 +69,10 @@ public:
 	static Chain *getInstance();
 
 private:
-	static bool s_initiated = false;
+	static bool s_initiated;
 	static Chain *s_instance;
 
-	Chain(arguments);
+	Chain();
 	
 	pthread_mutex_t _usedIDListMutex;
 	pthread_mutex_t _deepestTailsMutex;

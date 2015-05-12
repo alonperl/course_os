@@ -151,10 +151,9 @@ Block *Chain::getFather()
 	return _tip; //TODO change - just for compiling
 }
 
-void Chain::maintainChain()
+void *Chain::maintainChain(void *chain)
 {
 	//TODO logic of the deamon thread
-	Chain *chain = Chain::getInstance();
 	while(chain->getDaemonWorkFlag())
 	{
 		if (chain->isPendingBlocksEmpty())
@@ -174,7 +173,7 @@ int Chain::initiateBlockchain()
 	}
 	create(); // TODO make sure chain is singelton 
 	init_hash_generator();
-	pthread_create(&daemonThread, NULL, Chain::maintainChain)	// master thread created
+	pthread_create(&daemonThread, NULL, Chain::maintainChain, &Chain::getInstance());	// master thread created
 	Block* genesisBlock = new Block(GENESIS_BLOCK_NUM, NULL, NULL, Chain::getMaxHeight());
 	pushBlock(genesisBlock); //create genesis block and insert to chain
 	return SUCESS;

@@ -2,12 +2,14 @@
 #include "Block.hpp"
 #include <unordered_map>
 #include <deque>
-#include <list> 
+#include <list>
 #include "hash.h"
+
 
 
 #define FAIL -1
 #define EMPTY 0
+#define SUCESS 0
 class Chain
 {
 public:
@@ -43,8 +45,7 @@ public:
 	int getLowestID();
 	bool getDaemonWorkFlag();
 	bool isPendingBlocksEmpty();
-	Block *genesis_Block_creator();
-	int maintain_chain(Chain *chain);
+	int maintainChain(Chain *chain);
 	Block *getFather();
 
 	//funcs that blockchain call

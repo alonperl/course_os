@@ -151,7 +151,7 @@ Block *Chain::getFather()
 	return _tip; //TODO change - just for compiling
 }
 
-int Chain::maintain_chain(Chain *chain)
+int Chain::maintainChain(Chain *chain)
 {
 	//TODO logic of the deamon thread
 
@@ -167,12 +167,6 @@ int Chain::maintain_chain(Chain *chain)
 	return 0; //TODO change - just for compiling
 }
 
-Block *Chain::genesis_Block_creator()
-{
-	Block genesisBlock = new Block(GENESIS_BLOCK_NUM, NULL, NULL, Chain::getMaxHeight());
-	return &genesisBlock;
-}
-
 int Chain::initiateBlockchain()
 {
 	if (initiated())
@@ -181,8 +175,10 @@ int Chain::initiateBlockchain()
 	}
 	create(); // TODO make sure chain is singelton 
 	init_hash_generator();
-	pthread_create(&daemonThread, NULL, maintain_chain)	// master thread craeted
-	pushBlock(genesis_Block_creator()); //create genesis block and insert to chain
+	pthread_create(&daemonThread, NULL, Chain::maintainChain)	// master thread created
+	Block* genesisBlock = new Block(GENESIS_BLOCK_NUM, NULL, NULL, Chain::getMaxHeight());
+	pushBlock(genesisBlock); //create genesis block and insert to chain
+	return SUCESS;
 }
 
 int Chain::addBlock(char *data, int length)
@@ -196,8 +192,8 @@ int Chain::addBlock(char *data, int length)
 
 	Block *father = Chain::getFather();
 	int blockID = Chain::getLowestID();
-	Block newBlock = new Block(blockID, data, father, father.getHeight()+1);
-	_pendingBlocks.push_back(&newBlock); 
+	Block *newBlock = new Block(blockID, data, father, father->getHeight()+1);
+	_pendingBlocks.push_back(newBlock); 
 	// TODO: don't forget the thread that manges this needs to check in the end if the father still exists otherwise recalculate the hashed-data
 
 	return blockID;
@@ -205,6 +201,7 @@ int Chain::addBlock(char *data, int length)
 
 int Chain::toLongest(int blockNum)
 {
+	(void) blockNum; //TODO erase - to compile
 	if (!initiated())
 	{
 		return FAIL;
@@ -216,23 +213,27 @@ int Chain::toLongest(int blockNum)
 	// check if was added 
 	// finds the request in deamon list and changes parameters
 	// 
+	return SUCESS;
 }
 
 int Chain::attachNow(int blockNum)
 {
+	(void) blockNum; //TODO erase - to compile
 	if (!initiated())
 	{
 		return FAIL;
 	}
-
+	return SUCESS;
 }
 
 int Chain::wasAdded(int blockNum)
 {
+	(void) blockNum; //TODO erase - to compile
 	if (!initiated())
 	{
 		return FAIL;
 	}
+	return SUCESS;
 }
 
 int Chain::chainSize()
@@ -246,14 +247,12 @@ int Chain::pruneChain()
 	{
 		return FAIL;
 	}
+	return SUCESS;
 }
 
 void Chain::closeChain()
 {
-	if (!initiated())
-	{
-		return FAIL;
-	}
+
 }
 
 int Chain::returnOnClose()
@@ -262,5 +261,5 @@ int Chain::returnOnClose()
 	{
 		return FAIL;
 	}
-
+	return SUCESS;
 }

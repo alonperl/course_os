@@ -176,15 +176,13 @@ int Chain::initiateBlockchain()
 	create(); // TODO make sure chain is singelton 
 	init_hash_generator();
 	pthread_create(&daemonThread, NULL, Chain::maintainChain, this);	// master thread created
-	Block* genesisBlock = new Block(GENESIS_BLOCK_NUM, NULL, NULL, Chain::getMaxHeight());
+	Block* genesisBlock = new Block(GENESIS_BLOCK_NUM, NULL, NULL, Chain::getMaxHeight()); // TODO maybe height is determined from father later
 	pushBlock(genesisBlock); //create genesis block and insert to chain
 	return SUCESS;
 }
 
 int Chain::addBlock(char *data, int length)
 {
-	(void) length; //TODO -erase - to compile
-
 	if (!Chain::initiated())
 	{
 		return FAIL;
@@ -192,8 +190,8 @@ int Chain::addBlock(char *data, int length)
 
 	Block *father = Chain::getFather();
 	int blockID = Chain::getLowestID();
-	Block *newBlock = new Block(blockID, data, father, father->getHeight()+1);
-	_pendingBlocks.push_back(newBlock); 
+	Block *newBlock = new Block(blockID, data, length, father, father->getHeight()+1);
+	_pendingBlocks.push_back(newBlock);
 	// TODO: don't forget the thread that manges this needs to check in the end if the father still exists otherwise recalculate the hashed-data
 
 	return blockID;

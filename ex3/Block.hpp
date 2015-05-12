@@ -3,7 +3,7 @@
 class Block
 {
 public:
-	Block(int id, std::string dataHash, Block* father, int height);
+	Block(int id, std::string dataHash, int dataLength, Block* father, int height);
 	~Block();
 
 	/**

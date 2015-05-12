@@ -6,11 +6,12 @@
  * @param 
  * @return 
  */
-Block::Block(int id, std::string dataHash, Block* father, int height)
+Block::Block(int id, std::string dataHash, int dataLength, Block* father, int height)
 {
 	_blockId = id;
 	_height = height;
 	_hashData = dataHash;
+	_hashDataLength = dataLength;
 	_prevBlock = father;
 }
 

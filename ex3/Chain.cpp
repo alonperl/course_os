@@ -175,7 +175,7 @@ int Chain::initiateBlockchain()
 	}
 	create(); // TODO make sure chain is singelton 
 	init_hash_generator();
-	pthread_create(&daemonThread, NULL, Chain::maintainChain, &Chain::getInstance());	// master thread created
+	pthread_create(&daemonThread, NULL, Chain::maintainChain, this);	// master thread created
 	Block* genesisBlock = new Block(GENESIS_BLOCK_NUM, NULL, NULL, Chain::getMaxHeight());
 	pushBlock(genesisBlock); //create genesis block and insert to chain
 	return SUCESS;

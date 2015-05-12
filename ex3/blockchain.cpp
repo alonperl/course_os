@@ -1,6 +1,6 @@
 #include "blockchain.h"
 #include "Chain.hpp"
-#include <pthred.h>
+#include <pthread.h>
 
 /*
  *       A multi threaded blockchain database manager

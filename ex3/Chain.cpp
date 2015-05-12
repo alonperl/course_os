@@ -152,7 +152,7 @@ int Chain::getLowestID()
 	return _size;
 }
 
-Block *Chain::getFather()
+Block *Chain::getRandomDeepest()
 {
 	pthread_mutex_lock(&_deepestTailsMutex);
 
@@ -341,12 +341,29 @@ int Chain::attachNow(int blockNum)
 
 int Chain::wasAdded(int blockNum)
 {
-	(void) blockNum; //TODO erase - to compile
 	if (!initiated())
 	{
 		return FAIL;
 	}
-	return SUCESS;
+
+	std::unordered_map<unsigned int, Block*>::const_iterator foundBlock = _blocksInChain.find(blockNum);
+	if (_blocksInChain.end() == foundBlock) // block was not added
+	{
+		// in case is in pending list
+		std::deque<Block*>::iterator it = _pendingBlocks.begin();
+		while (it != _pendingBlocks.end())
+		{
+			if (*it->getId() == blockNum)
+			{
+				return FOUND_IN_PENDING;
+			}
+			*it++;
+		}
+		// in case id was not used
+		return BLOCK_NUM_DOESNT_EXIST;
+	}
+	
+	return FOUND;
 }
 
 int Chain::chainSize()
@@ -360,6 +377,69 @@ int Chain::pruneChain()
 	{
 		return FAIL;
 	}
+	//TODO: add field named toPrune to all blocks and setter - make genesis crate with toPrune=false
+	pthread_mutex_lock(&_blocksInChainMutex);
+	pthread_mutex_lock(&_deepestTailsMutex);
+	pthread_mutex_lock(&_allTailsMutex); //TODO: do i need to lock more stuff??
+	Block *deepestBlock = getRandomDeepest();
+	// only in case we didn't reach the gensis block
+	// or we got to a part of a chain we pruned before - keep running
+	while (deepestBlock->getPrevBlock() != NULL || deepestBlock->toPrune != false)
+	{
+		deepestBlock->toPrune = false; //TODO: maybe change to setter
+		deepestBlock = deepestBlock->getPrevBlock();
+	}
+	// by now we marked everyone not to prune
+	Block* blockToPrune;
+	Block* tempBlock;
+	int counter = 0;
+	for (std::vector<Block*>::iterator it = _allTails.begin(); it != _allTails.end(); ++it)
+	{
+		blockToPrune = (*it);
+		//if we got a tail to delete earase from lists it were on
+		if (blockToPrune->toPrune == true)
+		{
+			// in case was one of the deepests
+			if (blockToPrune->getHeight() == _maxHeight)
+			{
+				// find where the block is in the vector
+				tempBlock = _deepestTails.begin();
+				while (blockToPrune != tempBlock)
+				{
+					i++;
+					tempBlock = _deepestTails.begin()+i
+				}
+				_deepestTails.erase(_deepestTails.begin()+i);
+				counter = 0;
+			}
+
+			//anyways delete from alltails list
+			tempBlock = _allTails.begin();
+			while (blockToPrune != tempBlock)
+			{
+				i++;
+				tempBlock = _allTails.begin()+i
+			}
+			_allTails.erase(_allTails.begin()+i);
+
+		}
+
+		// run through tree and delete all the sub branch
+		while (blockToPrune->toPrune == true)
+		{
+			tempBlock = blockToPrune->getPrevBlock();
+			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
+			~Block(*blockToPrune); //destory the block
+			blockToPrune = tempBlock;
+		}
+		
+	}
+	blockToPrune = NULL;
+	tempBlock = NULL;
+
+	pthread_mutex_unlock(&_allTailsMutex);
+	pthread_mutex_unlock(&_deepestTailsMutex);
+	pthread_mutex_unlock(&_blocksInChainMutex);
 	return SUCESS;
 }
 

@@ -12,11 +12,6 @@ public:
 	int getId();
 
 	/**
-	 * @return the block's timestamp
-	 */
-	time_t getTimestamp();
-
-	/**
 	 * @return the block's height
 	 */
 	int getHeight();
@@ -33,7 +28,6 @@ public:
 
 	private:
 		int _blockId;
-		time_t _timestamp;
 		int _height;
 		std::string _hashData;
 		Block* _prevBlock;

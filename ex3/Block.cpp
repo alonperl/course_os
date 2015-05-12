@@ -12,7 +12,6 @@ Block::Block(int id, std::string dataHash, Block* father, int height)
 	_height = height;
 	_hashData = dataHash;
 	_prevBlock = father;
-	_timestamp = time();
 }
 
 Block::~Block()
@@ -26,14 +25,6 @@ Block::~Block()
 int Block::getId(void)
 {
 	return _blockId;
-}
-
-/**
- * @return the block's timestamp
- */
-time_t Block::getTimestamp(void)
-{
-	return _timestamp;
 }
 
 /**

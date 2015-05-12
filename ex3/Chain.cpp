@@ -151,10 +151,10 @@ Block *Chain::getFather()
 	return _tip; //TODO change - just for compiling
 }
 
-void *Chain::maintainChain(void *chain)
+void *Chain::maintainChain(void *c)
 {
 	//TODO logic of the deamon thread
-	(Chain*) chain;
+	Chain* chain = (Chain*) c;
 	while(chain->getDaemonWorkFlag())
 	{
 		if (chain->isPendingBlocksEmpty())

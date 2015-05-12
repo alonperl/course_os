@@ -151,10 +151,10 @@ Block *Chain::getFather()
 	return _tip; //TODO change - just for compiling
 }
 
-int Chain::maintainChain(Chain *chain)
+void Chain::maintainChain()
 {
 	//TODO logic of the deamon thread
-
+	Chain *chain = Chain::getInstance();
 	while(chain->getDaemonWorkFlag())
 	{
 		if (chain->isPendingBlocksEmpty())
@@ -164,7 +164,6 @@ int Chain::maintainChain(Chain *chain)
 	}
 	//TODO if closed was called and there are still pending blocks
 	//TODO should print them out than delete them
-	return 0; //TODO change - just for compiling
 }
 
 int Chain::initiateBlockchain()

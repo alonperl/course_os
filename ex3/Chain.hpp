@@ -37,6 +37,23 @@ public:
 	 */
 	int getLowestID();
 	
+	bool getDaemonWorkFlag();
+	bool isPendingBlocksEmpty();
+
+	//funcs that blockchain call
+	int initiateBlockchain();
+	int addBlock(char *data, int length);
+	int toLongest(int blockNum);
+	int attachNow(int blockNum);
+	int wasAdded(int blockNum);
+	int chainSize();
+	int pruneChain();
+	void closeChain();
+	int returnOnClose();
+
+
+
+
 	/**
 	 * @return true if was initiated
 	 */ 
@@ -50,11 +67,19 @@ private:
 
 	Chain(arguments);
 	
+	pthread_mutex_t _usedIDListMutex;
+	pthread_mutex_t _deepestTailsMutex;
+	pthread_mutex_t _blocksInChainMutex;
+
 	int _maxHeight;
 	int _size;
-	std::vector<Block*> *_tails;
-	std::list<int> usedIDList; 
-	Block *tip;
-	Block *root;
+	std::unordered_map<unsigned int, Block*> _blocksInChain;
+	std::vector<Block*> _allTails;
+	std::vector<Block*> _deepestTails;
+	std::list<int> _usedIDList;
+	std::deque<Block*> _pendingBlocks;
 
+	bool _daemonWorkFlag;
+	Block *_tip;
+	Block *_root;
 };

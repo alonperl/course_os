@@ -7,25 +7,6 @@
  *       Author: OS, os@cs.huji.ac.il
  */
 
-#define GENESIS_BLOCK_NUM 0
-
-pthread_t daemonThread;
-
-int maintain_chain()
-{
-	while(true)
-	{
-		//TODO logic of the deamon thread
-	}
-
-}
-
-Block *genesis_Block_creator()
-{
-	Block genesisBlock = new Block(GENESIS_BLOCK_NUM, NULL, NULL, Chain::getMaxHeight());
-	return &genesisBlock;
-}
-
 /*
  * DESCRIPTION: This function initiates the Block chain, and creates the genesis Block.  The genesis Block does not hold any transaction data   
  *      or hash.
@@ -35,14 +16,7 @@ Block *genesis_Block_creator()
  */
 int init_blockchain()
 {
-	if (Chain::initiated())
-	{
-		return FAIL;
-	}
-	Chain::create(); // TODO make sure chain is singelton 
-	init_hash_generator();
-	pthread_create(&daemonThread, NULL, maintain_chain)	// master thread craeted
-	Chain::pushBlock(genesis_Block_creator()); //create genesis block and insert to chain
+	return Chain::initiateBlockchain();
 }
 
 /*
@@ -58,27 +32,7 @@ int init_blockchain()
  */
 int add_block(char *data , int length)
 {
-	if (!Chain::initiated())
-	{
-		return FAIL;
-	}
-
-	// finds smallest available ID
-	int chainSize = Chain::getSize();
-
-
-
-	// TODO: searches for father
-	Block *father = Chain::get
-
-	// TODO: enetering the deamon list - the data and the father
-	
-	// TODO: looks for the lowest number available and returns it:
-	// get lowest number from usedID list
-	// get size of list - chose the smaller of the two
-	int BlockID = Chain::getLowestID();
-
-	return BlockID;
+	return Chain::addBlock(data, length);
 }
 
 /*
@@ -91,18 +45,7 @@ int add_block(char *data , int length)
 */
 int to_longest(int block_num)
 {
-	//WHAT IF WE HAD INTERRUPT AFTER BLOCK WAS FOUND
-	// AND THAN HE CAN"T FIND IT ANYMORE SINCE IT WAS ADDED??
-
-	if (!Chain::initiated())
-	{
-		return FAIL;
-	}
-
-	// check if was added 
-	// finds the request in deamon list and changes parameters
-	// 
-
+	return Chain::toLongest(block_num);
 }
 
 /*
@@ -113,10 +56,7 @@ int to_longest(int block_num)
 */
 int attach_now(int block_num)
 {
-	if (!Chain::initiated())
-	{
-		return FAIL;
-	}
+	return Chain::attachNow(block_num);
 }
 
 /*
@@ -126,10 +66,7 @@ int attach_now(int block_num)
 */
 int was_added(int block_num)
 {
-	if (!Chain::initiated())
-	{
-		return FAIL;
-	}
+	return Chain::wasAdded(block_num);
 }
 
 /*
@@ -140,7 +77,7 @@ int was_added(int block_num)
 */
 int chain_size()
 {
-	return Chain::initiated() ? Chain::getSize() : FAIL;
+	return Chain::chainSize();
 }
 
 /*
@@ -150,10 +87,7 @@ int chain_size()
 */
 int prune_chain()
 {
-	if (!Chain::initiated())
-	{
-		return FAIL;
-	}
+	return Chain::pruneChain();
 }
 
 /*
@@ -165,10 +99,7 @@ int prune_chain()
 */
 void close_chain()
 {
-	if (!Chain::initiated())
-	{
-	return;
-	}
+	return Chain::closeChain();
 }
 
 /*
@@ -176,11 +107,7 @@ void close_chain()
  * RETURN VALUE: If closing was successful, it returns 0.
  *      If close_chain was not called it should return -2. In case of other error, it should return -1.
 */
-
 int return_on_close()
 {
-	if (!Chain::initiated())
-	{
-		return FAIL;
-	}
+	return Chain::returnOnClose();
 }

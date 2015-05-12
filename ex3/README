@@ -1,0 +1,43 @@
+griffonn, ednussi
+Gregory Pasternak (327148417), Eran Nussinovitch (302186408)
+Ex: 2
+
+FILES:
+README
+Makefile
+PriorityQueue.hpp
+PriorityQueue.cpp
+Scheduler.hpp
+Scheduler.cpp
+SignalManager.hpp
+SignalManager.cpp
+Thread.hpp
+Thread.cpp
+uthreads.h
+uthreads.cpp
+
+REMARKS:
+
+ANSWERS:
+1. 
+	Round-Robin:
+	Pro: Complete fairness: all the processes are of the same importance from 
+	the sight of processor.
+	Con: Slow response time: 10 equal runtime processes will not finish before
+	(about) 10 times their runtime.
+
+	Priority Queue:
+	Pro: More important processes will run (and finish) before the others.
+	Con: Less important processes would wait lots of time till all the "more 
+	important" will end, and their turn will come.
+
+	In our implementation of RR+ we have complete fairness between the processes
+	of the same priority (RR pro), however processes with higher priority will 
+	take over the ones with lower, thus starving them (making them wait 
+	"forever") (PQ con). (Example: Two RED processes will never give for one 
+	GREEN a chance to run, until one of them finishes).
+
+2.
+	Example of such an event: waiting for user input: in simple Calculator a 
+	process will wait for user to type a statement before it can continue any 
+	further.

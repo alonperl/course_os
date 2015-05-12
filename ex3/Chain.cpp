@@ -154,6 +154,7 @@ Block *Chain::getFather()
 void *Chain::maintainChain(void *chain)
 {
 	//TODO logic of the deamon thread
+	(Chain*) chain;
 	while(chain->getDaemonWorkFlag())
 	{
 		if (chain->isPendingBlocksEmpty())

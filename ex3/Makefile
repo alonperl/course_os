@@ -22,6 +22,3 @@ clean:
 	rm -f *.o libblockchain.a
 
 .PHONT: clean tar all
-
-block: Block.cpp Block.hpp
-	$(CC) -o block.o Block.cpp

@@ -5,101 +5,83 @@
 #include <list>
 #include "hash.h"
 
-
-
 #define FAIL -1
 #define EMPTY 0
 #define SUCESS 0
+
 class Chain
 {
 public:
-	
-	//~Chain();
+	static void *staticDaemonRoutine(void* c);
+	static  void *hash(void *block_ptr);
+
+	static bool isInitiated(void);
+	static Chain *getInstance();
 
 	/**
 	 * @return the chain's max height
 	 */
-	int		getMaxHeight(void);
-
-	/**
-	 * @return the chain's size
-	 */
-
-	int		getSize(void);
+	int getMaxHeight(void);
 
 	/**
 	 * @return iterator to the chain's tails
 	 */
 	std::vector<Block*>::iterator getTails(void);
 	
-	/**
-	 *
-	 */
-	void	pushBlock(Block *newTail);
-
-	void	deleteBlock(Block *toDelete);
+	void pushBlock(Block *newBlock);
+	void deleteBlock(Block *toDelete);
 
 	/**
 	 * @return the lowest ID available
 	 */
-	int		getLowestID();
-	bool	getDaemonWorkFlag();
-	bool	isPendingBlocksEmpty();
+	int  getLowestID();
+
+	bool isDaemonWorking();
+	bool isPendingEmpty();
 	
-	static void	*staticDaemonRoutine(void* c);
-	
-	void	*maintainChain(void* c);
-	static 	void *hash(void *block_ptr);
-	Block	*getRandomDeepest();
+	void *daemonRoutine(void* c);
+	Block *getRandomDeepest();
 
-	//funcs that blockchain call
-	int		initiateBlockchain();
-	int		addBlock(char *data, int length);
-	int		toLongest(int blockNum);
-	int		attachNow(int blockNum);
-	int		wasAdded(int blockNum);
-	int		chainSize();
-	int		pruneChain();
-	void	closeChain();
-	int		returnOnClose();
-
-
-
-
-	/**
-	 * @return true if was initiated
-	 */ 
-	static	bool initiated(void);
-	static	void create();
-	static	Chain *getInstance();
+	int  initChain();
+	int  addRequest(char *data, int length);
+	int  toLongest(int blockNum);
+	int  attachNow(int blockNum);
+	int  wasAdded(int blockNum);
+	int  chainSize();
+	int  pruneChain();
+	void closeChain();
+	int  returnOnClose();
 
 private:
-	static	bool s_initiated;
-	static	Chain *s_instance;
-
+	static bool s_initiated;
+	static Chain *s_instance;
 	Chain();
+	~Chain();
 	
-	pthread_mutex_t	_usedIDListMutex;
-	pthread_mutex_t	_deepestTailsMutex;
-	pthread_mutex_t	_blocksInChainMutex;
-	pthread_mutex_t	_pendingBlocksMutex;
+	pthread_mutex_t _usedIDListMutex;
+	pthread_mutex_t _deepestTailsMutex;
+	pthread_mutex_t _attachedMutex;
+	pthread_mutex_t _pendingMutex;
 
-	pthread_cond_t	_pendingBlocksCV;
+	pthread_cond_t _pendingBlocksCV;
 
-	int	_maxHeight;
-	int	_size;
+	pthread_t daemonThread;
 
-	std::unordered_map<unsigned int, Block*> _blocksInChain;
-	std::vector<Block*> _allTails;
+	int _maxHeight;
+	int _size;
+
+	std::deque<Block*> _pending;
+	
+	std::unordered_map<unsigned int, Block*> _attached;
+	std::vector<Block*> _tails;
 	std::vector<Block*> _deepestTails;
 	std::list<int> _usedIDList;
-	std::deque<Block*> _pendingBlocks;
 
 	std::vector<pthread_t*> _workers;
 
-	bool	_daemonWorkFlag;
-	bool	_isClosed;
+	bool _daemonWorkFlag;
+	bool _isClosed;
 
-	Block	*_tip;
-	Block	*_root;
+	Block *_tip;
+	Block *_genesis;
 };

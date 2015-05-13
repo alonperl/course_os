@@ -6,9 +6,9 @@ Block::Block(int id, char* hash, int height, int hashLength, Block* father)
 
 	_blockId = id;
 	_height = height;
-	_hash = hash;
 	_hashLength = hashLength;
 	_prevBlock = father;
+	strcpy(_hash, hash);
 }
 
 Block::~Block()

@@ -1,3 +1,8 @@
+#ifndef _BLOCK_H
+#define _BLOCK_H
+
+#include <pthread.h>
+
 class Block
 {
 public:
@@ -38,3 +43,5 @@ public:
 		char* _hash;
 		Block* _prevBlock;
 };
+
+#endif

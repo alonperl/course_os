@@ -18,8 +18,8 @@ Chain::Chain()
 {	
 	pthread_mutex_init(&_usedIDListMutex, NULL);
 	pthread_mutex_init(&_deepestTailsMutex, NULL);
-	pthread_mutex_init(&_blocksInChainMutex, NULL);
-	pthread_mutex_init(&_pendingBlocksMutex, NULL);
+	pthread_mutex_init(&_attachedMutex, NULL);
+	pthread_mutex_init(&_pendingMutex, NULL);
 
 	pthread_cond_init(&_pendingBlocksCV, NULL);
 

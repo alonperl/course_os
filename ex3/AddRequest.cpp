@@ -1,16 +1,14 @@
+#include <string.h>
 #include "AddRequest.hpp"
 
-AddRequest::AddRequest(const char* data, const int dataLength, const int blockNum, 
-					   const Block* const father)
-{
-	blockNum = blockNum;
-	dataLength = dataLength;
-	father = newFather;
-	strcpy(data, newData);
+AddRequest::AddRequest(const char* newData, const int dataLength, const int blockNum,
+					   const void* const newFather) : blockNum(blockNum), dataLength(dataLength), father(newFather) {
+	strcpy((char *) data, newData);
 }
 
 AddRequest::~AddRequest()
 {
-	blockNum = NULL;
+	// TODO: how to free data?
+	data = NULL;
 	father = NULL;
 }

@@ -4,6 +4,8 @@
 #include <deque>
 #include <list>
 #include "hash.h"
+#include "AddRequest.hpp"
+#include "Worker.h"
 
 #define FAIL -1
 #define EMPTY 0
@@ -13,8 +15,6 @@ class Chain
 {
 public:
 	static void *staticDaemonRoutine(void* c);
-	static  void *hash(void *block_ptr);
-
 	static bool isInitiated(void);
 	static Chain *getInstance();
 
@@ -42,7 +42,7 @@ public:
 	void *daemonRoutine(void* c);
 	Block *getRandomDeepest();
 
-	int  initChain();
+	static int  initChain();
 	int  addRequest(char *data, int length);
 	int  toLongest(int blockNum);
 	int  attachNow(int blockNum);
@@ -55,29 +55,30 @@ public:
 private:
 	static bool s_initiated;
 	static Chain *s_instance;
+	static pthread_t daemonThread;
+
 	Chain();
 	~Chain();
-	
+
 	pthread_mutex_t _usedIDListMutex;
 	pthread_mutex_t _deepestTailsMutex;
 	pthread_mutex_t _attachedMutex;
+
 	pthread_mutex_t _pendingMutex;
 
-	pthread_cond_t _pendingBlocksCV;
-
-	pthread_t daemonThread;
+	pthread_cond_t _pendingCV;
 
 	int _maxHeight;
 	int _size;
 
-	std::deque<Block*> _pending;
+	std::deque<AddRequest*> _pending;
 	
 	std::unordered_map<unsigned int, Block*> _attached;
 	std::vector<Block*> _tails;
 	std::vector<Block*> _deepestTails;
 	std::list<int> _usedIDList;
 
-	std::vector<pthread_t*> _workers;
+	std::vector<Worker*> _workers;
 
 	bool _daemonWorkFlag;
 	bool _isClosed;

@@ -1,6 +1,7 @@
+#include <string.h>
 #include "Block.hpp"
 
-Block::Block(int id, char* hash, int height, int hashLength, Block* father)
+Block::Block(int id, char* hash, int hashLength, int height, Block* father)
 {
 	pthread_mutex_init(&blockMutex, NULL);
 

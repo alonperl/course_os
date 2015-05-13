@@ -16,7 +16,7 @@
  */
 int init_blockchain()
 {
-	return Chain::initiateBlockchain();
+	return Chain::initChain();
 }
 
 /*
@@ -32,7 +32,7 @@ int init_blockchain()
  */
 int add_block(char *data , int length)
 {
-	return Chain::addBlock(data, length);
+	return Chain::getInstance()->addRequest(data, length);
 }
 
 /*
@@ -45,7 +45,7 @@ int add_block(char *data , int length)
 */
 int to_longest(int block_num)
 {
-	return Chain::toLongest(block_num);
+	return Chain::getInstance()->toLongest(block_num);
 }
 
 /*
@@ -56,7 +56,7 @@ int to_longest(int block_num)
 */
 int attach_now(int block_num)
 {
-	return Chain::attachNow(block_num);
+	return Chain::getInstance()->attachNow(block_num);
 }
 
 /*
@@ -66,7 +66,7 @@ int attach_now(int block_num)
 */
 int was_added(int block_num)
 {
-	return Chain::wasAdded(block_num);
+	return Chain::getInstance()->wasAdded(block_num);
 }
 
 /*
@@ -77,7 +77,7 @@ int was_added(int block_num)
 */
 int chain_size()
 {
-	return Chain::chainSize();
+	return Chain::getInstance()->chainSize();
 }
 
 /*
@@ -87,7 +87,7 @@ int chain_size()
 */
 int prune_chain()
 {
-	return Chain::pruneChain();
+	return Chain::getInstance()->pruneChain();
 }
 
 /*
@@ -99,7 +99,7 @@ int prune_chain()
 */
 void close_chain()
 {
-	return Chain::closeChain();
+	return Chain::getInstance()->closeChain();
 }
 
 /*
@@ -109,5 +109,5 @@ void close_chain()
 */
 int return_on_close()
 {
-	return Chain::returnOnClose();
+	return Chain::getInstance()->returnOnClose();
 }

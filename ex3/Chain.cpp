@@ -1,18 +1,23 @@
+#include <string.h>
 #include "Chain.hpp"
-#include "AddRequest.hpp"
 
 #define RESET_BLOCK_ID -1
 #define GENESIS_BLOCK_NUM 0
 #define FLAG_NEW_PENDING_BLOCK 1
 #define FLAG_HASHING_FINISHED 2
 
-/*
+// TODO write right numbers
+#define STATUS_PENDING 1
+#define STATUS_ATTACHED 2
+#define NOT_FOUND -1
+
+#define HASH_LENGTH 128
 unsigned int event = 0;
 
 // When worker finishes, this points to number of the relevant block
 int lastHashedBlockId = RESET_BLOCK_ID;
 char *lastHash;
-*/
+
 
 Chain::Chain()
 {	
@@ -21,7 +26,7 @@ Chain::Chain()
 	pthread_mutex_init(&_attachedMutex, NULL);
 	pthread_mutex_init(&_pendingMutex, NULL);
 
-	pthread_cond_init(&_pendingBlocksCV, NULL);
+	pthread_cond_init(&_pendingCV, NULL);
 
 	_isClosed = false;
 	_maxHeight = EMPTY;
@@ -37,52 +42,7 @@ Chain::~Chain()
 
 void *Chain::staticDaemonRoutine(void *ptr)
 {
-	return Chain::getInstance()->maintainChain(ptr);
-}
-
-/**
- * @brief Hashing routine
- * @details This function is passed as start_routine of workers.
- *          Its job is to calculate the hash of given block (and
- *          possibly rehash if its father was changed)
- * 
- * @param block_ptr Desired block
- * @return NULL
- */
-void *Chain::hash(void *block_ptr)
-{
-	// TODO consider maybe split block and its data, we don't really 
-	// need block here, only its and it father's id and the data
-	
-	Block *block = (Block*) block_ptr;
-	int id = block->getId();
-
-	// Save father id
-	int fatherID = block->getPrevBlock()->getId();
-
-	// Calculate hash
-	do
-	{	
-		int nonce = generate_nonce(block->getId(), block->getPrevBlock()->getId());
-		char* hash = generate_hash(block->getHash(), block->getDataLength(), nonce);
-
-		// If the father was changed meanwhile, update it and recalculate the hash
-		fatherID = block->getPrevBlock()->getId();
-	} while (block->getPrevBlock()->getId() != fatherID);
-
-	// TODO Consider using retval of pthread_join
-	// Busy wait, not good!
-	while(lastHashedBlockId != RESET_BLOCK_ID);  //		
-	lastHashedBlockId = id;						 //	TODO Must be atomic
-	strcpy(lastHash, hash);						 //		
-
-	// Send signal to daemon that hashing is finished
-	pthread_mutex_lock(&_pendingBlocksMutex);
-	event |= FLAG_HASHING_FINISHED;
-    pthread_cond_signal(&var);
-	pthread_mutex_unlock(&_pendingBlocksMutex);
-    
-	return NULL;
+	return Chain::getInstance()->daemonRoutine(ptr);
 }
 
 /**
@@ -118,7 +78,7 @@ int Chain::getMaxHeight(void)
  */
 std::vector<Block*>::iterator Chain::getTails(void)
 {
-	return _allTails.begin();
+	return _tails.begin();
 }
 
 void Chain::pushBlock(Block *newTail)
@@ -198,7 +158,7 @@ bool Chain::isDaemonWorking()
  */
 bool Chain::isPendingEmpty()
 {
-	return _pendingBlocks.empty();
+	return _pending.empty();
 }
 
 /**
@@ -218,26 +178,20 @@ void *Chain::daemonRoutine(void *chain_ptr)
 	(void) chain_ptr;
 
 	// Lock _pendingBlocks
-	pthread_mutex_lock(&_pendingBlocksMutex);
+	pthread_mutex_lock(&_pendingMutex);
 	while (!_isClosed)
 	{
 		// Wait for "hey! someone pending" signal
-		pthread_cond_wait(&_pendingBlocksCV, &_pendingBlocksMutex);
+		pthread_cond_wait(&_pendingCV, &_pendingMutex);
 
 		if (event & FLAG_NEW_PENDING_BLOCK)
 		{	// Run hashing for new blocks
-			for (std::deque<Block*>::iterator it = _pendingBlocks.begin(); it != _pendingBlocks.end(); ++it)
+			for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
 			{
-				// Get next pending block
-				Block* nextBlock = *it;
-
 				// Create worker thread
-				pthread_t *worker;
+				Worker *worker = new Worker(*it);
 				_workers.push_back(worker);
-
-				pthread_create(worker, NULL, Chain::hash, nextBlock);	// master thread created
-				pthread_join(*worker, NULL);
-				// TODO: do we need to NULLify nextBlock? worker?
+				_pending.erase(it);
 			}
 
 			event ^= FLAG_NEW_PENDING_BLOCK;
@@ -245,28 +199,29 @@ void *Chain::daemonRoutine(void *chain_ptr)
 
 		if (event & FLAG_HASHING_FINISHED)
 		{	// Update block hash
-			// Get block
-			Block *block;
-			for (std::deque<Block*>::iterator it = _pendingBlocks.begin(); it != _pendingBlocks.end(); ++it)
+			// Get finished worker
+			Worker *finishedWorker;
+			Block *newBlock;
+
+			for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
 			{
-				if ((*it)->getId() == lastHashedBlockId)
+				if ((*it)->finished == 0)
 				{
-					block = *it;
-					_pendingBlocks.erase(it);
-					break;
+					finishedWorker = *it;
+					_workers.erase(it);
+
+					Block* father = (Block*)finishedWorker->blockFather;
+					newBlock = new Block(finishedWorker->blockNum, (char*)finishedWorker->blockHash,
+												HASH_LENGTH, father->getHeight()+1, father);
 				}
 			}
 
-			// Update the block hash
-			pthread_mutex_lock(&(block->blockMutex));
-			block->setHash(lastHash);
-			pthread_mutex_unlock(&(block->blockMutex));
 
 			// Attach block to chain
 			// TODO Not sure about locking!
-			pthread_mutex_lock(&_blocksInChainMutex);
-			_blocksInChain[block->getId()] = block;
-			pthread_mutex_unlock(&_blocksInChainMutex);
+			pthread_mutex_lock(&_attachedMutex);
+			_attached[newBlock->getId()] = newBlock;
+			pthread_mutex_unlock(&_attachedMutex);
 
 			// Reset blockId
 			lastHashedBlockId = RESET_BLOCK_ID;
@@ -274,7 +229,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		}
 	}
 	// Unlock _pendingBlocks
-	pthread_mutex_unlock(&_pendingBlocksMutex);
+	pthread_mutex_unlock(&_pendingMutex);
 
 	return NULL;
 }
@@ -304,11 +259,11 @@ int Chain::initChain()
 
 	init_hash_generator();
 
-	pthread_create(&daemonThread, NULL, Chain::maintainChain, this);	// master thread created
+	pthread_create(&daemonThread, NULL, Chain::staticDaemonRoutine, NULL);	// master thread created
 	
 	// Create genesis block and insert to chain
-	Block* genesisBlock = new Block(GENESIS_BLOCK_NUM, NULL, NULL, Chain::getMaxHeight()); // TODO maybe height is determined from father later
-	pushBlock(genesisBlock); 
+	Block* genesisBlock = new Block(GENESIS_BLOCK_NUM, NULL, EMPTY, EMPTY, NULL); // TODO maybe height is determined from father later
+	getInstance()->pushBlock(genesisBlock);
 
 	return SUCESS;
 }
@@ -323,16 +278,17 @@ int Chain::initChain()
  */
 int Chain::addRequest(char *data, int length)
 {
-	if (!Chain::initiated())
+	if (!Chain::isInitiated())
 	{
 		return FAIL;
 	}
 
+	int newId = Chain::getLowestID();
 	pthread_mutex_lock(&_pendingMutex);
-	_pending.push_back(new AddRequest(data, length, Chain::getLowestID(), Chain::getRandomDeepest()));
+	_pending.push_back(new AddRequest(data, length, newId, Chain::getRandomDeepest()));
 	pthread_mutex_unlock(&_pendingMutex);
 
-	return blockID;
+	return newId;
 }
 
 /**
@@ -345,7 +301,7 @@ int Chain::addRequest(char *data, int length)
 int Chain::toLongest(int blockNum)
 {
 	(void) blockNum; //TODO erase - to compile
-	if (!initiated())
+	if (!isInitiated())
 	{
 		return FAIL;
 	}
@@ -362,7 +318,7 @@ int Chain::toLongest(int blockNum)
 int Chain::attachNow(int blockNum)
 {
 	(void) blockNum; //TODO erase - to compile
-	if (!initiated())
+	if (!isInitiated())
 	{
 		return FAIL;
 	}
@@ -371,119 +327,134 @@ int Chain::attachNow(int blockNum)
 
 int Chain::wasAdded(int blockNum)
 {
-	if (!initiated())
+	if (!isInitiated())
 	{
 		return FAIL;
 	}
 
-	std::unordered_map<unsigned int, Block*>::const_iterator foundBlock = _blocksInChain.find(blockNum);
-	if (_blocksInChain.end() == foundBlock) // block was not added
+	std::unordered_map<unsigned int, Block*>::const_iterator foundBlock = _attached.find(blockNum);
+	if (_attached.end() == foundBlock) // block was not added
 	{
 		// in case is in pending list
-		std::deque<Block*>::iterator it = _pendingBlocks.begin();
-		while (it != _pendingBlocks.end())
+		std::deque<AddRequest*>::iterator it = _pending.begin();
+		while (it != _pending.end())
 		{
-			if (*it->getId() == blockNum)
+			if ((*it)->blockNum == blockNum)
 			{
-				return FOUND_IN_PENDING;
+				return STATUS_PENDING;
 			}
 			*it++;
 		}
 		// in case id was not used
-		return BLOCK_NUM_DOESNT_EXIST;
+		return NOT_FOUND;
 	}
 	
-	return FOUND;
+	return STATUS_ATTACHED;
 }
 
 int Chain::chainSize()
 {
-	return initiated() ? Chain::getSize() : FAIL;
+	return isInitiated() ? Chain::chainSize() : FAIL;
 }
 
-int Chain::pruneChain()
-{
-	if (!initiated())
-	{
-		return FAIL;
-	}
-	//TODO: add field named toPrune to all blocks and setter - make genesis crate with toPrune=false
-	pthread_mutex_lock(&_blocksInChainMutex);
-	pthread_mutex_lock(&_deepestTailsMutex);
-	pthread_mutex_lock(&_allTailsMutex); //TODO: do i need to lock more stuff??
-	Block *deepestBlock = getRandomDeepest();
-	// only in case we didn't reach the gensis block
-	// or we got to a part of a chain we pruned before - keep running
-	while (deepestBlock->getPrevBlock() != NULL || deepestBlock->toPrune != false)
-	{
-		deepestBlock->toPrune = false; //TODO: maybe change to setter
-		deepestBlock = deepestBlock->getPrevBlock();
-	}
-	// by now we marked everyone not to prune
-	Block* blockToPrune;
-	Block* tempBlock;
-	int counter = 0;
-	for (std::vector<Block*>::iterator it = _allTails.begin(); it != _allTails.end(); ++it)
-	{
-		blockToPrune = (*it);
-		//if we got a tail to delete earase from lists it were on
-		if (blockToPrune->toPrune == true)
-		{
-			// in case was one of the deepests
-			if (blockToPrune->getHeight() == _maxHeight)
-			{
-				// find where the block is in the vector
-				tempBlock = _deepestTails.begin();
-				while (blockToPrune != tempBlock)
-				{
-					i++;
-					tempBlock = _deepestTails.begin()+i
-				}
-				_deepestTails.erase(_deepestTails.begin()+i);
-				counter = 0;
-			}
+//int Chain::pruneChain()
+//{
+//	if (!isInitiated())
+//	{
+//		return FAIL;
+//	}
+//	//TODO: add field named toPrune to all blocks and setter - make genesis crate with toPrune=false
+//	pthread_mutex_lock(&_attachedMutex);
+//	pthread_mutex_lock(&_deepestTailsMutex);
+////	pthread_mutex_lock(&_tailsMutex); //TODO: do i need to lock more stuff??
+//	Block *deepestBlock = getRandomDeepest();
+//	// only in case we didn't reach the gensis block
+//	// or we got to a part of a chain we pruned before - keep running
+//	while (deepestBlock->getPrevBlock() != NULL || deepestBlock->toPrune != false)
+//	{
+//		deepestBlock->toPrune = false; //TODO: maybe change to setter
+//		deepestBlock = deepestBlock->getPrevBlock();
+//	}
+//	// by now we marked everyone not to prune
+//	Block* blockToPrune;
+//	Block* tempBlock;
+//	int counter = 0;
+//	for (std::vector<Block*>::iterator it = _tails.begin(); it != _tails.end(); ++it)
+//	{
+//		blockToPrune = (*it);
+//		//if we got a tail to delete earase from lists it were on
+//		if (blockToPrune->toPrune == true)
+//		{
+//			// in case was one of the deepests
+//			if (blockToPrune->getHeight() == _maxHeight)
+//			{
+//				// find where the block is in the vector
+//				tempBlock = _deepestTails.begin();
+//				while (blockToPrune != tempBlock)
+//				{
+//					i++;
+//					tempBlock = _deepestTails.begin()+i
+//				}
+//				_deepestTails.erase(_deepestTails.begin()+i);
+//				counter = 0;
+//			}
+//
+//			//anyways delete from alltails list
+//			tempBlock = _allTails.begin();
+//			while (blockToPrune != tempBlock)
+//			{
+//				i++;
+//				tempBlock = _allTails.begin()+i
+//			}
+//			_allTails.erase(_allTails.begin()+i);
+//
+//		}
+//
+//		// run through tree and delete all the sub branch
+//		while (blockToPrune->toPrune == true)
+//		{
+//			tempBlock = blockToPrune->getPrevBlock();
+//			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
+//			~Block(*blockToPrune); //destory the block
+//			blockToPrune = tempBlock;
+//		}
+//
+//	}
+//	blockToPrune = NULL;
+//	tempBlock = NULL;
+//
+//	pthread_mutex_unlock(&_allTailsMutex);
+//	pthread_mutex_unlock(&_deepestTailsMutex);
+//	pthread_mutex_unlock(&_blocksInChainMutex);
+//	return SUCESS;
+//}
 
-			//anyways delete from alltails list
-			tempBlock = _allTails.begin();
-			while (blockToPrune != tempBlock)
-			{
-				i++;
-				tempBlock = _allTails.begin()+i
-			}
-			_allTails.erase(_allTails.begin()+i);
-
-		}
-
-		// run through tree and delete all the sub branch
-		while (blockToPrune->toPrune == true)
-		{
-			tempBlock = blockToPrune->getPrevBlock();
-			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
-			~Block(*blockToPrune); //destory the block
-			blockToPrune = tempBlock;
-		}
-		
-	}
-	blockToPrune = NULL;
-	tempBlock = NULL;
-
-	pthread_mutex_unlock(&_allTailsMutex);
-	pthread_mutex_unlock(&_deepestTailsMutex);
-	pthread_mutex_unlock(&_blocksInChainMutex);
-	return SUCESS;
-}
-
-void Chain::closeChain()
-{
-	// TODO
-}
-
-int Chain::returnOnClose()
-{
-	if (!initiated())
-	{
-		return FAIL;
-	}
-	// TODO
-	return SUCESS;
-}
+//void *Chain::closeChain(void *c)
+//{
+//	pthread_mutex_lock(&_pendingBlocks);
+//	std::deque<Block*>::iterator it = _pendingBlocks.begin();
+//	while (it != mydeque.end())
+//	{
+//		//TODO - should First hash the data - and than print it
+//		std::cout << *it->getHashData();
+//		*it++;
+//	}
+//	pthread_mutex_unlock(&_pendingBlocks);
+//
+//}
+//
+//
+//void Chain::closeChain()
+//{
+//	gClosing = true;
+//
+//	//TODO add this to all function except size()
+//	//___________________
+//	if (gClosing == true)
+//	{
+//		return FAIL;
+//	}
+//	//_____________________
+//
+//	pthread_create(&closingThread, NULL, Chain::closeChain, this);
+//}

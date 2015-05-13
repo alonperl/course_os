@@ -5,7 +5,7 @@ class AddRequest
 {
 public:
 	AddRequest(const char* data, const int dataLength, const int blockNum, 
-			   const Block* const father);
+			   const void* const father);
 	~AddRequest();
 
 	// Data for the new block
@@ -19,7 +19,7 @@ public:
 
 	// Expected father. 
 	// May be changed before actual block attachment.
-	const Block* const father;
+	const void* father;
 };
 
 #endif

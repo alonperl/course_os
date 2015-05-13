@@ -6,8 +6,8 @@ Block::Block(int id, char* hash, int height, int hashLength, Block* father)
 
 	_blockId = id;
 	_height = height;
-	_dataHash = dataHash;
-	_dataLength = dataLength;
+	_hash = hash;
+	_hash = hashLength;
 	_prevBlock = father;
 }
 
@@ -37,7 +37,7 @@ int Block::getHeight(void)
  */
 char* Block::getHash(void)
 {
-	return _dataHash;
+	return _hash;
 }
 
 /**
@@ -45,7 +45,7 @@ char* Block::getHash(void)
  */
 int Block::getHashLength()
 {
-	return _dataLength;
+	return _hashLength;
 }
 
 /**

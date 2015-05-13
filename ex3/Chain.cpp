@@ -15,7 +15,15 @@ char *lastHash;
 
 Chain::Chain()
 {
+	
+	pthread_mutex_init(&_usedIDListMutex, NULL);
+	pthread_mutex_init(&_deepestTailsMutex, NULL);
+	pthread_mutex_init(&_blocksInChainMutex, NULL);
+	pthread_mutex_init(&_pendingBlocksMutex, NULL);
+
+	pthread_cond_init(&_pendingBlocksCV, NULL);
 	// TODO make singelton
+	_isClosed = false;
 	_maxHeight = 0;
 	_size = EMPTY;
 	s_initiated = true;
@@ -160,6 +168,11 @@ Block *Chain::getRandomDeepest()
 	return _tip; //TODO change - just for compiling
 }
 
+void *Chain::staticDaemonRoutine(void *ptr)
+{
+	return Chain::getInstance()->maintainChain(ptr);
+}
+
 /**
  * @brief Daemon thread routine
  * @details This function is passed as start_routine to daemon thread,
@@ -174,9 +187,11 @@ Block *Chain::getRandomDeepest()
  */
 void *Chain::maintainChain(void *chain_ptr)
 {
+	(void) chain_ptr;
+
 	// Lock _pendingBlocks
 	pthread_mutex_lock(&_pendingBlocksMutex);
-	while (!isClosed())
+	while (!_isClosed)
 	{
 		// Wait for "hey! someone pending" signal
 		pthread_cond_wait(&_pendingBlocksCV, &_pendingBlocksMutex);
@@ -206,7 +221,7 @@ void *Chain::maintainChain(void *chain_ptr)
 			Block *block;
 			for (std::deque<Block*>::iterator it = _pendingBlocks.begin(); it != _pendingBlocks.end(); ++it)
 			{
-				if (*it->getId() == lastHashedBlockId);
+				if ((*it)->getId() == lastHashedBlockId)
 				{
 					block = *it;
 					_pendingBlocks.erase(it);
@@ -216,14 +231,14 @@ void *Chain::maintainChain(void *chain_ptr)
 
 			// Update the block hash
 			pthread_mutex_lock(&(block->blockMutex));
-			block->setHash(hash);
+			block->setHash(lastHash);
 			pthread_mutex_unlock(&(block->blockMutex));
 
 			// Attach block to chain
 			// TODO Not sure about locking!
-			pthread_mutex_lock(&chainMutex);
+			pthread_mutex_lock(&_blocksInChainMutex);
 			_blocksInChain[block->getId()] = block;
-			pthread_mutex_unlock(&chainMutex);
+			pthread_mutex_unlock(&_blocksInChainMutex);
 
 			// Reset blockId
 			lastHashedBlockId = RESET_BLOCK_ID;
@@ -260,7 +275,7 @@ void *Chain::hash(void *block_ptr)
 	do
 	{	
 		int nonce = generate_nonce(block->getId(), block->getPrevBlock()->getId());
-		char* hash = generate_hash(block->getData(), block->getDataLength(), nonce);
+		char* hash = generate_hash(block->getHash(), block->getDataLength(), nonce);
 
 		// If the father was changed meanwhile, update it and recalculate the hash
 		fatherID = block->getPrevBlock()->getId();
@@ -268,9 +283,9 @@ void *Chain::hash(void *block_ptr)
 
 	// TODO Consider using retval of pthread_join
 	// Busy wait, not good!
-	while(lastHashedBlockId != RESET_BLOCK_ID);  //		\ 
-	lastHashedBlockId = id;						 //		| TODO Must be atomic
-	strcpy(lastHash, hash);						 //		/
+	while(lastHashedBlockId != RESET_BLOCK_ID);  //		
+	lastHashedBlockId = id;						 //	TODO Must be atomic
+	strcpy(lastHash, hash);						 //		
 
 	// Send signal to daemon that hashing is finished
 	pthread_mutex_lock(&_pendingBlocksMutex);

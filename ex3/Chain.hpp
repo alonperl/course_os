@@ -19,13 +19,13 @@ public:
 	/**
 	 * @return the chain's max height
 	 */
-	int getMaxHeight(void);
+	int		getMaxHeight(void);
 
 	/**
 	 * @return the chain's size
 	 */
 
-	int getSize(void);
+	int		getSize(void);
 
 	/**
 	 * @return iterator to the chain's tails
@@ -35,29 +35,33 @@ public:
 	/**
 	 *
 	 */
-	void pushBlock(Block *newTail);
+	void	pushBlock(Block *newTail);
 
-	void deleteBlock(Block *toDelete);
+	void	deleteBlock(Block *toDelete);
 
 	/**
 	 * @return the lowest ID available
 	 */
-	int getLowestID();
-	bool getDaemonWorkFlag();
-	bool isPendingBlocksEmpty();
-	static void *maintainChain(void* c);
-	Block *getFather();
+	int		getLowestID();
+	bool	getDaemonWorkFlag();
+	bool	isPendingBlocksEmpty();
+	
+	static void	*staticDaemonRoutine(void* c);
+	
+	void	*maintainChain(void* c);
+	static 	void *hash(void *block_ptr);
+	Block	*getRandomDeepest();
 
 	//funcs that blockchain call
-	int initiateBlockchain();
-	int addBlock(char *data, int length);
-	int toLongest(int blockNum);
-	int attachNow(int blockNum);
-	int wasAdded(int blockNum);
-	int chainSize();
-	int pruneChain();
-	void closeChain();
-	int returnOnClose();
+	int		initiateBlockchain();
+	int		addBlock(char *data, int length);
+	int		toLongest(int blockNum);
+	int		attachNow(int blockNum);
+	int		wasAdded(int blockNum);
+	int		chainSize();
+	int		pruneChain();
+	void	closeChain();
+	int		returnOnClose();
 
 
 
@@ -65,25 +69,26 @@ public:
 	/**
 	 * @return true if was initiated
 	 */ 
-	static bool initiated(void);
-	static void create();
-	static Chain *getInstance();
+	static	bool initiated(void);
+	static	void create();
+	static	Chain *getInstance();
 
 private:
-	static bool s_initiated;
-	static Chain *s_instance;
+	static	bool s_initiated;
+	static	Chain *s_instance;
 
 	Chain();
 	
-	pthread_mutex_t _usedIDListMutex;
-	pthread_mutex_t _deepestTailsMutex;
-	pthread_mutex_t _blocksInChainMutex;
-	pthread_mutex_t _pendingBlocksMutex;
+	pthread_mutex_t	_usedIDListMutex;
+	pthread_mutex_t	_deepestTailsMutex;
+	pthread_mutex_t	_blocksInChainMutex;
+	pthread_mutex_t	_pendingBlocksMutex;
 
-	pthread_cond_t _pendingBlocksCV;
+	pthread_cond_t	_pendingBlocksCV;
 
-	int _maxHeight;
-	int _size;
+	int	_maxHeight;
+	int	_size;
+
 	std::unordered_map<unsigned int, Block*> _blocksInChain;
 	std::vector<Block*> _allTails;
 	std::vector<Block*> _deepestTails;
@@ -92,7 +97,9 @@ private:
 
 	std::vector<pthread_t*> _workers;
 
-	bool _daemonWorkFlag;
-	Block *_tip;
-	Block *_root;
+	bool	_daemonWorkFlag;
+	bool	_isClosed;
+
+	Block	*_tip;
+	Block	*_root;
 };

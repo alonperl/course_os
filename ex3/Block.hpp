@@ -19,16 +19,29 @@ public:
 	/**
 	 * @return the block's hashdata
 	 */
-	std::string getHashData();
+	std::string getHash();
+
+	/**
+	 * @return the block's data length
+	 */
+	int getDataLength();
+	
+	/**
+	 * Updates the block's hash
+	 */
+	void setHash(char *hash);
 
 	/**
 	 * @return the blocks father
 	 */
-	Block *getPrevBlock(); 
+	Block *getPrevBlock();
+
+	pthread_mutex_t blockMutex;
 
 	private:
 		int _blockId;
 		int _height;
+		int _dataLength;
 		std::string _dataHash;
 		Block* _prevBlock;
 };

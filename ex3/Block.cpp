@@ -8,10 +8,12 @@
  */
 Block::Block(int id, std::string dataHash, int dataLength, Block* father, int height)
 {
+	pthread_mutex_init(&blockMutex, NULL);
+
 	_blockId = id;
 	_height = height;
 	_dataHash = dataHash;
-	_hashDataLength = dataLength;
+	_dataLength = dataLength;
 	_prevBlock = father;
 }
 
@@ -43,6 +45,20 @@ std::string Block::getHash(void)
 {
 	return _dataHash;
 }
+
+/**
+ * Updates the block's hash
+ */
+void Block::setHash(char *hash)
+{
+
+}
+
+int Block::getDataLength()
+{
+	return _dataLength;
+}
+
 
 /**
  * @return the blocks father

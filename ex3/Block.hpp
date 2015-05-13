@@ -36,7 +36,7 @@ public:
 	private:
 		int _blockId;
 		int _height;
-		int _hash;
-		char *_hashLength;
+		int _hashLength;
+		char* _hash;
 		Block* _prevBlock;
 };

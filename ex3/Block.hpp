@@ -1,9 +1,7 @@
-#include <string>
-
 class Block
 {
 public:
-	Block(int id, std::string dataHash, int dataLength, Block* father, int height);
+	Block(int id, char* hash, int height, int hashLength, Block* father);
 	~Block();
 
 	/**
@@ -19,17 +17,12 @@ public:
 	/**
 	 * @return the block's hashdata
 	 */
-	std::string getHash();
+	char* getHash();
 
 	/**
 	 * @return the block's data length
 	 */
-	int getDataLength();
-	
-	/**
-	 * Updates the block's hash
-	 */
-	void setHash(char *hash);
+	int getHashLength();
 
 	/**
 	 * @return the blocks father
@@ -41,7 +34,7 @@ public:
 	private:
 		int _blockId;
 		int _height;
-		int _dataLength;
-		std::string _dataHash;
+		int _hash;
+		char *_hashLength;
 		Block* _prevBlock;
 };

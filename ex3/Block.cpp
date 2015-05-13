@@ -1,12 +1,6 @@
 #include "Block.hpp"
-#include <time.h>
 
-/**
- * @brief 
- * @param 
- * @return 
- */
-Block::Block(int id, std::string dataHash, int dataLength, Block* father, int height)
+Block::Block(int id, char* hash, int height, int hashLength, Block* father)
 {
 	pthread_mutex_init(&blockMutex, NULL);
 
@@ -41,27 +35,21 @@ int Block::getHeight(void)
 /**
  * @return the block's hashdata
  */
-std::string Block::getHash(void)
+char* Block::getHash(void)
 {
 	return _dataHash;
 }
 
 /**
- * Updates the block's hash
+ * @return the block's hashdata length
  */
-void Block::setHash(char *hash)
-{
-
-}
-
-int Block::getDataLength()
+int Block::getHashLength()
 {
 	return _dataLength;
 }
 
-
 /**
- * @return the blocks father
+ * @return the block's father
  */
 Block* Block::getPrevBlock(void)
 {

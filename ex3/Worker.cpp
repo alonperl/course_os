@@ -1,17 +1,46 @@
-//
-// Created by griffonn on 14/05/2015.
-//
-
 #include "Worker.h"
 #include "Chain.hpp"
 
-void *hash(void *pRequest);
+#define HASH_LENGTH 128
 
-Worker::Worker(AddRequest * pRequest) {
+Worker::Worker(AddRequest *pRequest) {
+    pthread_mutex_init(&_toLongestFlagMutex, NULL);
+    _toLongestFlag = false;
     finished = NOT_FINISHED;
     blockFather = (void*)pRequest->father;
-    pthread_create(&_worker, NULL, hash, pRequest);	// master thread created
-    finished = pthread_join(_worker, &blockHash);
+    req = pRequest;
+}
+
+/**
+ * @brief Create thread for hash calculation of this worker's
+ *        request, wait for it to finish, check if the father was
+ *        changed or pruned, recalculate if needed
+ */
+void Worker::act()
+{
+    do
+    {
+        if (_toLongestFlag)
+        {
+            blockFather = Chain::getInstance()->getRandomDeepest();
+            _toLongestFlag = false;
+        }
+
+        blockHash = hash(req);
+    } while (_toLongestFlag);
+
+    // _toLongestFlag was false till now, so from now on toLongest(this) will not act on this block
+    pthread_mutex_lock(&_toLongestFlagMutex);
+    // Create block
+    Block* newBlock = new Block(blockNum, (char*)blockHash, HASH_LENGTH,
+                               ((Block*)blockFather)->getHeight()+1, (Block*)blockFather);
+
+    // Attach block to chain
+    Chain::getInstance()->pushBlock(newBlock);
+    pthread_mutex_unlock(&_toLongestFlagMutex);
+
+    // Self-destroy
+    delete this;
 }
 
 /**
@@ -23,7 +52,7 @@ Worker::Worker(AddRequest * pRequest) {
  * @param block_ptr Desired block
  * @return NULL
  */
-void *hash(void *pRequest)
+char* Worker::hash(void *pRequest)
 {
     AddRequest *req = (AddRequest*) pRequest;
     int id = req->blockNum;
@@ -32,12 +61,12 @@ void *hash(void *pRequest)
     int originalFatherId = ((Block*)req->father)->getId();
     int fatherId;
 
-    void* calculatedHash;
+    char* calculatedHash;
     // Calculate hash
     do
     {
         int nonce = generate_nonce(req->blockNum, ((Block*)req->father)->getId());
-        calculatedHash = (void*)generate_hash(req->data, (size_t)req->dataLength, nonce);
+        calculatedHash = generate_hash(req->data, (size_t)req->dataLength, nonce);
 
         // If the father was changed meanwhile, update it and recalculate the hash
         fatherId = ((Block*)req->father)->getId();

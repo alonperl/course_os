@@ -1,23 +1,11 @@
-#include <string.h>
 #include "Chain.hpp"
 
-#define RESET_BLOCK_ID -1
 #define GENESIS_BLOCK_NUM 0
-#define FLAG_NEW_PENDING_BLOCK 1
-#define FLAG_HASHING_FINISHED 2
 
 // TODO write right numbers
-#define STATUS_PENDING 1
-#define STATUS_ATTACHED 2
-#define NOT_FOUND -1
-
-#define HASH_LENGTH 128
-unsigned int event = 0;
-
-// When worker finishes, this points to number of the relevant block
-int lastHashedBlockId = RESET_BLOCK_ID;
-char *lastHash;
-
+#define STATUS_PENDING 2
+#define STATUS_ATTACHED 1
+#define NOT_FOUND -2
 
 Chain::Chain()
 {	
@@ -58,7 +46,7 @@ bool Chain::isInitiated(void)
  */
 Chain *Chain::getInstance()
 {
-	if (s_initiated == true)
+	if (s_initiated)
 	{
 		return s_instance;
 	}
@@ -184,49 +172,14 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		// Wait for "hey! someone pending" signal
 		pthread_cond_wait(&_pendingCV, &_pendingMutex);
 
-		if (event & FLAG_NEW_PENDING_BLOCK)
-		{	// Run hashing for new blocks
-			for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
-			{
-				// Create worker thread
-				Worker *worker = new Worker(*it);
-				_workers.push_back(worker);
-				_pending.erase(it);
-			}
-
-			event ^= FLAG_NEW_PENDING_BLOCK;
-		}
-
-		if (event & FLAG_HASHING_FINISHED)
-		{	// Update block hash
-			// Get finished worker
-			Worker *finishedWorker;
-			Block *newBlock;
-
-			for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
-			{
-				if ((*it)->finished == 0)
-				{
-					finishedWorker = *it;
-					_workers.erase(it);
-
-					Block* father = (Block*)finishedWorker->blockFather;
-					newBlock = new Block(finishedWorker->blockNum, (char*)finishedWorker->blockHash,
-												HASH_LENGTH, father->getHeight()+1, father);
-				}
-			}
-
-
-			// Attach block to chain
-			// TODO Not sure about locking!
-			pthread_mutex_lock(&_attachedMutex);
-			_attached[newBlock->getId()] = newBlock;
-			pthread_mutex_unlock(&_attachedMutex);
-
-			// Reset blockId
-			lastHashedBlockId = RESET_BLOCK_ID;
-			event ^= FLAG_HASHING_FINISHED;
-		}
+		// Process new request TODO do we need to make this for all request or only for front?
+		// Create worker thread
+		AddRequest *newReq = _pending.front();
+		_pending.pop_front();
+		Worker *worker = new Worker(newReq);
+		_workers.push_back(worker);
+		// TODO unlock pending now?
+		worker->act();
 	}
 	// Unlock _pendingBlocks
 	pthread_mutex_unlock(&_pendingMutex);
@@ -234,12 +187,13 @@ void *Chain::daemonRoutine(void *chain_ptr)
 	return NULL;
 }
 
+/**
+ * @return random longest tip
+ */
 Block *Chain::getRandomDeepest()
 {
-	pthread_mutex_lock(&_deepestTailsMutex);
-
-	pthread_mutex_unlock(&_deepestTailsMutex);
-	return _tip; //TODO change - just for compiling
+	unsigned long index = rand() % _deepestTails.size();
+	return _deepestTails[index];
 }
 
 /**
@@ -300,29 +254,79 @@ int Chain::addRequest(char *data, int length)
  */
 int Chain::toLongest(int blockNum)
 {
-	(void) blockNum; //TODO erase - to compile
+	(void) blockNum;
 	if (!isInitiated())
 	{
 		return FAIL;
 	}
-	//WHAT IF WE HAD INTERRUPT AFTER BLOCK WAS FOUND
-	// AND THAN HE CAN"T FIND IT ANYMORE SINCE IT WAS ADDED??
 
+	if (_attached[blockNum] != NULL)
+	{
+		return STATUS_ATTACHED;
+	}
 
-	// check if was added 
-	// finds the request in deamon list and changes parameters
-	// 
-	return SUCESS;
+	for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
+	{
+		if ((*it)->blockNum == blockNum) {
+			(*it)->father = getRandomDeepest();
+			// return STATUS_PENDING
+			return SUCESS;
+		}
+	}
+
+	for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
+	{
+		if ((*it)->blockNum == blockNum) {
+			(*it)->_toLongestFlag = true;
+			// return STATUS_WORKING
+			return SUCESS;
+		}
+	}
+
+	return NOT_FOUND;
 }
 
 int Chain::attachNow(int blockNum)
 {
-	(void) blockNum; //TODO erase - to compile
 	if (!isInitiated())
 	{
 		return FAIL;
 	}
-	return SUCESS;
+
+	if (_attached[blockNum] != NULL)
+	{
+		return STATUS_ATTACHED;
+	}
+
+	for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
+	{
+		if ((*it)->blockNum == blockNum) {
+			/* This request is not yet processed, force it to process right now */
+			// Lock pending from new requests
+			pthread_mutex_lock(&_pendingMutex);
+			/* TODO THIS IS OVERKILL BUT I LIKE IT
+			// Run worker with chain blocking
+			BlockingWorker *worker = new BlockingWorker(*it);
+			worker->act();
+			 */
+			// Move desired block to the deque front
+			_pending.erase(it);
+			_pending.push_front((*it));
+			// Unlock pending
+			pthread_mutex_unlock(&_pendingMutex);
+			return SUCESS;
+		}
+	}
+
+	for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
+	{
+		if ((*it)->blockNum == blockNum) {
+			// return STATUS_WORKING
+			return SUCESS;
+		}
+	}
+
+	return NOT_FOUND;
 }
 
 int Chain::wasAdded(int blockNum)

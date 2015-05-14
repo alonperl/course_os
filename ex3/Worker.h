@@ -10,13 +10,18 @@
 class Worker {
 public:
     Worker(AddRequest *pRequest);
+    static char* hash(void *pRequest);
+    void act();
     int finished;
 
+    AddRequest* req;
     int blockNum;
     void* blockHash;
     void* blockFather;
+    bool _toLongestFlag;
 private:
-    pthread_t _worker;
+//    pthread_t _worker;
+    pthread_mutex_t _toLongestFlagMutex;
 };
 
 

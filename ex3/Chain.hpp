@@ -52,6 +52,8 @@ public:
 	void closeChain();
 	int  returnOnClose();
 
+	Block *getTip();
+
 private:
 	static bool s_initiated;
 	static Chain *s_instance;

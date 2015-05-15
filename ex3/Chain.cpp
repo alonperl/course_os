@@ -77,38 +77,28 @@ std::vector<Block*>::iterator Chain::getTails(void)
 
 void Chain::pushBlock(Block *newTail)
 {
-	(void) newTail; // supress unused warnnig
-	/**
-	//REWRITE AFTER FINISHED ADDBLOCK THREAD
-	//___________________________________________________________
-	//___________________________________________________________
-	// add myself to tails list
-	_tails.push(newTail); 
-	// make me the tip
-	tip = newTail; 
-	//Anyways add size
-	_size++;
+	// Add myself to tails list
+	_tails.push_back(newTail);
 
+	// Size increment
+	_size++;
 	
 	// in case the new block is of bigger height update height
-	if (Chain::getMaxHeight() < newTail.getHeight())
+	if (Chain::getMaxHeight() < newTail->getHeight())
 	{
 		_maxHeight++;
 	}
 
-	if (_size == EMPTY)
+	// Delete my father from tails list
+	int fatherId = newTail->getPrevBlock()->getId();
+	for (std::vector<Block*>::iterator it = _tails.begin(); it != _tails.end(); ++it)
 	{
-		root = newTail;
+		if ((*it)->getId() == fatherId)
+		{
+			_tails.erase(it);
+			break;
+		}
 	}
-	else
-	{
-		//delete my father from tails list
-		Block *fatherBlock = newTail.getPrevBlock();
-		_tails.erease(newTail.getPrevBlock());
-	}
-	//___________________________________________________________
-	//___________________________________________________________
-	*/
 }
 
 void Chain::deleteBlock(Block *toDelete)

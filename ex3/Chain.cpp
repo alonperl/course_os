@@ -8,6 +8,12 @@
 #define STATUS_ATTACHED 1
 #define NOT_FOUND -2
 
+// Define static members
+bool Chain::s_initiated = false;
+Chain *Chain::s_instance = NULL;
+pthread_t Chain::daemonThread = NULL;
+
+
 Chain::Chain()
 {	
 	pthread_mutex_init(&_usedIDListMutex, NULL);

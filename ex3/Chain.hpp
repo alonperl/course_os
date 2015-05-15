@@ -57,12 +57,10 @@ public:
 	static void *closeChainLogic(void *c);
 	int  returnOnClose();
 
-	Block *getTip();
-
+private:
 	static bool s_initiated;
 	static Chain *s_instance;
 	static pthread_t daemonThread;
-private:
 
 	Chain();
 	~Chain();

@@ -110,3 +110,9 @@ int return_on_close()
 {
 	return Chain::getInstance()->returnOnClose();
 }
+
+
+int main()
+{
+	return 0;
+}

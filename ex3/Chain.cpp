@@ -459,3 +459,8 @@ void Chain::closeChain()
 	pthread_create(&closingThread, NULL, Chain::closeChainLogic, this);
 	pthread_join(closingThread, NULL);
 }
+
+void returnOnClose()
+{
+
+}

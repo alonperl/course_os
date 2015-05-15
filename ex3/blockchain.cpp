@@ -1,6 +1,5 @@
 #include "blockchain.h"
 #include "Chain.hpp"
-#include <pthread.h>
 
 /*
  *       A multi threaded blockchain database manager
@@ -110,4 +109,10 @@ void close_chain()
 int return_on_close()
 {
 	return Chain::getInstance()->returnOnClose();
+}
+
+int main(int argc, char *argv[])
+{
+	init_blockchain();
+	return 0;
 }

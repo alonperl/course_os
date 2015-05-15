@@ -5,9 +5,7 @@
 #include <unordered_map>
 #include <deque>
 #include <list>
-#include <pthread.h>
 #include "Block.hpp"
-#include "hash.h"
 #include "AddRequest.hpp"
 #include "Worker.h"
 

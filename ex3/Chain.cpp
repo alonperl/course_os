@@ -2,7 +2,7 @@
 #include "Chain.hpp"
 
 #define GENESIS_BLOCK_NUM 0
-
+// Hello Eran
 // TODO write right numbers
 #define STATUS_PENDING 2
 #define STATUS_ATTACHED 1

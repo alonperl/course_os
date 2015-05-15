@@ -24,6 +24,9 @@ Block.o: Block.hpp Block.cpp
 blockchain.o: blockchain.h blockchain.cpp AddRequest.o Block.o Worker.o Chain.o
 	g++ -Wall -Wextra -Wvla -std=c++11 -c blockchain.cpp -L. -lhash -lcrypto -lpthread
 
+test:
+	g++ -g -std=c++11 -o testrun test1.cpp -L. -lhash -lcrypto -lpthread blockchain.cpp Block.cpp Chain.cpp Worker.cpp AddRequest.cpp
+
 clean:
 	rm -f *.o libblockchain.a
 

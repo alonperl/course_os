@@ -7,9 +7,7 @@
 #include <list>
 #include "Block.hpp"
 #include "AddRequest.hpp"
-#ifndef _WORKER_H
 #include "Worker.h"
-#endif
 
 #define FAIL -1
 #define EMPTY 0

@@ -47,9 +47,9 @@ bool Chain::isInitiated(void)
  */
 Chain *Chain::getInstance()
 {
-	if (s_initiated)
+	if (Chain::s_initiated)
 	{
-		return s_instance;
+		return Chain::s_instance;
 	}
 	throw FAIL;
 }
@@ -209,8 +209,8 @@ int Chain::initChain()
 		return FAIL;
 	}
 
-	s_instance = new Chain();
-	s_initiated = true;
+	Chain::s_instance = new Chain();
+	Chain::s_initiated = true;
 
 	init_hash_generator();
 

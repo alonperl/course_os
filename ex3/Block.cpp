@@ -10,7 +10,10 @@ Block::Block(int id, char* hash, int hashLength, int height, Block* father)
 	_height = height;
 	_hashLength = hashLength;
 	_prevBlock = father;
-	strcpy(_hash, hash);
+	if (hash != NULL)
+	{
+		strcpy(_hash, hash);
+	}
 }
 
 Block::~Block()

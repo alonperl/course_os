@@ -1,5 +1,8 @@
 #include "Worker.h"
 #include "Chain.hpp"
+#include <pthread.h>
+#include "hash.h"
+#include "AddRequest.hpp"
 
 #define HASH_LENGTH 128
 

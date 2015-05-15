@@ -9,13 +9,19 @@ tar: libblockchain.a
 libblockchain.a: Chain.o Block.o blockchain.o
 	ar rcs libblockchain.a Chain.o Block.o blockchain.o libblockchain.a
 
-Chain.o: Chain.hpp Chain.cpp Block.hpp AddRequest.hpp Worker.hpp
+Chain.o: Chain.hpp Chain.cpp Worker.o Block.o
 	g++ -Wall -Wextra -Wvla -std=c++11 -c Chain.cpp
+
+Worker.o: Worker.h Worker.cpp
+	g++ -Wall -Wextra -Wvla -std=c++11 -c Worker.cpp
+
+AddRequest.o: AddRequest.h AddRequest.cpp
+	g++ -Wall -Wextra -Wvla -std=c++11 -c AddRequest.cpp
 
 Block.o: Block.hpp Block.cpp
 	g++ -Wall -Wextra -Wvla -std=c++11 -c Block.cpp
 
-blockchain.o: blockchain.h blockchain.cpp Chain.hpp Block.hpp AddRequest.hpp Worker.hpp
+blockchain.o: blockchain.h blockchain.cpp AddRequest.o Block.o Worker.o Chain.o
 	g++ -Wall -Wextra -Wvla -std=c++11 -c blockchain.cpp -L. -lhash -lcrypto -lpthread
 
 clean:

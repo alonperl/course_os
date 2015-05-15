@@ -15,7 +15,7 @@ Chain.o: Chain.hpp Chain.cpp Worker.o Block.o
 Worker.o: Worker.h Worker.cpp
 	g++ -Wall -Wextra -Wvla -std=c++11 -c Worker.cpp
 
-AddRequest.o: AddRequest.h AddRequest.cpp
+AddRequest.o: AddRequest.hpp AddRequest.cpp
 	g++ -Wall -Wextra -Wvla -std=c++11 -c AddRequest.cpp
 
 Block.o: Block.hpp Block.cpp

@@ -2,7 +2,8 @@
 #include "AddRequest.hpp"
 
 AddRequest::AddRequest(const char* newData, const int dataLength, const int blockNum,
-					   const void* const newFather) : blockNum(blockNum), dataLength(dataLength), father(newFather) {
+					   const void* const newFather) :
+		blockNum(blockNum), dataLength(dataLength), father(newFather) {
 	strcpy((char *) data, newData);
 }
 

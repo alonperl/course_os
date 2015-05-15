@@ -6,7 +6,6 @@
 #include <unordered_map>
 #include <deque>
 #include <list>
-#include <atomic>
 #include "hash.h"
 #include "AddRequest.hpp"
 #include "Worker.h"
@@ -90,8 +89,8 @@ private:
 	std::vector<Worker*> _workers;
 
 	bool _daemonWorkFlag;
-	std::atomic_bool _isClosing;
-	std::atomic_bool _isClosed;
+	bool _isClosing;
+	bool _isClosed;
 
 	Block *_tip;
 	Block *_genesis;

@@ -2,7 +2,6 @@
 #define _BLOCK_H
 
 #include <pthread.h>
-#include <atomic>
 
 class Block
 {
@@ -48,7 +47,7 @@ public:
 	pthread_mutex_t blockMutex;
 
 	private:
-		std::atomic<bool> _pruneFlag;
+		bool _pruneFlag;
 
 		int _blockId;
 		int _height;

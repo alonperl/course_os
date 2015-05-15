@@ -1,3 +1,6 @@
+#ifndef _CHAIN_H
+#define _CHAIN_H
+
 #include <vector>
 #include "Block.hpp"
 #include <unordered_map>
@@ -18,6 +21,7 @@ public:
 	static void *staticDaemonRoutine(void* c);
 	static bool isInitiated(void);
 	static Chain *getInstance();
+	static int initChain();
 
 	/**
 	 * @return the chain's max height
@@ -43,7 +47,6 @@ public:
 	void *daemonRoutine(void* c);
 	Block *getRandomDeepest();
 
-	static int  initChain();
 	int  addRequest(char *data, int length);
 	int  toLongest(int blockNum);
 	int  attachNow(int blockNum);
@@ -93,3 +96,5 @@ private:
 	Block *_tip;
 	Block *_genesis;
 };
+
+#endif

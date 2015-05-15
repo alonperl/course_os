@@ -1,5 +1,5 @@
-#ifndef COURSE_OS_WORKER_H
-#define COURSE_OS_WORKER_H
+#ifndef _WORKER_H
+#define _WORKER_H
 
 #include <pthread.h>
 #include "AddRequest.hpp"
@@ -25,4 +25,4 @@ private:
 };
 
 
-#endif //COURSE_OS_WORKER_H
+#endif

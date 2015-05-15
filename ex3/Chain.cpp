@@ -462,5 +462,5 @@ void Chain::closeChain()
 
 int Chain::returnOnClose()
 {
-
+	return 0;
 }

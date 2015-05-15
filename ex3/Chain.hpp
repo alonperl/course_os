@@ -89,8 +89,17 @@ private:
 	bool _isClosing;
 	bool _isClosed;
 
-	Block *_tip;
-	Block *_genesis;
+	/**
+	 * @return block status, or -1 in case of illegal input
+	 * Statuses:
+	 * -2	NOT_FOUND
+	 * 0	PENDING
+	 * 1	ATTACHED
+	 * 2	PROCESSING
+	 */
+	int getBlockStatus(int blockNum);
+
+	std::unordered_map<int, int> _status;
 };
 
 #endif

@@ -1,4 +1,5 @@
 #include <string.h>
+#include <malloc.h>
 #include "Block.hpp"
 
 Block::Block(int id, char* hash, int hashLength, int height, Block* father)
@@ -18,7 +19,8 @@ Block::Block(int id, char* hash, int hashLength, int height, Block* father)
 
 Block::~Block()
 {
-
+	free((void*)_hash);
+	_prevBlock = NULL;
 }
 
 /**

@@ -4,9 +4,10 @@
 #define GENESIS_BLOCK_NUM 0
 
 // TODO write right numbers
-#define STATUS_PENDING 2
-#define STATUS_ATTACHED 1
 #define NOT_FOUND -2
+#define PENDING 0
+#define ATTACHED 1
+#define PROCESSING 2
 
 // Define static members
 bool Chain::s_initiated = false;
@@ -235,9 +236,14 @@ int Chain::addRequest(char *data, int length)
 	}
 
 	int newId = Chain::getLowestID();
+
+	// Add new task for daemon
 	pthread_mutex_lock(&_pendingMutex);
 	_pending.push_back(new AddRequest(data, length, newId, Chain::getRandomDeepest()));
 	pthread_mutex_unlock(&_pendingMutex);
+
+	// Signal daemon that it has more work
+	pthread_cond_signal(&_pendingCV);
 
 	return newId;
 }
@@ -333,29 +339,12 @@ int Chain::wasAdded(int blockNum)
 		return FAIL;
 	}
 
-	std::unordered_map<unsigned int, Block*>::const_iterator foundBlock = _attached.find(blockNum);
-	if (_attached.end() == foundBlock) // block was not added
-	{
-		// in case is in pending list
-		std::deque<AddRequest*>::iterator it = _pending.begin();
-		while (it != _pending.end())
-		{
-			if ((*it)->blockNum == blockNum)
-			{
-				return STATUS_PENDING;
-			}
-			*it++;
-		}
-		// in case id was not used
-		return NOT_FOUND;
-	}
-	
-	return STATUS_ATTACHED;
+	return getBlockStatus(blockNum);
 }
 
 int Chain::chainSize()
 {
-	return isInitiated() ? Chain::chainSize() : FAIL;
+	return (isInitiated() ? _size : FAIL);
 }
 
 int Chain::pruneChain()
@@ -459,4 +448,22 @@ void Chain::closeChain()
 int Chain::returnOnClose()
 {
 	return 0;
+}
+
+/**
+ * @return block status, or -1 in case of illegal input
+ * Statuses:
+ * -2	NOT_FOUND
+ * 0	PENDING
+ * 1	ATTACHED
+ * 2	PROCESSING
+ */
+int Chain::getBlockStatus(int blockNum)
+{
+	if (blockNum > getInstance()->getLowestID() || blockNum < 0)
+	{
+		return -1;
+	}
+
+	return _status[blockNum];
 }

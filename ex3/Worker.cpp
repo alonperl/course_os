@@ -6,12 +6,20 @@
 
 #define HASH_LENGTH 128
 
-Worker::Worker(AddRequest *pRequest) {
+Worker::Worker(AddRequest *pRequest)
+{
     pthread_mutex_init(&_toLongestFlagMutex, NULL);
     _toLongestFlag = false;
-    finished = NOT_FINISHED;
     blockFather = (void*)pRequest->father;
+    finished = NOT_FINISHED;
     req = pRequest;
+}
+
+Worker::~Worker()
+{
+    delete req;
+    free(blockHash);
+    blockFather = NULL;
 }
 
 /**
@@ -21,16 +29,20 @@ Worker::Worker(AddRequest *pRequest) {
  */
 void Worker::act()
 {
+    void* cachedFather = blockFather;
+    bool rehash = false;
+
     do
     {
-        if (_toLongestFlag)
-        {
-            blockFather = Chain::getInstance()->getRandomDeepest();
-            _toLongestFlag = false; // TODO What if someone calls to_longest twice
-        }
-
         blockHash = hash(req);
-    } while (_toLongestFlag);
+
+        if (_toLongestFlag && blockFather == NULL)
+        {
+            rehash = true;
+            blockFather = Chain::getInstance()->getRandomDeepest();
+            cachedFather = blockFather;
+        }
+    } while (rehash);
 
     // _toLongestFlag was false till now, so from now on toLongest(this) will not act on this block
     pthread_mutex_lock(&_toLongestFlagMutex);
@@ -55,7 +67,7 @@ void Worker::act()
  * @param block_ptr Desired block
  * @return NULL
  */
-char* Worker::hash(void *pRequest)
+char* Worker::hash(const AddRequest *pRequest)
 {
     AddRequest *req = (AddRequest*) pRequest;
 

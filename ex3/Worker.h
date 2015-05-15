@@ -11,11 +11,12 @@
 class Worker {
 public:
     Worker(AddRequest *pRequest);
-    static char* hash(void *pRequest);
+    ~Worker();
+    static char* hash(const AddRequest *pRequest);
     void act();
     int finished;
 
-    AddRequest* req;
+    const AddRequest* req;
     int blockNum;
     void* blockHash;
     void* blockFather;

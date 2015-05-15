@@ -12,8 +12,6 @@
 // Define static members
 bool Chain::s_initiated = false;
 Chain *Chain::s_instance = NULL;
-pthread_t Chain::daemonThread = NULL;
-
 
 Chain::Chain()
 {	

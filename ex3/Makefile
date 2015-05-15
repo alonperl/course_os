@@ -6,7 +6,7 @@ tar: libblockchain.a
 	tar -cvf ex3.tar blockchain.cpp Block.hpp Block.cpp AddRequest.hpp \
 	AddRequest.cpp Chain.h Chain.cpp Worker.h Worker.cpp README Makefile
 
-libblockchain.a: Chain.o Block.o blockchain.o
+libblockchain.a: Chain.o AddRequest.o Block.o Worker.o blockchain.o
 	ar rcs libblockchain.a Chain.o Block.o blockchain.o libblockchain.a
 
 Chain.o: Chain.hpp Chain.cpp Worker.o Block.o

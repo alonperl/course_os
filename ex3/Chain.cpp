@@ -460,7 +460,7 @@ void Chain::closeChain()
 	pthread_join(closingThread, NULL);
 }
 
-void returnOnClose()
+int Chain::returnOnClose()
 {
 
 }

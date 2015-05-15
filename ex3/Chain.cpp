@@ -9,7 +9,7 @@
 #define NOT_FOUND -2
 
 // Define static members
-bool Chain::s_initiated = false;
+bool Chain::s_initiated = false;^
 Chain *Chain::s_instance = NULL;
 pthread_t Chain::daemonThread;
 
@@ -21,6 +21,7 @@ Chain::Chain()
 	pthread_mutex_init(&_pendingMutex, NULL);
 
 	pthread_cond_init(&_pendingCV, NULL);
+	pthread_cond_init(&_finishedClosing, NULL);
 
 	_isClosed = false;
 	_maxHeight = EMPTY;
@@ -104,18 +105,13 @@ void Chain::pushBlock(Block *newTail)
 	{
 		//delete my father from tails list
 		Block *fatherBlock = newTail.getPrevBlock();
-		_tails.erease(newTail.getPrevBlock());
+		_tails.erase(newTail.getPrevBlock());
 	}
 	//___________________________________________________________
 	//___________________________________________________________
 	*/
 }
 
-void Chain::deleteBlock(Block *toDelete)
-{
-	(void)toDelete;
-	// TODO
-}
 
 /**
  * @return the lowest ID available
@@ -248,7 +244,6 @@ int Chain::addRequest(char *data, int length)
 	pthread_mutex_lock(&_pendingMutex);
 	_pending.push_back(new AddRequest(data, length, newId, Chain::getRandomDeepest()));
 	pthread_mutex_unlock(&_pendingMutex);
-
 	return newId;
 }
 
@@ -368,6 +363,35 @@ int Chain::chainSize()
 	return isInitiated() ? Chain::chainSize() : FAIL;
 }
 
+
+void Chain::deleteFromDeepestTails(Block *toDelete)
+{
+	// find where the block is in the vector
+	Block *tempBlock = *_deepestTails.begin();
+	int counter = 0;
+	while (toDelete != tempBlock)
+	{
+		counter++;
+		tempBlock = *(_deepestTails.begin() + counter);
+	}
+	_deepestTails.erase(_deepestTails.begin() + counter);
+	tempBlock = NULL;
+}
+
+void Chain::deleteFromTails(Block *toDelete)
+{
+
+	Block *tempBlock = *_tails.begin();
+	int counter = 0;
+	while (toDelete != tempBlock)
+	{
+		counter++;
+		tempBlock = *(_tails.begin()+counter);
+	}
+	_tails.erase(_tails.begin()+counter);
+}
+
+
 int Chain::pruneChain()
 {
 	if (!isInitiated() || _isClosing)
@@ -399,28 +423,11 @@ int Chain::pruneChain()
 		if (blockToPrune->getPruneFlag())
 		{
 			// in case was one of the deepests
-			if (blockToPrune->getHeight() == _maxHeight)
+			if (toDelete->getHeight() == _maxHeight)
 			{
-				// find where the block is in the vector
-				tempBlock = *_deepestTails.begin();
-				while (blockToPrune != tempBlock)
-				{
-					counter++;
-					tempBlock = *(_deepestTails.begin()+counter);
-				}
-				_deepestTails.erase(_deepestTails.begin()+counter);
-				counter = 0;
+				deleteFromDeepestTails(blockToPrune);
 			}
-
-			//anyways delete from alltails list
-			tempBlock = *_tails.begin();
-			while (blockToPrune != tempBlock)
-			{
-				counter++;
-				tempBlock = *(_tails.begin()+counter);
-			}
-			_tails.erase(_tails.begin()+counter);
-
+			deleteFromTails(blockToPrune);
 		}
 
 		// run through tree and delete all the sub branch
@@ -451,7 +458,9 @@ void *Chain::closeChainLogic(void *ptr)
 	{
 		//TODO - should First hash the data - and than print it
 		std::cout << (*it)->data;
+
 		*it++;
+
 	}
 	pthread_mutex_unlock(&(Chain::getInstance()->_pendingMutex));
 	return NULL;
@@ -464,9 +473,21 @@ void Chain::closeChain()
 	pthread_t closingThread;
 	pthread_create(&closingThread, NULL, Chain::closeChainLogic, this);
 	pthread_join(closingThread, NULL);
+	pthread_cond_signal(&_finishedClosing);
 }
 
 int Chain::returnOnClose()
 {
-	return 0;
+	if (!isInitiated())
+	{
+		return FAIL;
+	}
+
+	if( _isClosing != true)
+	{
+		return CLOSE_CHAIN_WASNT_CALLED;
+	}
+	pthread_cond_wait(&_finishedClosing, &_pendingMutex);
+
+	return SUCESS;
 }

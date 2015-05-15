@@ -12,6 +12,7 @@
 #define FAIL -1
 #define EMPTY 0
 #define SUCESS 0
+#define CLOSE_CHAIN_WASNT_CALLED -2
 
 class Chain
 {
@@ -72,6 +73,7 @@ private:
 	pthread_mutex_t _pendingMutex;
 
 	pthread_cond_t _pendingCV;
+	pthread_cond_t _finishedClosing;
 
 	int _maxHeight;
 	int _size;

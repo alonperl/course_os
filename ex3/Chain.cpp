@@ -1,7 +1,5 @@
 #include <iostream>
 #include "Chain.hpp"
-#include "Worker.h"
-#include "AddRequest.hpp"
 
 #define GENESIS_BLOCK_NUM 0
 

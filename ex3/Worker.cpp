@@ -23,7 +23,7 @@ void Worker::act()
         if (_toLongestFlag)
         {
             blockFather = Chain::getInstance()->getRandomDeepest();
-            _toLongestFlag = false;
+            _toLongestFlag = false; // TODO What if someone calls to_longest twice
         }
 
         blockHash = hash(req);

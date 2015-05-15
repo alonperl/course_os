@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <deque>
 #include <list>
+#include <atomic>
 #include "hash.h"
 #include "AddRequest.hpp"
 #include "Worker.h"
@@ -50,6 +51,8 @@ public:
 	int  chainSize();
 	int  pruneChain();
 	void closeChain();
+	// TODO @eran
+	static void *closeChainLogic(void *c);
 	int  returnOnClose();
 
 	Block *getTip();
@@ -64,6 +67,7 @@ private:
 
 	pthread_mutex_t _usedIDListMutex;
 	pthread_mutex_t _deepestTailsMutex;
+	pthread_mutex_t _tailsMutex;
 	pthread_mutex_t _attachedMutex;
 
 	pthread_mutex_t _pendingMutex;
@@ -83,7 +87,8 @@ private:
 	std::vector<Worker*> _workers;
 
 	bool _daemonWorkFlag;
-	bool _isClosed;
+	std::atomic_bool _isClosing;
+	std::atomic_bool _isClosed;
 
 	Block *_tip;
 	Block *_genesis;

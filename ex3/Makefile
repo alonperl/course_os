@@ -1,24 +1,54 @@
-CC=g++ -Wall -Wextra -Wvla
+CC=g++
+RANLIB=ranlib
 
-all: libblockchain.a
+LIBSRC=./blockchain.cpp
+LIBOBJ=$(LIBSRC:.cpp=.o)
 
-tar: libblockchain.a
-	tar -cvf ex3.tar blockchain.cpp Block.hpp Block.cpp AddRequest.hpp \
-	AddRequest.cpp Chain.h Chain.cpp README Makefile
 
-libblockchain.a: Chain.o Block.o blockchain.o
-	ar rcs libblockchain.a Chain.o Block.o blockchain.o libblockchain.a
+INCS=-I.
+CFLAGS = -Wall -g -std=c++11 $(INCS)
+CPPFLAGS = -Wall -g -std=c++11
+LOADLIBES = -L./
 
-Chain.o: Chain.hpp Chain.cpp Block.hpp AddRequest.hpp
-	g++ -Wall -Wextra -Wvla -std=c++11 -c Chain.cpp
+COMPILE.cc=$(CC) $(CPPFLAGS) -c
 
-Block.o: Block.hpp Block.cpp
-	g++ -Wall -Wextra -Wvla -std=c++11 -c Block.cpp
+OSMLIB = libblockchain.a
+TARGETS = $(OSMLIB)
 
-blockchain.o: blockchain.h blockchain.cpp Chain.hpp Block.hpp AddRequest.hpp
-	g++ -Wall -Wextra -Wvla -std=c++11 -c blockchain.cpp -L. -lhash -lcrypto -lpthread
+TAR=tar
+TARFLAGS=-cvf
+TARNAME=ex2.tar
+TARSRCS=$(LIBSRC) Makefile README
+
+all: $(TARGETS) test
+
+$(LIBOBJ): .$(LIBSRC) .$(LIBSRC:.cpp=.h) ../hash.h
+	$(COMPILE.cc) $% $<
+
+$(TARGETS): $(LIBOBJ)
+	$(AR) $(ARFLAGS) $@ $^
+	$(RANLIB) $@
 
 clean:
-	rm -f *.o libblockchain.a
+	$(RM) $(TARGETS) $(OSMLIB) $(OBJ) $(LIBOBJ) *~ *core
 
-.PHONT: clean tar all
+depend:
+	makedepend -- $(CFLAGS) -- $(SRC) $(LIBSRC)
+
+tar:
+	$(TAR) $(TARFLAGS) $(TARNAME) $(TARSRCS)
+	
+test1.o: ../blockchain.h ../hash.h ./test1.cpp
+	$(CC) -c ./test1.cpp
+	
+test1: $(TARGETS) ./test1.o
+	$(CC) ./test1.o $(TARGETS) -lhash  -lpthread -L./ -lcrypto -o blockchain
+	./blockchain
+	
+test: test1
+
+.PHONY: $(TARGETS) $(LIBOBJ) test test1
+
+val: 
+	valgrind --tool=memcheck --leak-check=full ./blockchain 
+

@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Chain.hpp"
 
 #define GENESIS_BLOCK_NUM 0
@@ -35,7 +36,7 @@ void *Chain::staticDaemonRoutine(void *ptr)
 
 /**
  * @return true if was initiated
- */ 
+ */
 bool Chain::isInitiated(void)
 {
 	return s_initiated;
@@ -254,8 +255,7 @@ int Chain::addRequest(char *data, int length)
  */
 int Chain::toLongest(int blockNum)
 {
-	(void) blockNum;
-	if (!isInitiated())
+	if (!isInitiated() || _isClosing)
 	{
 		return FAIL;
 	}
@@ -288,7 +288,7 @@ int Chain::toLongest(int blockNum)
 
 int Chain::attachNow(int blockNum)
 {
-	if (!isInitiated())
+	if (!isInitiated() || _isClosing)
 	{
 		return FAIL;
 	}
@@ -331,7 +331,8 @@ int Chain::attachNow(int blockNum)
 
 int Chain::wasAdded(int blockNum)
 {
-	if (!isInitiated())
+	// TODO WasAdded should work when closing?
+	if (!isInitiated() || _isClosing)
 	{
 		return FAIL;
 	}
@@ -361,104 +362,98 @@ int Chain::chainSize()
 	return isInitiated() ? Chain::chainSize() : FAIL;
 }
 
-//int Chain::pruneChain()
-//{
-//	if (!isInitiated())
-//	{
-//		return FAIL;
-//	}
-//	//TODO: add field named toPrune to all blocks and setter - make genesis crate with toPrune=false
-//	pthread_mutex_lock(&_attachedMutex);
-//	pthread_mutex_lock(&_deepestTailsMutex);
-////	pthread_mutex_lock(&_tailsMutex); //TODO: do i need to lock more stuff??
-//	Block *deepestBlock = getRandomDeepest();
-//	// only in case we didn't reach the gensis block
-//	// or we got to a part of a chain we pruned before - keep running
-//	while (deepestBlock->getPrevBlock() != NULL || deepestBlock->toPrune != false)
-//	{
-//		deepestBlock->toPrune = false; //TODO: maybe change to setter
-//		deepestBlock = deepestBlock->getPrevBlock();
-//	}
-//	// by now we marked everyone not to prune
-//	Block* blockToPrune;
-//	Block* tempBlock;
-//	int counter = 0;
-//	for (std::vector<Block*>::iterator it = _tails.begin(); it != _tails.end(); ++it)
-//	{
-//		blockToPrune = (*it);
-//		//if we got a tail to delete earase from lists it were on
-//		if (blockToPrune->toPrune == true)
-//		{
-//			// in case was one of the deepests
-//			if (blockToPrune->getHeight() == _maxHeight)
-//			{
-//				// find where the block is in the vector
-//				tempBlock = _deepestTails.begin();
-//				while (blockToPrune != tempBlock)
-//				{
-//					i++;
-//					tempBlock = _deepestTails.begin()+i
-//				}
-//				_deepestTails.erase(_deepestTails.begin()+i);
-//				counter = 0;
-//			}
-//
-//			//anyways delete from alltails list
-//			tempBlock = _allTails.begin();
-//			while (blockToPrune != tempBlock)
-//			{
-//				i++;
-//				tempBlock = _allTails.begin()+i
-//			}
-//			_allTails.erase(_allTails.begin()+i);
-//
-//		}
-//
-//		// run through tree and delete all the sub branch
-//		while (blockToPrune->toPrune == true)
-//		{
-//			tempBlock = blockToPrune->getPrevBlock();
-//			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
-//			~Block(*blockToPrune); //destory the block
-//			blockToPrune = tempBlock;
-//		}
-//
-//	}
-//	blockToPrune = NULL;
-//	tempBlock = NULL;
-//
-//	pthread_mutex_unlock(&_allTailsMutex);
-//	pthread_mutex_unlock(&_deepestTailsMutex);
-//	pthread_mutex_unlock(&_blocksInChainMutex);
-//	return SUCESS;
-//}
+int Chain::pruneChain()
+{
+	if (!isInitiated() || _isClosing)
+	{
+		return FAIL;
+	}
+	//TODO: add field named toPrune to all blocks and setter - make genesis crate with toPrune=false
+	pthread_mutex_lock(&_attachedMutex);
+	pthread_mutex_lock(&_deepestTailsMutex);
+	pthread_mutex_lock(&_tailsMutex); //TODO: do i need to lock more stuff??
+	Block *deepestBlock = getRandomDeepest();
+	// only in case we didn't reach the gensis block
+	// or we got to a part of a chain we pruned before - keep running
+	while (deepestBlock->getPrevBlock() != NULL || deepestBlock->getPruneFlag())
+	{
+		// TODO refactor flag check, maybe use _atomic_flag
+		deepestBlock->setPruneFlag(false);
+		deepestBlock = deepestBlock->getPrevBlock();
+	}
+	// by now we marked everyone not to prune
+	Block* blockToPrune;
+	Block* tempBlock;
+	int counter = 0;
+	//run on all tails
+	for (std::vector<Block*>::iterator it = _tails.begin(); it != _tails.end(); ++it)
+	{
+		blockToPrune = (*it);
+		//if we got a tail to delete earase from lists it were on
+		if (blockToPrune->getPruneFlag())
+		{
+			// in case was one of the deepests
+			if (blockToPrune->getHeight() == _maxHeight)
+			{
+				// find where the block is in the vector
+				tempBlock = *_deepestTails.begin();
+				while (blockToPrune != tempBlock)
+				{
+					counter++;
+					tempBlock = *(_deepestTails.begin()+counter);
+				}
+				_deepestTails.erase(_deepestTails.begin()+counter);
+				counter = 0;
+			}
 
-//void *Chain::closeChain(void *c)
-//{
-//	pthread_mutex_lock(&_pendingBlocks);
-//	std::deque<Block*>::iterator it = _pendingBlocks.begin();
-//	while (it != mydeque.end())
-//	{
-//		//TODO - should First hash the data - and than print it
-//		std::cout << *it->getHashData();
-//		*it++;
-//	}
-//	pthread_mutex_unlock(&_pendingBlocks);
-//
-//}
-//
-//
-//void Chain::closeChain()
-//{
-//	gClosing = true;
-//
-//	//TODO add this to all function except size()
-//	//___________________
-//	if (gClosing == true)
-//	{
-//		return FAIL;
-//	}
-//	//_____________________
-//
-//	pthread_create(&closingThread, NULL, Chain::closeChain, this);
-//}
+			//anyways delete from alltails list
+			tempBlock = *_tails.begin();
+			while (blockToPrune != tempBlock)
+			{
+				counter++;
+				tempBlock = *(_tails.begin()+counter);
+			}
+			_tails.erase(_tails.begin()+counter);
+
+		}
+
+		// run through tree and delete all the sub branch
+		while (blockToPrune->getPruneFlag())
+		{
+			tempBlock = blockToPrune->getPrevBlock();
+			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
+			//~Block(*blockToPrune); //TODO: destory the block
+			blockToPrune = tempBlock;
+		}
+
+	}
+	blockToPrune = NULL;
+	tempBlock = NULL;
+
+	pthread_mutex_unlock(&_tailsMutex);
+	pthread_mutex_unlock(&_deepestTailsMutex);
+	pthread_mutex_unlock(&_attachedMutex);
+	return SUCESS;
+}
+
+void *Chain::closeChainLogic(void *c)
+{
+	pthread_mutex_lock(&(Chain::getInstance()->_pendingMutex));
+	std::deque<AddRequest*>::iterator it = Chain::getInstance()->_pending.begin();
+	while (it != Chain::getInstance()->_pending.end())
+	{
+		//TODO - should First hash the data - and than print it
+		std::cout << (*it)->data;
+		*it++;
+	}
+	pthread_mutex_unlock(&(Chain::getInstance()->_pendingMutex));
+}
+
+
+void Chain::closeChain()
+{
+	_isClosing = true;
+	pthread_t closingThread;
+	pthread_create(&closingThread, NULL, Chain::closeChainLogic, this);
+	pthread_join(closingThread, NULL);
+}

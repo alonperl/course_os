@@ -5,6 +5,7 @@ Block::Block(int id, char* hash, int hashLength, int height, Block* father)
 {
 	pthread_mutex_init(&blockMutex, NULL);
 
+	_pruneFlag = false;
 	_blockId = id;
 	_height = height;
 	_hashLength = hashLength;
@@ -47,6 +48,22 @@ char* Block::getHash(void)
 int Block::getHashLength()
 {
 	return _hashLength;
+}
+
+/**
+ * @return true if the block needs to be pruned
+ */
+bool Block::getPruneFlag()
+{
+	return _pruneFlag;
+}
+
+/**
+ * Sets the PruneFlag state
+ */
+void Block::setPruneFlag(bool newState)
+{
+	_pruneFlag = newState;
 }
 
 /**

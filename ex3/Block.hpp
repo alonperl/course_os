@@ -2,6 +2,7 @@
 #define _BLOCK_H
 
 #include <pthread.h>
+#include <atomic>
 
 class Block
 {
@@ -30,6 +31,16 @@ public:
 	int getHashLength();
 
 	/**
+	 * @return true if the block needs to be pruned
+	 */
+	bool getPruneFlag();
+
+	/**
+	 * Sets the PruneFlag state
+	 */
+	void setPruneFlag(bool newState);
+
+	/**
 	 * @return the blocks father
 	 */
 	Block *getPrevBlock();
@@ -37,10 +48,13 @@ public:
 	pthread_mutex_t blockMutex;
 
 	private:
+		std::atomic<bool> _pruneFlag;
+
 		int _blockId;
 		int _height;
 		int _hashLength;
 		char* _hash;
+		
 		Block* _prevBlock;
 };
 

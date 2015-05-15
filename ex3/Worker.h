@@ -2,6 +2,7 @@
 #define _WORKER_H
 
 #include <pthread.h>
+#include "hash.h"
 #include "AddRequest.hpp"
 
 #define NOT_FINISHED -1;

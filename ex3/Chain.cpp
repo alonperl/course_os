@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Chain.hpp"
+#include "hash.h"
 
 #define GENESIS_BLOCK_NUM 0
 

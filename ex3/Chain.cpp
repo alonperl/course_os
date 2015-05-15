@@ -436,8 +436,9 @@ int Chain::pruneChain()
 	return SUCESS;
 }
 
-void *Chain::closeChainLogic(void *c)
+void *Chain::closeChainLogic(void *ptr)
 {
+	(void)ptr;
 	pthread_mutex_lock(&(Chain::getInstance()->_pendingMutex));
 	std::deque<AddRequest*>::iterator it = Chain::getInstance()->_pending.begin();
 	while (it != Chain::getInstance()->_pending.end())
@@ -447,6 +448,7 @@ void *Chain::closeChainLogic(void *c)
 		*it++;
 	}
 	pthread_mutex_unlock(&(Chain::getInstance()->_pendingMutex));
+	return NULL;
 }
 
 

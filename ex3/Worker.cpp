@@ -55,8 +55,8 @@ void Worker::act()
 char* Worker::hash(void *pRequest)
 {
     AddRequest *req = (AddRequest*) pRequest;
-    int id = req->blockNum;
 
+    // TODO rehashing here too?
     // Save father id
     int originalFatherId = ((Block*)req->father)->getId();
     int fatherId;

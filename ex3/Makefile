@@ -7,7 +7,7 @@ tar: libblockchain.a
 	AddRequest.cpp Chain.h Chain.cpp Worker.h Worker.cpp README Makefile
 
 libblockchain.a: Chain.o AddRequest.o Block.o Worker.o blockchain.o
-	ar rcs libblockchain.a Chain.o Block.o blockchain.o libblockchain.a
+	ar rcs libblockchain.a Chain.o AddRequest.o Block.o Worker.o blockchain.o
 
 Chain.o: Chain.hpp Chain.cpp Worker.o Block.o
 	g++ -Wall -Wextra -Wvla -std=c++11 -c Chain.cpp

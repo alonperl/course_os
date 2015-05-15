@@ -114,6 +114,7 @@ void Chain::pushBlock(Block *newTail)
 
 void Chain::deleteBlock(Block *toDelete)
 {
+	(void)toDelete;
 	// TODO
 }
 

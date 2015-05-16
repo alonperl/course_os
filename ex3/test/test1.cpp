@@ -7,8 +7,10 @@
 
 #include <unistd.h>
 #include <iostream>
-#include "../blockchain.h"
-#include "../hash.h"
+// #include "../blockchain.h"
+// #include "../hash.h"
+#include "blockchain.h"
+#include "hash.h"
 #include <stack>
 
 using namespace std;

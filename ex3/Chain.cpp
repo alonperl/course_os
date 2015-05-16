@@ -214,7 +214,6 @@ void *Chain::daemonRoutine(void *chain_ptr)
 	}
 	// Unlock _pendingBlocks
 	// pthread_mutex_unlock(&_pendingMutex);
-	std::cout<<"I AM FREE\n";sleep(2);
 	return NULL;
 }
 
@@ -532,7 +531,8 @@ int Chain::returnOnClose()
 		return CLOSE_CHAIN_NOT_CALLED;
 	}
 
-	return pthread_join(_closingThread, NULL);
+	pthread_kill(_closingThread, 0);
+	return SUCESS;
 }
 
 

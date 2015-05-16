@@ -514,7 +514,15 @@ void Chain::printChain()
 		{
 			std::cout << " ";
 		}
-		std::cout << it->second->getId() << ": H" << it->second->getHeight() << ", P" << it->second->getPruneFlag() << ", F" << it->second->getPrevBlock()->getId() << "\n";
+		std::cout << it->second->getId() << ": H" << it->second->getHeight() << ", P" << it->second->getPruneFlag();
+		if (it->second->getPrevBlock() != NULL)
+		{
+			std::cout << ", F" << it->second->getPrevBlock()->getId() << "\n";
+		}
+		else
+		{
+			std::cout << ", GENESIS\n";			
+		}
 		it++;
 	}
 

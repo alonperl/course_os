@@ -105,6 +105,14 @@ void Chain::pushBlock(Block* newTail)
 				break;
 			}
 		}
+		for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _deepestTails.end(); ++it)
+		{
+			if ((*it)->getId() == fatherId)
+			{
+				_deepestTails.erase(it);
+				break;
+			}
+		}
 	}
 }
 

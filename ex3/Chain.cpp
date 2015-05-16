@@ -215,9 +215,9 @@ void *Chain::daemonRoutine(void *chain_ptr)
  */
 Block* Chain::getRandomDeepest()
 {
-	pthread_mutex_lock(&_deepestTails);
+	pthread_mutex_lock(&_deepestTailsMutex);
 	long index = rand() % _deepestTails.size();
-	pthread_mutex_unlock(&_deepestTails);
+	pthread_mutex_unlock(&_deepestTailsMutex);
 	return _deepestTails[index];
 }
 

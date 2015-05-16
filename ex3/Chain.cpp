@@ -138,7 +138,7 @@ int Chain::getLowestID()
 	// get size of list - chose the smaller of the two
 	if (_usedIDList.empty())
 	{
-		return _size;
+		return _size+1;
 	}
 
 	_usedIDList.sort();

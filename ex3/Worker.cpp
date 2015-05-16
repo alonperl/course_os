@@ -8,7 +8,7 @@ Worker::Worker(AddRequest *pRequest)
 {
     pthread_mutex_init(&_toLongestFlagMutex, NULL);
     _toLongestFlag = false;
-    _blockNum = pRequest->blockNum;
+    blockNum = pRequest->blockNum;
 //    finished = NOT_FINISHED;
     req = pRequest;
 }

@@ -392,7 +392,6 @@ int Chain::pruneChain()
 	}
 	// by now we marked everyone not to prune
 	Block* blockToPrune;
-	int counter = 0;
 
 	//TODO MEGA - is vector rearranging after erase??
 printChain();
@@ -403,9 +402,8 @@ printChain();
 		std::cout<<blockToPrune<<blockToPrune->getId()<<blockToPrune->getPruneFlag()<<"\n";
 		if (blockToPrune->getPruneFlag())
 		{
-			_tails.erase(_tails.begin() + counter);
+			_tails.erase(it);
 		}
-		counter++;
 	}
 
 	//Delete from deepest tails vector
@@ -416,9 +414,8 @@ printChain();
 		std::cout<<blockToPrune<<blockToPrune->getId()<<blockToPrune->getPruneFlag()<<"\n";
 		if (blockToPrune->getPruneFlag())
 		{
-			_deepestTails.erase(_tails.begin() + counter);
+			_deepestTails.erase(it);
 		}
-		counter++;
 	}
 
 	//Delete from attached map - nad add id to list

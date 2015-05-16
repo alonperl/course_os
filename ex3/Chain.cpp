@@ -399,7 +399,6 @@ printChain();
 	for (std::vector<Block* >::iterator it = _tails.begin(); it != _tails.end();)
 	{
 		blockToPrune = *it;
-		std::cout<<blockToPrune << " " << blockToPrune->getId() << " " << blockToPrune->getPruneFlag()<<"\n";
 		if (blockToPrune->getPruneFlag())
 		{
 			it = _tails.erase(it);
@@ -414,7 +413,6 @@ printChain();
 	for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _deepestTails.end();)
 	{
 		blockToPrune = *it;
-		std::cout<< blockToPrune << " " << blockToPrune->getId() << " " << blockToPrune->getPruneFlag()<<"\n";
 		if (blockToPrune->getPruneFlag())
 		{
 			it = _deepestTails.erase(it);
@@ -429,6 +427,7 @@ printChain();
 	for (std::unordered_map<unsigned int, Block* >::iterator it = _attached.begin(); it != _attached.end(); ++it)
 	{
 		blockToPrune = it->second;
+		std::cout<< blockToPrune << " " << blockToPrune->getId() << " " << blockToPrune->getPruneFlag()<<"\n";
 		if (blockToPrune->getPruneFlag())
 		{
 			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
@@ -510,6 +509,7 @@ int Chain::getBlockStatus(int blockNum)
 
 void Chain::printChain()
 {
+	std::cout << "SIZE " << _attached.size() <<"\n";
 	std::unordered_map<unsigned int, Block*>::iterator it = _attached.begin();
 	int q = 0;
 	while (it != _attached.end())

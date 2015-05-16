@@ -399,7 +399,7 @@ printChain();
 	for (std::vector<Block* >::iterator it = _tails.begin(); it != _tails.end();)
 	{
 		blockToPrune = *it;
-		std::cout<<blockToPrune<<blockToPrune->getId()<<blockToPrune->getPruneFlag()<<"\n";
+		std::cout<<blockToPrune << " " << blockToPrune->getId() << " " << blockToPrune->getPruneFlag()<<"\n";
 		if (blockToPrune->getPruneFlag())
 		{
 			it = _tails.erase(it);
@@ -414,7 +414,7 @@ printChain();
 	for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _tails.end();)
 	{
 		blockToPrune = *it;
-		std::cout<<blockToPrune<<blockToPrune->getId()<<blockToPrune->getPruneFlag()<<"\n";
+		std::cout << " " << blockToPrune<<blockToPrune->getId() << " " << blockToPrune->getPruneFlag()<<"\n";
 		if (blockToPrune->getPruneFlag())
 		{
 			it = _deepestTails.erase(it);

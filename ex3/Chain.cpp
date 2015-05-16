@@ -198,14 +198,11 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		AddRequest *newReq = _pending.front();
 		Worker *worker = new Worker(newReq);
 		_workers.push_back(worker);
-		// TODO unlock pending now?
+		_pending.pop_front();
 		pthread_mutex_unlock(&_pendingMutex);
 		worker->act();
 		
-		pthread_mutex_lock(&_pendingMutex);
-		_pending.pop_front();
 		printChain();
-		pthread_mutex_unlock(&_pendingMutex);
 	}
 	// Unlock _pendingBlocks
 	pthread_mutex_unlock(&_pendingMutex);

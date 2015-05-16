@@ -402,7 +402,6 @@ int Chain::pruneChain()
 		blockToPrune = *it;
 		if (blockToPrune->getPruneFlag())
 		{
-			std::cout << blockToPrune->getId() << ": pruning...\n";
 			_tails.erase(_tails.begin() + counter);
 		}
 		counter++;
@@ -415,7 +414,6 @@ int Chain::pruneChain()
 		blockToPrune = *it;
 		if (blockToPrune->getPruneFlag())
 		{
-			std::cout << blockToPrune->getId() << ": pruning...\n";
 			_deepestTails.erase(_tails.begin() + counter);
 		}
 		counter++;
@@ -503,4 +501,20 @@ int Chain::getBlockStatus(int blockNum)
 	}
 
 	return _status[blockNum];
+}
+
+void Chain::printChain()
+{
+	std::unordered_map<unsigned int, Block*>::iterator it = getInstance()->_attached.begin();
+	int q = 0;
+	while (it != getInstance()->_attached.end())
+	{
+		q = it->second->getHeight();
+		while(q--)
+		{
+			std::cout << " ";
+		}
+		std::cout << it->second->getId() << ": H" << it->second->getHeight() << ", P" << it->second->getPruneFlag() << ": F" << it->second->getPrevBlock()->getId() << "\n";
+	}
+
 }

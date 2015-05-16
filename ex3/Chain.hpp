@@ -50,7 +50,7 @@ public:
 	// TODO @eran
 	static void *closeChainLogic(void *c);
 	int  returnOnClose();
-
+static void printChain();
 private:
 	static bool s_initiated;
 	static Chain *s_instance;

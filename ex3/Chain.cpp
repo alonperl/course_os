@@ -407,7 +407,6 @@ printChain();
 	}
 
 	//Delete from deepest tails vector
-	counter = 0;
 	for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _tails.end(); ++it)
 	{
 		blockToPrune = *it;
@@ -425,10 +424,9 @@ printChain();
 		if (blockToPrune->getPruneFlag())
 		{
 			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
-			_tails.erase(_tails.begin() + counter);
+			_tails.erase(it);
 		}
 		delete blockToPrune; //TODO: destory the block
-		counter++;
 	}
 
 	pthread_mutex_unlock(&_tailsMutex);

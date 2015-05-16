@@ -468,6 +468,7 @@ int Chain::pruneChain()
 
 void *Chain::closeChainLogic(void *pChain)
 {
+	Chain* pChain = (Chain*)pChain;
 	pthread_mutex_lock(&(pChain->_pendingMutex));
 	std::deque<AddRequest*>::iterator it = pChain->_pending.begin();
 	// print out what's in pending list - and delete 'em

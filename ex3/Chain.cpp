@@ -85,11 +85,6 @@ void Chain::pushBlock(Block* newTail)
 		_deepestTails.push_back(newTail);
 	}
 
-	// Update status
-	_status[newTail->getId()] = 1;
-
-	_attached[newTail->getId()] = newTail;
-
 	// If I am not Genesis, I have a father leaf, that is no more a leaf
 	if (newTail->getId() != 0)
 	{
@@ -112,6 +107,12 @@ void Chain::pushBlock(Block* newTail)
 			}
 		}
 	}
+
+	// Update status
+	_status[newTail->getId()] = 1;
+
+	_attached[newTail->getId()] = newTail;
+
 }
 
 void Chain::deleteBlock(Block* toDelete)

@@ -74,6 +74,7 @@ void Chain::pushBlock(Block* newTail)
 {
 	pthread_mutex_lock(&_tailsMutex);
 	pthread_mutex_lock(&_deepestTailsMutex);
+	pthread_mutex_lock(&_attachedMutex);
 	
 	// In case the new block is of bigger height update height
 	if (Chain::getMaxHeight() < newTail->getHeight())
@@ -111,18 +112,17 @@ void Chain::pushBlock(Block* newTail)
 			}
 		}
 	}
-	pthread_mutex_unlock(&_deepestTailsMutex);
-	pthread_mutex_unlock(&_tailsMutex);
-
-	pthread_mutex_lock(&_attachedMutex);
 	_attached[newTail->getId()] = newTail;
-	pthread_mutex_unlock(&_attachedMutex);
 
 	// Update status
 	_status[newTail->getId()] = ATTACHED;
 
 	// Virtual Size update
 	_size++;
+
+	pthread_mutex_unlock(&_attachedMutex);
+	pthread_mutex_unlock(&_deepestTailsMutex);
+	pthread_mutex_unlock(&_tailsMutex);
 }
 
 void Chain::deleteBlock(Block* toDelete)

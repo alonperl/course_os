@@ -196,7 +196,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 
 	// Lock _pendingBlocks
 	pthread_mutex_lock(&_pendingMutex);
-	while (!_isClosed)
+	while (s_initiated)
 	{
 		// Wait for "hey! someone pending" signal
 		if (_pending.empty())

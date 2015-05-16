@@ -507,14 +507,15 @@ void Chain::printChain()
 {
 	std::unordered_map<unsigned int, Block*>::iterator it = _attached.begin();
 	int q = 0;
-	while (it++ != _attached.end())
+	while (it != _attached.end())
 	{
 		q = it->second->getHeight();
 		while(q--)
 		{
 			std::cout << " ";
 		}
-		std::cout << it->second->getId() << ": H" << it->second->getHeight() << ", P" << it->second->getPruneFlag() << ": F" << it->second->getPrevBlock()->getId() << "\n";
+		std::cout << it->second->getId() << ": H" << it->second->getHeight() << ", P" << it->second->getPruneFlag() << ", F" << it->second->getPrevBlock()->getId() << "\n";
+		it++;
 	}
 
 }

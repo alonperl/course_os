@@ -469,7 +469,7 @@ void *Chain::closeChainLogic(void *ptr)
 	while (it != Chain::getInstance()->_pending.end())
 	{
 		//TODO - should First hash the data - and than print it
-		std::cerr << (*it)->data;
+		std::cout << (*it)->data;
 		*it++;
 	}
 	pthread_mutex_unlock(&(Chain::getInstance()->_pendingMutex));
@@ -528,7 +528,7 @@ int Chain::getBlockStatus(int blockNum)
 
 void Chain::printChain()
 {
-	std::cerr << "SIZE " << _attached.size()-1 <<"\n";
+	std::cout << "SIZE " << _attached.size()-1 <<"\n";
 	std::unordered_map<unsigned int, Block*>::iterator it = _attached.begin();
 	int q = 0;
 	while (it != _attached.end())
@@ -536,17 +536,20 @@ void Chain::printChain()
 		q = it->second->getHeight();
 		while(q--)
 		{
-			std::cerr << " ";
+			std::cout << " ";
 		}
-		std::cerr << it->first;sleep(0.1);
-		std::cerr << ": H" << it->second->getHeight() << ", P" << it->second->getPruneFlag();
-		if (it->second->getPrevBlock() != NULL)
+		if (it->second != NULL)
 		{
-			std::cerr << ", F" << it->second->getPrevBlock()->getId() << "\n";
-		}
-		else
-		{
-			std::cerr << ", GENESIS\n";			
+			std::cout << it->first;sleep(0.1);
+			std::cout << ": H" << it->second->getHeight() << ", P" << it->second->getPruneFlag();
+			if (it->second->getPrevBlock() != NULL)
+			{
+				std::cout << ", F" << it->second->getPrevBlock()->getId() << "\n";
+			}
+			else
+			{
+				std::cout << ", GENESIS\n";			
+			}
 		}
 		it++;
 	}

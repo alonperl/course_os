@@ -210,6 +210,7 @@ Block* Chain::getRandomDeepest()
 {
 	std::cout<<"DT size "<<_deepestTails.size()<<"\n";
 	int q = rand();
+	sleep(0.1);
 	long index = q % _deepestTails.size();
 	return _deepestTails[index];
 }
@@ -418,7 +419,6 @@ printChain();
 		{
 			++it;
 		}
-		std::cout<<"T size "<<_tails.size()<<"\n";
 	}
 
 	//Delete from deepest tails vector
@@ -433,7 +433,6 @@ printChain();
 		{
 			++it;
 		}
-		std::cout<<"DT size "<<_deepestTails.size()<<"\n";
 	}
 
 	//Delete from attached map - nad add id to list

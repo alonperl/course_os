@@ -8,7 +8,7 @@ class AddRequest
 {
 public:
 	AddRequest(const char* newData, const int dataLength, const int blockNum, 
-			   Block*  father);
+			   Block* father);
 	~AddRequest();
 
 	// Data for the new block

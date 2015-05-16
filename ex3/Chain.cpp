@@ -213,7 +213,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		worker->act();
 	}
 	// Unlock _pendingBlocks
-	pthread_mutex_unlock(&_pendingMutex);
+	// pthread_mutex_unlock(&_pendingMutex);
 	std::cout<<"I AM FREE\n";sleep(2);
 	return NULL;
 }

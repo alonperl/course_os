@@ -295,7 +295,6 @@ int Chain::toLongest(int blockNum)
 
 	for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
 	{
-		std::cout << "Checking pending...\n";
 		if ((*it)->blockNum == blockNum)
 		{
 			(*it)->father = getRandomDeepest();
@@ -306,7 +305,7 @@ int Chain::toLongest(int blockNum)
 
 	for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
 	{
-		if ((*it)->req->blockNum == blockNum) {
+		if ((*it)->blockNum == blockNum) {
 			(*it)->_toLongestFlag = true;
 			// return STATUS_WORKING
 			return SUCESS;

@@ -16,6 +16,7 @@ public:
     ~Worker();
     static char* hash(const AddRequest *pRequest);
     void act();
+    int blockNum;
 //    int finished;
 
     const AddRequest* req;

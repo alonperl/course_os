@@ -246,7 +246,7 @@ int Chain::initChain()
 	getInstance()->_status[EMPTY] = ATTACHED;
 
 	// Update virtual size;
-	getInstance()->_size++;
+	getInstance()->_size;
 
 	return SUCESS;
 }

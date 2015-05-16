@@ -412,7 +412,7 @@ pthread_mutex_lock(&_deepestTailsMutex);
 	Block* blockToPrune;
 
 	//TODO MEGA - is vector rearranging after erase??
-// printChain();
+printChain();
 	//Delete from tails vector
 	for (std::vector<Block* >::iterator it = _tails.begin(); it != _tails.end();)
 	{
@@ -456,7 +456,7 @@ pthread_mutex_lock(&_deepestTailsMutex);
 			++it;
 		}
 	}
-// printChain();
+printChain();
 	pthread_mutex_unlock(&_tailsMutex);
 	pthread_mutex_unlock(&_deepestTailsMutex);
 	pthread_mutex_unlock(&_attachedMutex);

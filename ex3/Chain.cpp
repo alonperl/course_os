@@ -468,15 +468,15 @@ int Chain::pruneChain()
 
 void *Chain::closeChainLogic(void *pChain)
 {
-	Chain* pChain = (Chain*)pChain;
-	pthread_mutex_lock(&(pChain->_pendingMutex));
-	std::deque<AddRequest*>::iterator it = pChain->_pending.begin();
+	Chain* chain = (Chain*)pChain;
+	pthread_mutex_lock(&(chain->_pendingMutex));
+	std::deque<AddRequest*>::iterator it = chain->_pending.begin();
 	// print out what's in pending list - and delete 'em
-	while (it != pChain->_pending.end())
+	while (it != chain->_pending.end())
 	{
 		//TODO - should First hash the data - and than print it
 		std::cout << (*it)->data; //TODO: probebly should print /n enter
-		pChain->_pending.erase(it);
+		chain->_pending.erase(it);
 		*it++;
 	}
 	// _pending.clear(); TODO maybe add to be sure
@@ -485,22 +485,22 @@ void *Chain::closeChainLogic(void *pChain)
 	//Delete everything on tails and deepest vectors
 
 	//Delete from tails vector
-	pChain->_tails.clear();
+	chain->_tails.clear();
 	//Delete from deepest tails vector
-	pChain->_deepestTails.clear();
+	chain->_deepestTails.clear();
 	//Delete from attached map - and destroy blocks
-	for (auto it = pChain->_attached.begin(); it != pChain->_attached.end(); ++it)
+	for (auto it = chain->_attached.begin(); it != chain->_attached.end(); ++it)
 	{
 		temp = *it;
-		pChain->_tails.erase(it);
+		chain->_tails.erase(it);
 		delete temp; // Destory the block
 	}
-	pChain->_usedIDList.clear();
-	pChain->_workers.clear();
+	chain->_usedIDList.clear();
+	chain->_workers.clear();
 
-	pthread_mutex_unlock(&(pChain->_pendingMutex));
+	pthread_mutex_unlock(&(chain->_pendingMutex));
 	
-	delete pChain;
+	delete chain;
 	
 	return NULL;
 }

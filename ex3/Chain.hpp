@@ -51,7 +51,7 @@ public:
 	static void *closeChainLogic(void *c);
 	int  returnOnClose();
 void printChain();
-void printDeepest()
+void printDeepest();
 private:
 	static bool s_initiated;
 	static Chain *s_instance;

@@ -492,7 +492,7 @@ void *Chain::closeChainLogic(void *pChain)
 	for (std::unordered_map<unsigned int, Block*>::iterator it = chain->_attached.begin(); it != chain->_attached.end(); ++it)
 	{
 		temp = it->second;
-		chain->_tails.erase(it);
+		chain->_attached.erase(it);
 		if (temp != NULL)
 		{
 			delete temp; // Destory the block

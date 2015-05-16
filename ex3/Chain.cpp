@@ -72,6 +72,9 @@ int Chain::getMaxHeight(void)
 
 void Chain::pushBlock(Block* newTail)
 {
+	pthread_mutex_lock(&_tailsMutex);
+	pthread_mutex_lock(&_deepestTailsMutex);
+	
 	// In case the new block is of bigger height update height
 	if (Chain::getMaxHeight() < newTail->getHeight())
 	{
@@ -83,6 +86,7 @@ void Chain::pushBlock(Block* newTail)
 	if (newTail->getHeight() == _maxHeight)
 	{
 		_deepestTails.push_back(newTail);
+
 	}
 
 	// If I am not Genesis, I have a father leaf, that is no more a leaf
@@ -107,11 +111,15 @@ void Chain::pushBlock(Block* newTail)
 			}
 		}
 	}
+	pthread_mutex_unlock(&_tailsMutex);
+	pthread_mutex_unlock(&_deepestTailsMutex);
 
 	// Update status
 	_status[newTail->getId()] = 1;
 
+	pthread_mutex_lock(&_attachedMutex);
 	_attached[newTail->getId()] = newTail;
+	pthread_mutex_unlock(&_attachedMutex);
 }
 
 void Chain::deleteBlock(Block* toDelete)

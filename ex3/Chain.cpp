@@ -395,7 +395,7 @@ int Chain::pruneChain()
 	int counter = 0;
 
 	//TODO MEGA - is vector rearranging after erase??
-
+printChain();
 	//Delete from tails vector
 	for (std::vector<Block* >::iterator it = _tails.begin(); it != _tails.end(); ++it)
 	{
@@ -505,9 +505,9 @@ int Chain::getBlockStatus(int blockNum)
 
 void Chain::printChain()
 {
-	std::unordered_map<unsigned int, Block*>::iterator it = getInstance()->_attached.begin();
+	std::unordered_map<unsigned int, Block*>::iterator it = _attached.begin();
 	int q = 0;
-	while (it != getInstance()->_attached.end())
+	while (it != _attached.end())
 	{
 		q = it->second->getHeight();
 		while(q--)

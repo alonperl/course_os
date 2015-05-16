@@ -203,6 +203,11 @@ void *Chain::daemonRoutine(void *chain_ptr)
 			pthread_cond_wait(&_pendingCV, &_pendingMutex);
 		}
 
+		if (!s_initiated)
+		{
+			return NULL;
+		}
+
 		// Process new request TODO do we need to make this for all request or only for front?
 		// Create worker thread
 		AddRequest *newReq = _pending.front();
@@ -531,8 +536,7 @@ int Chain::returnOnClose()
 		return CLOSE_CHAIN_NOT_CALLED;
 	}
 
-	pthread_kill(_closingThread, 0);
-	return SUCESS;
+	return pthread_join(_closingThread, NULL);
 }
 
 

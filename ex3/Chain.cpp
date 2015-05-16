@@ -410,9 +410,7 @@ pthread_mutex_lock(&_deepestTailsMutex);
 	Block* blockToPrune;
 
 	//TODO MEGA - is vector rearranging after erase??
-pthread_mutex_unlock(&_attachedMutex);
 printChain();
-pthread_mutex_lock(&_attachedMutex);
 	//Delete from tails vector
 	for (std::vector<Block* >::iterator it = _tails.begin(); it != _tails.end();)
 	{
@@ -530,12 +528,12 @@ int Chain::getBlockStatus(int blockNum)
 
 void Chain::printChain()
 {
-	pthread_mutex_lock(&_attachedMutex);
 	std::cout << "SIZE " << _attached.size()-1 <<"\n";
 	std::unordered_map<unsigned int, Block*>::iterator it = _attached.begin();
 	int q = 0;
 	while (it != _attached.end())
 	{
+		while(it != NULL && it->first != NULL && it->second != NULL);
 		q = it->second->getHeight();
 		while(q--)
 		{
@@ -556,5 +554,4 @@ void Chain::printChain()
 		}
 		it++;
 	}
-	pthread_mutex_unlock(&_attachedMutex);
 }

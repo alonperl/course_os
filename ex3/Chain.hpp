@@ -56,7 +56,7 @@ private:
 	static bool s_initiated;
 	static Chain *s_instance;
 	static pthread_t _daemonThread;
-	static pthread_t _closingThread;
+	pthread_t _closingThread;
 
 	Chain();
 	~Chain();

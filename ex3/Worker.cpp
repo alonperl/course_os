@@ -1,5 +1,6 @@
 #include "Worker.h"
 #include "Chain.hpp"
+#include <iostream>
 
 #define HASH_LENGTH 128
 

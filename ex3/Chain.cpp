@@ -111,8 +111,8 @@ void Chain::pushBlock(Block* newTail)
 			}
 		}
 	}
-	pthread_mutex_unlock(&_tailsMutex);
 	pthread_mutex_unlock(&_deepestTailsMutex);
+	pthread_mutex_unlock(&_tailsMutex);
 
 	pthread_mutex_lock(&_attachedMutex);
 	_attached[newTail->getId()] = newTail;
@@ -530,7 +530,6 @@ int Chain::getBlockStatus(int blockNum)
 
 void Chain::printChain()
 {
-	pthread_mutex_lock(&_attachedMutex);
 	std::cout << "SIZE " << _attached.size()-1 <<"\n";
 	std::unordered_map<unsigned int, Block*>::iterator it = _attached.begin();
 	int q = 0;
@@ -553,5 +552,4 @@ void Chain::printChain()
 		}
 		it++;
 	}
-	pthread_mutex_unlock(&_attachedMutex);
 }

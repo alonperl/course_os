@@ -84,6 +84,9 @@ void Chain::pushBlock(Block* newTail)
 		_deepestTails.push_back(newTail);
 	}
 
+	// Update status
+	_status[blockNum] = 1;
+
 	// Size increment
 	_size++;
 

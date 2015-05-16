@@ -244,9 +244,6 @@ int Chain::initChain()
 	getInstance()->pushBlock(genesisBlock);
 	getInstance()->_status[EMPTY] = ATTACHED;
 
-	// Update virtual size;
-	getInstance()->_size;
-
 	return SUCESS;
 }
 
@@ -380,7 +377,7 @@ int Chain::chainSize()
 {
 	// TODO _size is updated only on actual attachment (in pushBlock)
 	// TODO and this is good, but in test:69 busy_waiting for right size stucks
-	return (isInitiated() ? _size-1 : FAIL);
+	return (isInitiated() ? _size : FAIL);
 	// return (isInitiated() ? _attached.size()-1 : FAIL);
 }
 

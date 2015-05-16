@@ -215,9 +215,9 @@ void *Chain::daemonRoutine(void *chain_ptr)
  */
 Block* Chain::getRandomDeepest()
 {
-	// pthread_mutex_lock(&_deepestTailsMutex);
+	pthread_mutex_lock(&_deepestTailsMutex);
 	long index = rand() % _deepestTails.size();
-	// pthread_mutex_unlock(&_deepestTailsMutex);
+	pthread_mutex_unlock(&_deepestTailsMutex);
 	return _deepestTails[index];
 }
 
@@ -393,13 +393,13 @@ int Chain::pruneChain()
 	}
 	//TODO: add field named toPrune to all blocks and setter - make genesis crate with toPrune = false
 	pthread_mutex_lock(&_attachedMutex);
-	pthread_mutex_lock(&_deepestTailsMutex);
+	
 	pthread_mutex_lock(&_tailsMutex); //TODO: do i need to lock more stuff??
 
 	// Find random deepest and go from him to the top and mark
 	// not to prune the longest path
 	Block* deepestBlock = getRandomDeepest();
-
+pthread_mutex_lock(&_deepestTailsMutex);
 	// only in case we didn't reach the gensis block
 	// or we got to a part of a chain we pruned before - keep running
 	while (deepestBlock != NULL)// || deepestBlock->getPruneFlag())

@@ -214,7 +214,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 	}
 	// Unlock _pendingBlocks
 	pthread_mutex_unlock(&_pendingMutex);
-	std::cout<<"I AM FREE\n";
+	std::cout<<"I AM FREE\n";sleep(2);
 	return NULL;
 }
 

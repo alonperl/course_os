@@ -183,6 +183,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		Worker *worker = new Worker(newReq);
 		_workers.push_back(worker);
 		// TODO unlock pending now?
+		pthread_mutex_unlock(&_pendingMutex);
 		worker->act();
 	}
 	// Unlock _pendingBlocks

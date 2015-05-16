@@ -56,9 +56,9 @@ void Worker::act()
 
     // Attach block to chain
     Chain::getInstance()->pushBlock(newBlock);
-    std::cout << "\n" << req->blockNum << ": WORKER FINISHED\n";
     pthread_mutex_unlock(&_toLongestFlagMutex);
 
+    std::cout << "\n" << req->blockNum << ": WORKER FINISHED\n";
     // Self-destroy
     delete this;
 }

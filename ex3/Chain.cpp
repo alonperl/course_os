@@ -533,7 +533,7 @@ void Chain::printChain()
 	int q = 0;
 	while (it != _attached.end())
 	{
-		while(it->first == NULL && it->second == NULL);
+		while(it->first == NULL || it->second == NULL);
 		q = it->second->getHeight();
 		while(q--)
 		{

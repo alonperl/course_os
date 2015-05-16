@@ -86,7 +86,7 @@ void Chain::pushBlock(Block* newTail)
 	}
 
 	// If I am not Genesis, I have a father leaf, that is no more a leaf
-	if (newTail->getId() != 0)
+	if (newTail->getId() != GENESIS_BLOCK_NUM)
 	{
 		// Delete my father from tails list
 		int fatherId = newTail->getPrevBlock()->getId();
@@ -112,7 +112,6 @@ void Chain::pushBlock(Block* newTail)
 	_status[newTail->getId()] = 1;
 
 	_attached[newTail->getId()] = newTail;
-
 }
 
 void Chain::deleteBlock(Block* toDelete)
@@ -210,7 +209,7 @@ Block* Chain::getRandomDeepest()
 {
 	std::cout<<"DT size "<<_deepestTails.size()<<"\n";
 	int q = rand();
-	sleep(0.1);
+	// sleep(0.1);
 	long index = q % _deepestTails.size();
 	return _deepestTails[index];
 }

@@ -431,7 +431,7 @@ printChain();
 		if (blockToPrune->getPruneFlag())
 		{
 			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
-			_attached.erase(it);
+			_attached.erase(blockToPrune->getId());
 		}
 		delete blockToPrune; //TODO: destory the block
 	}
@@ -509,7 +509,7 @@ int Chain::getBlockStatus(int blockNum)
 
 void Chain::printChain()
 {
-	std::cout << "SIZE " << _attached.size() <<"\n";
+	std::cout << "SIZE " << _attached.size()-1 <<"\n";
 	std::unordered_map<unsigned int, Block*>::iterator it = _attached.begin();
 	int q = 0;
 	while (it != _attached.end())

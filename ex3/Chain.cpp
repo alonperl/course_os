@@ -434,7 +434,6 @@ printChain();
 	for (std::unordered_map<unsigned int, Block* >::iterator it = _attached.begin(); it != _attached.end();)
 	{
 		blockToPrune = it->second;
-		std::cout<< blockToPrune << " " << blockToPrune->getId() << " " << blockToPrune->getPruneFlag()<<"\n";
 		if (blockToPrune->getPruneFlag())
 		{
 			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList

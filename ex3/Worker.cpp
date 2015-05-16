@@ -50,7 +50,6 @@ void Worker::act()
         {
             rehash = false;
         }
-        std::cout << "ID: " << blockNum << " Rehash? " << rehash  << "\n";
     } while (rehash);
 
     // TODO lock more
@@ -63,7 +62,6 @@ void Worker::act()
     // Attach block to chain
     Chain::getInstance()->pushBlock(newBlock);
     pthread_mutex_unlock(&_toLongestFlagMutex);
-std::cout<<"FINISHED"<<blockNum<<"\n";
     // Self-destroy
     delete this;
 }

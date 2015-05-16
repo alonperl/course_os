@@ -402,6 +402,7 @@ int Chain::pruneChain()
 		blockToPrune = *it;
 		if (blockToPrune->getPruneFlag())
 		{
+			std::cout << blockToPrune->getId() << ": pruning...\n";
 			_tails.erase(_tails.begin() + counter);
 		}
 		counter++;
@@ -415,7 +416,7 @@ int Chain::pruneChain()
 		if (blockToPrune->getPruneFlag())
 		{
 			std::cout << blockToPrune->getId() << ": pruning...\n";
-			_tails.erase(_tails.begin() + counter);
+			_deepestTails.erase(_tails.begin() + counter);
 		}
 		counter++;
 	}

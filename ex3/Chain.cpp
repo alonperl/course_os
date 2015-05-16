@@ -493,8 +493,8 @@ int Chain::getBlockStatus(int blockNum)
 
 	if (_status.find(blockNum) == _status.end())
 	{
-		return NOT_FOUND
+		return NOT_FOUND;
 	}
-	
+
 	return _status[blockNum];
 }

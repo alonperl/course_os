@@ -489,7 +489,7 @@ void *Chain::closeChainLogic(void *pChain)
 	//Delete from deepest tails vector
 	chain->_deepestTails.clear();
 	//Delete from attached map - and destroy blocks
-	for (auto it = chain->_attached.begin(); it != chain->_attached.end(); ++it)
+	for (std::unordered_map<unsigned int, Block*>::iterator it = chain->_attached.begin(); it != chain->_attached.end(); ++it)
 	{
 		temp = it->second;
 		chain->_tails.erase(it);

@@ -507,7 +507,7 @@ void Chain::printChain()
 {
 	std::unordered_map<unsigned int, Block*>::iterator it = _attached.begin();
 	int q = 0;
-	while (it != _attached.end())
+	while (it++ != _attached.end())
 	{
 		q = it->second->getHeight();
 		while(q--)

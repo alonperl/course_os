@@ -384,7 +384,7 @@ int Chain::pruneChain()
 
 	// only in case we didn't reach the gensis block
 	// or we got to a part of a chain we pruned before - keep running
-	while (deepestBlock->getPrevBlock() != NULL)// || deepestBlock->getPruneFlag())
+	while (deepestBlock != NULL)// || deepestBlock->getPruneFlag())
 	{
 		// TODO refactor flag check, maybe use _atomic_flag
 		deepestBlock->setPruneFlag(false);

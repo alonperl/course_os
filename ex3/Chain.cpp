@@ -59,7 +59,7 @@ Chain *Chain::getInstance()
 	{
 		return Chain::s_instance;
 	}
-	return NULL
+	return NULL;
 }
 
 /**
@@ -505,6 +505,7 @@ void *Chain::closeChainLogic(void *pChain)
 	
 	delete chain;
 
+	_isClosed = true;
 	s_initiated = false;
 	s_instance = NULL;
 	// TODO check how to properly destroy

@@ -215,10 +215,9 @@ void *Chain::daemonRoutine(void *chain_ptr)
  */
 Block* Chain::getRandomDeepest()
 {
-	std::cout<<"DT size "<<_deepestTails.size()<<"\n";
-	int q = rand();
-	// sleep(0.1);
-	long index = q % _deepestTails.size();
+	pthread_mutex_lock(&_deepestTails);
+	long index = rand() % _deepestTails.size();
+	pthread_mutex_unlock(&_deepestTails);
 	return _deepestTails[index];
 }
 

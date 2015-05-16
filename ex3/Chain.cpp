@@ -87,9 +87,6 @@ void Chain::pushBlock(Block* newTail)
 	// Update status
 	_status[newTail->getId()] = 1;
 
-	// Size increment
-	_size++;
-
 	// If I am not Genesis, I have a father leaf, that is no more a leaf
 	if (newTail->getId() != 0)
 	{
@@ -239,6 +236,9 @@ int Chain::addRequest(char *data, int length)
 	{
 		return FAIL;
 	}
+
+	// Update size TODO it is not that actual chain size is updated here!!!
+	_size++;
 
 	int newId = Chain::getLowestID();
 

@@ -396,7 +396,7 @@ int Chain::pruneChain()
 	//TODO MEGA - is vector rearranging after erase??
 printChain();
 	//Delete from tails vector
-	for (std::vector<Block* >::iterator it = _tails.begin(); it != _tails.end(); ++it)
+	for (std::vector<Block* >::iterator it = _tails.begin(); it != _tails.end();)
 	{
 		blockToPrune = *it;
 		std::cout<<blockToPrune<<blockToPrune->getId()<<blockToPrune->getPruneFlag()<<"\n";
@@ -404,16 +404,24 @@ printChain();
 		{
 			it = _tails.erase(it);
 		}
+		else
+		{
+			++it;
+		}
 	}
 
 	//Delete from deepest tails vector
-	for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _tails.end(); ++it)
+	for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _tails.end();)
 	{
 		blockToPrune = *it;
 		std::cout<<blockToPrune<<blockToPrune->getId()<<blockToPrune->getPruneFlag()<<"\n";
 		if (blockToPrune->getPruneFlag())
 		{
 			it = _deepestTails.erase(it);
+		}
+		else
+		{
+			++it;
 		}
 	}
 

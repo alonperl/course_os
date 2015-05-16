@@ -138,11 +138,7 @@ int Chain::getLowestID()
 	// get size of list - chose the smaller of the two
 	if (_usedIDList.empty())
 	{
-		pthread_mutex_lock(&_pendingMutex);
-		pthread_mutex_lock(&_attachedMutex);
-		return _pending.size()+_attached.size()+1;
-		pthread_mutex_unlock(&_pendingMutex);
-		pthread_mutex_unlock(&_attachedMutex);
+		return _size;
 	}
 
 	_usedIDList.sort();

@@ -9,12 +9,13 @@ AddRequest::AddRequest(const char* newData, const int dataLength, const int bloc
 	{
 		throw -1;
 	}
-	strcpy((char *) data, newData);
+	malloc(data, sizeof(char) * dataLength);
+	strcpy(data, newData);
 }
 
 AddRequest::~AddRequest()
 {
-	free((void*)data);
+	free(data);
 	data = NULL;
 	father = NULL;
 }

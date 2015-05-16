@@ -436,7 +436,7 @@ printChain();
 		}
 		delete blockToPrune; //TODO: destory the block
 	}
-
+printChain();
 	pthread_mutex_unlock(&_tailsMutex);
 	pthread_mutex_unlock(&_deepestTailsMutex);
 	pthread_mutex_unlock(&_attachedMutex);

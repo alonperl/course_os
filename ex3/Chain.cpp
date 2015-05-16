@@ -206,7 +206,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
  */
 Block* Chain::getRandomDeepest()
 {
-	unsigned long index = (unsigned long)rand() % _deepestTails.size();
+	unsigned long index = rand() % _deepestTails.size();
 	return _deepestTails[index];
 }
 
@@ -414,6 +414,7 @@ printChain();
 		{
 			++it;
 		}
+		std::cout<<"T size "<<_tails.size()<<"\n";
 	}
 
 	//Delete from deepest tails vector
@@ -428,6 +429,7 @@ printChain();
 		{
 			++it;
 		}
+		std::cout<<"DT size "<<_deepestTails.size()<<"\n";
 	}
 
 	//Delete from attached map - nad add id to list

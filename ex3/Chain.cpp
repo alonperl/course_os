@@ -402,7 +402,7 @@ printChain();
 		std::cout<<blockToPrune<<blockToPrune->getId()<<blockToPrune->getPruneFlag()<<"\n";
 		if (blockToPrune->getPruneFlag())
 		{
-			_tails.erase(it);
+			it = _tails.erase(it);
 		}
 	}
 
@@ -413,7 +413,7 @@ printChain();
 		std::cout<<blockToPrune<<blockToPrune->getId()<<blockToPrune->getPruneFlag()<<"\n";
 		if (blockToPrune->getPruneFlag())
 		{
-			_deepestTails.erase(it);
+			it = _deepestTails.erase(it);
 		}
 	}
 
@@ -424,7 +424,7 @@ printChain();
 		if (blockToPrune->getPruneFlag())
 		{
 			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
-			_tails.erase(it);
+			it = _tails.erase(it);
 		}
 		delete blockToPrune; //TODO: destory the block
 	}

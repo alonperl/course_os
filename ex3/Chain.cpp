@@ -185,6 +185,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		// TODO unlock pending now?
 		pthread_mutex_unlock(&_pendingMutex);
 		worker->act();
+		std::cout << "BACK TO DAEMON\n";
 	}
 	// Unlock _pendingBlocks
 	pthread_mutex_unlock(&_pendingMutex);

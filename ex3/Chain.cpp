@@ -247,7 +247,7 @@ int Chain::initChain()
 	Block* genesisBlock(new Block(GENESIS_BLOCK_NUM, NULL, EMPTY, EMPTY, NULL)); // TODO maybe height is determined from father later
 	getInstance()->pushBlock(genesisBlock);
 	getInstance()->_status[EMPTY] = ATTACHED;
-	_size = EMPTY;
+	getInstance()->_size = EMPTY;
 
 	return SUCESS;
 }

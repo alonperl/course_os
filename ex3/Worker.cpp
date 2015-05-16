@@ -45,8 +45,12 @@ void Worker::act()
             rehash = true;
             cachedFather = Chain::getInstance()->getRandomDeepest();
             cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();
-            std::cout << "Rehash? " << rehash  << "\n";
         }
+        else
+        {
+            rehash = false;
+        }
+        std::cout << "Rehash? " << rehash  << "\n";
     } while (rehash);
 
     // TODO lock more

@@ -415,7 +415,7 @@ pthread_mutex_lock(&_deepestTailsMutex);
 	for (std::vector<Block* >::iterator it = _tails.begin(); it != _tails.end();)
 	{
 		blockToPrune = *it;
-		if (blockToPrune == NULL && blockToPrune->getPruneFlag())
+		if (blockToPrune != NULL && blockToPrune->getPruneFlag())
 		{
 			it = _tails.erase(it);
 		}
@@ -429,7 +429,7 @@ pthread_mutex_lock(&_deepestTailsMutex);
 	for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _deepestTails.end();)
 	{
 		blockToPrune = *it;
-		if (blockToPrune == NULL && blockToPrune->getPruneFlag())
+		if (blockToPrune != NULL && blockToPrune->getPruneFlag())
 		{
 			it = _deepestTails.erase(it);
 		}
@@ -443,7 +443,7 @@ pthread_mutex_lock(&_deepestTailsMutex);
 	for (std::unordered_map<unsigned int, Block* >::iterator it = _attached.begin(); it != _attached.end();)
 	{
 		blockToPrune = it->second;
-		if (blockToPrune == NULL && blockToPrune->getPruneFlag())
+		if (blockToPrune != NULL && blockToPrune->getPruneFlag())
 		{
 			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
 			_attached.erase(it++);

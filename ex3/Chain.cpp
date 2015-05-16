@@ -295,8 +295,8 @@ int Chain::toLongest(int blockNum)
 
 	for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
 	{
-		std::cout<<it<<"\n";
-		std::cout<<*it<<"\n";
+		std::cout << it << "\n";
+		std::cout << *it << "\n";
 		if ((*it)->blockNum == blockNum) {
 			(*it)->father = getRandomDeepest();
 			// return STATUS_PENDING

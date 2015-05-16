@@ -9,7 +9,7 @@ AddRequest::AddRequest(const char* newData, const int dataLength, const int bloc
 	{
 		throw -1;
 	}
-	data = malloc(sizeof(char) * dataLength);
+	data = (char*)malloc(sizeof(char) * dataLength);
 	strcpy(data, newData);
 }
 

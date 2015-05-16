@@ -12,7 +12,7 @@ public:
 	~AddRequest();
 
 	// Data for the new block
-	const char* data;
+	 char* data;
 	
 	// Data length
 	const int dataLength;

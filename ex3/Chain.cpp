@@ -455,7 +455,7 @@ int Chain::pruneChain()
 	pthread_mutex_unlock(&_deepestTailsMutex);
 	pthread_mutex_unlock(&_tailsMutex);
 	pthread_mutex_unlock(&_attachedMutex);
-	
+	printChain();
 	return SUCESS;
 }
 

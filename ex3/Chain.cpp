@@ -377,10 +377,7 @@ int Chain::wasAdded(int blockNum)
 
 int Chain::chainSize()
 {
-	// TODO _size is updated only on actual attachment (in pushBlock)
-	// TODO and this is good, but in test:69 busy_waiting for right size stucks
 	return (isInitiated() ? _size : FAIL);
-	// return (isInitiated() ? _attached.size()-1 : FAIL);
 }
 
 int Chain::pruneChain()

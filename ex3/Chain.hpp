@@ -71,7 +71,9 @@ private:
 
 
 	int _maxHeight;
+	int _expected_size;
 	int _size;
+
 
 	std::deque<AddRequest*> _pending;
 	

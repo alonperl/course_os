@@ -85,6 +85,7 @@ int main() {
 		id = add_block(pl, 4);
 		cout << id << endl;
 		to_longest(id);
+		sleep(2);
 	}
 	while(chain_size() < PHASE_2 + OUT_ITER*IN_ITER);
 	cout << "Expected chain size: " << PHASE_2 + OUT_ITER*IN_ITER << ". actual: " << chain_size() << endl;

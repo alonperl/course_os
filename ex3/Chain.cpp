@@ -89,8 +89,8 @@ void Chain::pushBlock(Block* newTail)
 	// Update status
 	_status[newTail->getId()] = 1;
 
-	// Size increment
-	_size++;
+	// // Size increment
+	// _size++;
 
 	// If I am not Genesis, I have a father leaf, that is no more a leaf
 	if (newTail->getId() != 0)
@@ -244,6 +244,9 @@ int Chain::addRequest(char *data, int length)
 
 	int newId = Chain::getLowestID();
 
+	// Virtual Size update
+	_size++;
+
 	// Add new task for daemon
 	pthread_mutex_lock(&_pendingMutex);
 	_pending.push_back(new AddRequest(data, length, newId, getRandomDeepest()));
@@ -353,7 +356,8 @@ int Chain::chainSize()
 {
 	// TODO _size is updated only on actual attachment (in pushBlock)
 	// TODO and this is good, but in test:69 busy_waiting for right size stucks
-	return (isInitiated() ? _size : FAIL);
+	// return (isInitiated() ? _size : FAIL);
+	return (isInitiated() ? _attached.size() : FAIL);
 }
 
 int Chain::pruneChain()

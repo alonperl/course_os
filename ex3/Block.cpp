@@ -13,7 +13,7 @@ Block::Block(int id, char* hash, int hashLength, int height, Block* father)
 	_prevBlock = father;
 	if (hash != NULL)
 	{
-		_hash = malloc(sizeof(char) * strlen(hash));
+		_hash = (char*)malloc(sizeof(char) * strlen(hash));
 		strcpy(_hash, hash);
 	}
 }

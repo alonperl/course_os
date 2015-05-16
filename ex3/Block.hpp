@@ -1,12 +1,13 @@
 #ifndef _BLOCK_H
 #define _BLOCK_H
 
+#include <memory>
 #include <pthread.h>
 
 class Block
 {
 public:
-	Block(int id, char* hash, int height, int hashLength, Block* father);
+	Block(int id, char* hash, int height, int hashLength, std::shared_ptr<Block> father);
 	~Block();
 
 	/**
@@ -42,7 +43,7 @@ public:
 	/**
 	 * @return the blocks father
 	 */
-	Block *getPrevBlock();
+	std::shared_ptr<Block> getPrevBlock();
 
 	pthread_mutex_t blockMutex;
 
@@ -54,7 +55,7 @@ public:
 		int _hashLength;
 		char* _hash;
 		
-		Block* _prevBlock;
+		std::shared_ptr<Block> _prevBlock;
 };
 
 #endif

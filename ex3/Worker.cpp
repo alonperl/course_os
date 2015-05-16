@@ -1,8 +1,5 @@
 #include "Worker.h"
 #include "Chain.hpp"
-#include <pthread.h>
-#include "hash.h"
-#include "AddRequest.hpp"
 
 #define HASH_LENGTH 128
 
@@ -10,8 +7,8 @@ Worker::Worker(AddRequest *pRequest)
 {
     pthread_mutex_init(&_toLongestFlagMutex, NULL);
     _toLongestFlag = false;
-    blockFather = (void*)pRequest->father;
-    finished = NOT_FINISHED;
+    blockFather = std::shared_ptr<Block>(pRequest->father);
+//    finished = NOT_FINISHED;
     req = pRequest;
 }
 
@@ -29,26 +26,33 @@ Worker::~Worker()
  */
 void Worker::act()
 {
-    void* cachedFather = blockFather;
+    std::shared_ptr<Block> cachedFather(blockFather);
+    // Save if current father is longest or not
+    bool cachedLongest = cachedFather.get()->getHeight() == Chain::getInstance()->getMaxHeight();
     bool rehash = false;
 
     do
     {
         blockHash = hash(req);
 
-        if (_toLongestFlag && blockFather == NULL)
+        /* If to_longest was called for this block while hashing
+         * or all other shared_ptrs to father's block were reset
+         * this means we need to find new father and rehash. */
+        // TODO maybe not unique but ==2 (cachedFather and blockFather)
+        if ((_toLongestFlag && !cachedLongest) || cachedFather.unique())
         {
             rehash = true;
-            blockFather = Chain::getInstance()->getRandomDeepest();
-            cachedFather = blockFather;
+            cachedFather = Chain::getInstance()->getRandomDeepest();
+            blockFather = cachedFather;
+            cachedLongest = cachedFather.get()->getHeight() == Chain::getInstance()->getMaxHeight();
         }
     } while (rehash);
 
     // _toLongestFlag was false till now, so from now on toLongest(this) will not act on this block
     pthread_mutex_lock(&_toLongestFlagMutex);
     // Create block
-    Block* newBlock = new Block(blockNum, (char*)blockHash, HASH_LENGTH,
-                               ((Block*)blockFather)->getHeight()+1, (Block*)blockFather);
+    std::shared_ptr<Block> newBlock(new Block(blockNum, blockHash, HASH_LENGTH,
+                               blockFather->getHeight()+1, blockFather));
 
     // Attach block to chain
     Chain::getInstance()->pushBlock(newBlock);
@@ -73,18 +77,18 @@ char* Worker::hash(const AddRequest *pRequest)
 
     // TODO rehashing here too?
     // Save father id
-    int originalFatherId = ((Block*)req->father)->getId();
+    int originalFatherId = req->father->getId();
     int fatherId;
 
     char* calculatedHash;
     // Calculate hash
     do
     {
-        int nonce = generate_nonce(req->blockNum, ((Block*)req->father)->getId());
+        int nonce = generate_nonce(req->blockNum, req->father->getId());
         calculatedHash = generate_hash(req->data, (size_t)req->dataLength, nonce);
 
         // If the father was changed meanwhile, update it and recalculate the hash
-        fatherId = ((Block*)req->father)->getId();
+        fatherId = req->father->getId();
     } while (originalFatherId != fatherId);
 
     return calculatedHash;

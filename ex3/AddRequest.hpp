@@ -1,11 +1,14 @@
 #ifndef _ADD_REQUEST_H
 #define _ADD_REQUEST_H
 
+#include <memory>
+#include "Block.hpp"
+
 class AddRequest
 {
 public:
 	AddRequest(const char* data, const int dataLength, const int blockNum, 
-			   const void* const father);
+			   std::shared_ptr<Block>  father);
 	~AddRequest();
 
 	// Data for the new block
@@ -19,7 +22,7 @@ public:
 
 	// Expected father. 
 	// May be changed before actual block attachment.
-	const void* father;
+	std::shared_ptr<Block> father;
 };
 
 #endif

@@ -3,7 +3,7 @@
 #include "AddRequest.hpp"
 
 AddRequest::AddRequest(const char* newData, const int dataLength, const int blockNum,
-					   const void* const newFather) :
+					   std::shared_ptr<Block>  newFather) :
 		blockNum(blockNum), dataLength(dataLength), father(newFather) {
 	if (newData == NULL)
 	{

@@ -2,7 +2,7 @@
 #include <malloc.h>
 #include "Block.hpp"
 
-Block::Block(int id, char* hash, int hashLength, int height, Block* father)
+Block::Block(int id, char* hash, int hashLength, int height, std::shared_ptr<Block> father)
 {
 	pthread_mutex_init(&blockMutex, NULL);
 
@@ -74,7 +74,7 @@ void Block::setPruneFlag(bool newState)
 /**
  * @return the block's father
  */
-Block* Block::getPrevBlock(void)
+std::shared_ptr<Block> Block::getPrevBlock(void)
 {
 	return _prevBlock;
 }

@@ -68,15 +68,7 @@ int Chain::getMaxHeight(void)
 	return _maxHeight;
 }
 
-/**
- * @return iterator to the chain's tails
- */
-std::vector<Block*>::iterator Chain::getTails(void)
-{
-	return _tails.begin();
-}
-
-void Chain::pushBlock(Block *newTail)
+void Chain::pushBlock(std::shared_ptr<Block> newTail)
 {
 	// Add myself to tails list
 	_tails.push_back(newTail);
@@ -92,7 +84,7 @@ void Chain::pushBlock(Block *newTail)
 
 	// Delete my father from tails list
 	int fatherId = newTail->getPrevBlock()->getId();
-	for (std::vector<Block*>::iterator it = _tails.begin(); it != _tails.end(); ++it)
+	for (std::vector<std::shared_ptr<Block> >::iterator it = _tails.begin(); it != _tails.end(); ++it)
 	{
 		if ((*it)->getId() == fatherId)
 		{
@@ -102,7 +94,7 @@ void Chain::pushBlock(Block *newTail)
 	}
 }
 
-void Chain::deleteBlock(Block *toDelete)
+void Chain::deleteBlock(std::shared_ptr<Block> toDelete)
 {
 	(void)toDelete;
 	// TODO
@@ -188,7 +180,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 /**
  * @return random longest tip
  */
-Block *Chain::getRandomDeepest()
+std::shared_ptr<Block> Chain::getRandomDeepest()
 {
 	unsigned long index = rand() % _deepestTails.size();
 	return _deepestTails[index];
@@ -214,7 +206,7 @@ int Chain::initChain()
 	pthread_create(&daemonThread, NULL, Chain::staticDaemonRoutine, NULL);	// master thread created
 	
 	// Create genesis block and insert to chain
-	Block* genesisBlock = new Block(GENESIS_BLOCK_NUM, NULL, EMPTY, EMPTY, NULL); // TODO maybe height is determined from father later
+	std::shared_ptr<Block> genesisBlock(new Block(GENESIS_BLOCK_NUM, NULL, EMPTY, EMPTY, NULL)); // TODO maybe height is determined from father later
 	getInstance()->pushBlock(genesisBlock);
 
 	return SUCESS;
@@ -239,7 +231,7 @@ int Chain::addRequest(char *data, int length)
 
 	// Add new task for daemon
 	pthread_mutex_lock(&_pendingMutex);
-	_pending.push_back(new AddRequest(data, length, newId, Chain::getRandomDeepest()));
+	_pending.push_back(new AddRequest(data, length, newId, getRandomDeepest()));
 	pthread_mutex_unlock(&_pendingMutex);
 
 	// Signal daemon that it has more work
@@ -264,7 +256,7 @@ int Chain::toLongest(int blockNum)
 
 	if (_attached[blockNum] != NULL)
 	{
-		return STATUS_ATTACHED;
+		return ATTACHED;
 	}
 
 	for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
@@ -297,7 +289,7 @@ int Chain::attachNow(int blockNum)
 
 	if (_attached[blockNum] != NULL)
 	{
-		return STATUS_ATTACHED;
+		return ATTACHED;
 	}
 
 	for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
@@ -357,7 +349,7 @@ int Chain::pruneChain()
 	pthread_mutex_lock(&_attachedMutex);
 	pthread_mutex_lock(&_deepestTailsMutex);
 	pthread_mutex_lock(&_tailsMutex); //TODO: do i need to lock more stuff??
-	Block *deepestBlock = getRandomDeepest();
+	std::shared_ptr<Block> deepestBlock = getRandomDeepest();
 	// only in case we didn't reach the gensis block
 	// or we got to a part of a chain we pruned before - keep running
 	while (deepestBlock->getPrevBlock() != NULL || deepestBlock->getPruneFlag())
@@ -367,11 +359,11 @@ int Chain::pruneChain()
 		deepestBlock = deepestBlock->getPrevBlock();
 	}
 	// by now we marked everyone not to prune
-	Block* blockToPrune;
-	Block* tempBlock;
+	std::shared_ptr<Block>  blockToPrune;
+	std::shared_ptr<Block>  tempBlock;
 	int counter = 0;
 	//run on all tails
-	for (std::vector<Block*>::iterator it = _tails.begin(); it != _tails.end(); ++it)
+	for (std::vector<std::shared_ptr<Block> >::iterator it = _tails.begin(); it != _tails.end(); ++it)
 	{
 		blockToPrune = (*it);
 		//if we got a tail to delete earase from lists it were on

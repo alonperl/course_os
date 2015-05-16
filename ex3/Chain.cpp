@@ -138,20 +138,16 @@ int Chain::getLowestID()
 	// get size of list - chose the smaller of the two
 	if (_usedIDList.empty())
 	{
-		return _size;
+		return _pending.size()+_attached.size()+1;
 	}
 
 	_usedIDList.sort();
 	int smallestUsedId = _usedIDList.front(); //assuming usedID list is always sorted after adding an element there -if not change the .front())
 	
-	if (_size > smallestUsedId) 
-	{
-		pthread_mutex_lock(&_usedIDListMutex);
-		_usedIDList.remove(smallestUsedId); // erase from used list
-		pthread_mutex_unlock(&_usedIDListMutex);
-		return smallestUsedId;
-	}
-	return _size;
+	pthread_mutex_lock(&_usedIDListMutex);
+	_usedIDList.remove(smallestUsedId); // erase from used list
+	pthread_mutex_unlock(&_usedIDListMutex);
+	return smallestUsedId;
 }
 
 // TODO @eran - what is this?
@@ -197,12 +193,15 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		// Process new request TODO do we need to make this for all request or only for front?
 		// Create worker thread
 		AddRequest *newReq = _pending.front();
-		_pending.pop_front();
 		Worker *worker = new Worker(newReq);
 		_workers.push_back(worker);
 		// TODO unlock pending now?
 		pthread_mutex_unlock(&_pendingMutex);
 		worker->act();
+		
+		pthread_mutex_lock(&_pendingMutex);
+		_pending.pop_front();
+		pthread_mutex_unlock(&_pendingMutex);
 	}
 	// Unlock _pendingBlocks
 	pthread_mutex_unlock(&_pendingMutex);
@@ -381,7 +380,7 @@ int Chain::chainSize()
 {
 	// TODO _size is updated only on actual attachment (in pushBlock)
 	// TODO and this is good, but in test:69 busy_waiting for right size stucks
-	return (isInitiated() ? _size : FAIL);
+	return (isInitiated() ? _size-1 : FAIL);
 	// return (isInitiated() ? _attached.size()-1 : FAIL);
 }
 

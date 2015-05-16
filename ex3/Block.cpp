@@ -6,7 +6,7 @@ Block::Block(int id, char* hash, int hashLength, int height, Block* father)
 {
 	pthread_mutex_init(&blockMutex, NULL);
 
-	_pruneFlag = false;
+	_pruneFlag = true;
 	_blockId = id;
 	_height = height;
 	_hashLength = hashLength;

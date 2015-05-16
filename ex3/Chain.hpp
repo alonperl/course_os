@@ -2,7 +2,7 @@
 #define _CHAIN_H
 
 #include <vector>
-#include <unordered_map>
+#include <map>
 #include <deque>
 #include <list>
 #include "Block.hpp"
@@ -75,7 +75,7 @@ private:
 
 	std::deque<AddRequest*> _pending;
 	
-	std::unordered_map<unsigned int, Block*> _attached;
+	std::map<unsigned int, Block*> _attached;
 	std::vector<Block*> _tails;
 	std::vector<Block*> _deepestTails;
 	std::list<int> _usedIDList;
@@ -96,7 +96,7 @@ private:
 	 */
 	int getBlockStatus(int blockNum);
 
-	std::unordered_map<int, int> _status;
+	std::map<int, int> _status;
 };
 
 #endif

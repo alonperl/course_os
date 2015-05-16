@@ -246,7 +246,7 @@ int Chain::initChain()
 	getInstance()->_status[EMPTY] = ATTACHED;
 
 	// Update virtual size;
-	getInstance()->_size++;
+	getInstance()->_size;
 
 	return SUCESS;
 }
@@ -442,7 +442,7 @@ printChain();
 	}
 
 	//Delete from attached map - nad add id to list
-	for (std::unordered_map<unsigned int, Block* >::iterator it = _attached.begin(); it != _attached.end();)
+	for (std::map<unsigned int, Block* >::iterator it = _attached.begin(); it != _attached.end();)
 	{
 		blockToPrune = it->second;
 		if (blockToPrune->getPruneFlag())
@@ -531,7 +531,7 @@ int Chain::getBlockStatus(int blockNum)
 void Chain::printChain()
 {
 	std::cout << "SIZE " << _attached.size()-1 <<"\n";
-	std::unordered_map<unsigned int, Block*>::iterator it = _attached.begin();
+	std::map<unsigned int, Block*>::iterator it = _attached.begin();
 	int q = 0;
 	while (it != _attached.end())
 	{

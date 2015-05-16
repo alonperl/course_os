@@ -84,8 +84,8 @@ char* Worker::hash(const AddRequest *pRequest)
     do
     {
         int nonce = generate_nonce(req->blockNum, req->father->getId());
-        calculatedHash = generate_hash(req->data, (size_t)req->dataLength, nonce);
-
+        // calculatedHash = generate_hash(req->data, (size_t)req->dataLength, nonce);
+        calculatedHash = "a";
         // If the father was changed meanwhile, update it and recalculate the hash
         fatherId = req->father->getId();
     } while (originalFatherId != fatherId);

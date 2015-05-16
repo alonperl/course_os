@@ -224,6 +224,9 @@ int Chain::initChain()
 	getInstance()->pushBlock(genesisBlock);
 	getInstance()->_status[EMPTY] = ATTACHED;
 
+	// Update virtual size;
+	_size++;
+
 	return SUCESS;
 }
 

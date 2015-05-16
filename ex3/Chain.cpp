@@ -92,7 +92,7 @@ void Chain::pushBlock(Block* newTail)
 		for (std::vector<Block* >::iterator it = _deepestTails.begin(); 
 			 it != _deepestTails.end(); it++)
 		{
-			if (*it != NULL && (*it)->getHeight < height)
+			if (*it != NULL && (*it)->getHeight() < height)
 			{
 				_deepestTails.erase(it);
 			}

@@ -536,7 +536,9 @@ int Chain::returnOnClose()
 		return CLOSE_CHAIN_NOT_CALLED;
 	}
 
-	return pthread_join(_closingThread, NULL);
+	pthread_join(_closingThread, NULL);
+	std::cout<<"CLOSED\n";sleep(3);
+	return SUCESS;
 }
 
 

@@ -114,12 +114,12 @@ void Chain::pushBlock(Block* newTail)
 	pthread_mutex_unlock(&_tailsMutex);
 	pthread_mutex_unlock(&_deepestTailsMutex);
 
-	// Update status
-	_status[newTail->getId()] = 1;
-
 	pthread_mutex_lock(&_attachedMutex);
 	_attached[newTail->getId()] = newTail;
 	pthread_mutex_unlock(&_attachedMutex);
+
+	// Update status
+	_status[newTail->getId()] = ATTACHED;
 }
 
 void Chain::deleteBlock(Block* toDelete)
@@ -511,10 +511,10 @@ int Chain::returnOnClose()
  */
 int Chain::getBlockStatus(int blockNum)
 {
-	if (blockNum > getInstance()->getLowestID() || blockNum < 0)
-	{
-		return FAIL;
-	}
+	// if (blockNum > || blockNum < 0)
+	// {
+		// return FAIL;
+	// }
 
 	if (_status.find(blockNum) == _status.end())
 	{

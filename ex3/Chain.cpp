@@ -206,8 +206,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
  */
 Block* Chain::getRandomDeepest()
 {
-	std::cout<<_deepestTails.size()<<"\n";
-	unsigned long index = rand() % _deepestTails.size();
+	unsigned long index = (unsigned long)rand() % _deepestTails.size();
 	return _deepestTails[index];
 }
 

@@ -206,6 +206,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
  */
 Block* Chain::getRandomDeepest()
 {
+	std::cout<<_deepestTails.size()<<"\n";
 	unsigned long index = rand() % _deepestTails.size();
 	return _deepestTails[index];
 }
@@ -260,7 +261,7 @@ int Chain::addRequest(char *data, int length)
 	// Add new task for daemon
 	pthread_mutex_lock(&_pendingMutex);
 	_pending.push_back(new AddRequest(data, length, newId, getRandomDeepest()));
-	
+
 	// Virtual Size update
 	_size++;
 	pthread_mutex_unlock(&_pendingMutex);

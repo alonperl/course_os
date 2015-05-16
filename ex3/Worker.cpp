@@ -15,7 +15,7 @@ Worker::Worker(AddRequest *pRequest)
 Worker::~Worker()
 {
     delete req;
-    free(blockHash);
+    // free(blockHash);
 }
 
 /**

@@ -84,6 +84,8 @@ void Chain::pushBlock(Block* newTail)
 		_deepestTails.push_back(newTail);
 	}
 
+	_attached[newTail->getId()] = newTail;
+
 	// Update status
 	_status[newTail->getId()] = 1;
 

@@ -88,7 +88,6 @@ private:
 
 	bool _daemonWorkFlag;
 	bool _isClosing;
-	bool _isClosed;
 
 	/**
 	 * @return block status, or -1 in case of illegal input

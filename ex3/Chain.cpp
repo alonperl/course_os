@@ -25,7 +25,6 @@ Chain::Chain()
 
 	pthread_cond_init(&_pendingCV, NULL);
 
-	_isClosed = false;
 	_maxHeight = EMPTY;
 	_expected_size = EMPTY;
 
@@ -505,7 +504,6 @@ void *Chain::closeChainLogic(void *pChain)
 	
 	delete chain;
 
-	_isClosed = true;
 	s_initiated = false;
 	s_instance = NULL;
 	// TODO check how to properly destroy

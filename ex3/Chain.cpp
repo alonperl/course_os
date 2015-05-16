@@ -201,8 +201,6 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		_pending.pop_front();
 		pthread_mutex_unlock(&_pendingMutex);
 		worker->act();
-		
-		// printChain();
 	}
 	// Unlock _pendingBlocks
 	pthread_mutex_unlock(&_pendingMutex);
@@ -215,7 +213,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
  */
 Block* Chain::getRandomDeepest()
 {
-	while(!_deepestTails.size());
+	printDeepest();
 	pthread_mutex_lock(&_deepestTailsMutex);
 	long index = rand() % _deepestTails.size();
 	pthread_mutex_unlock(&_deepestTailsMutex);
@@ -455,7 +453,6 @@ int Chain::pruneChain()
 	pthread_mutex_unlock(&_deepestTailsMutex);
 	pthread_mutex_unlock(&_tailsMutex);
 	pthread_mutex_unlock(&_attachedMutex);
-	printChain();
 	return SUCESS;
 }
 
@@ -543,6 +540,35 @@ void Chain::printChain()
 			if (it->second->getPrevBlock() != NULL)
 			{
 				std::cout << ", F" << it->second->getPrevBlock()->getId() << "\n";
+			}
+			else
+			{
+				std::cout << ", GENESIS\n";			
+			}
+		}
+		it++;
+	}
+}
+
+void Chain::printDeepest()
+{
+	std::cout << "DEEPEST SIZE " << _deepestTails.size()-1 <<"\n";
+	std::vector<Block*>::iterator it = _deepestTails.begin();
+	int q = 0;
+	while (it != _deepestTails.end())
+	{
+		if (*it != NULL)
+		{
+			q = (*it)->getHeight();
+			while(q--)
+			{
+				std::cout << " ";
+			}
+			std::cout << (*it)->getId();
+			std::cout << ": H" << (*it)->getHeight() << ", P" << (*it)->getPruneFlag();
+			if ((*it)->getPrevBlock() != NULL)
+			{
+				std::cout << ", F" << (*it)->getPrevBlock()->getId() << "\n";
 			}
 			else
 			{

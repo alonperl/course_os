@@ -291,7 +291,7 @@ int Chain::toLongest(int blockNum)
 
 	for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
 	{
-		if ((*it)->blockNum == blockNum) {
+		if ((*it)->req->blockNum == blockNum) {
 			(*it)->_toLongestFlag = true;
 			// return STATUS_WORKING
 			return SUCESS;
@@ -335,7 +335,7 @@ int Chain::attachNow(int blockNum)
 
 	for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
 	{
-		if ((*it)->blockNum == blockNum) {
+		if ((*it)->req->blockNum == blockNum) {
 			// return STATUS_WORKING
 			return SUCESS;
 		}

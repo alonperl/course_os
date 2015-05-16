@@ -16,7 +16,6 @@ Worker::~Worker()
 {
     delete req;
     free(blockHash);
-    blockFather = NULL;
 }
 
 /**
@@ -27,7 +26,7 @@ Worker::~Worker()
 void Worker::act()
 {
     std::cout << "\n" << req->blockNum << ": WORKER STARTED\n";
-    Block* cachedFather = req->blockFather;
+    Block* cachedFather = req->father;
     // Save if current father is longest or not
     bool cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();
     bool rehash = false;
@@ -54,7 +53,7 @@ void Worker::act()
     pthread_mutex_lock(&_toLongestFlagMutex);
     // Create block
     Block* newBlock(new Block(req->blockNum, blockHash, HASH_LENGTH,
-                               req->blockFather->getHeight()+1, req->blockFather));
+                               req->father->getHeight()+1, req->father));
 
     // Attach block to chain
     Chain::getInstance()->pushBlock(newBlock);

@@ -502,13 +502,13 @@ void *Chain::closeChainLogic(void *pChain)
 
 	pthread_mutex_unlock(&(chain->_pendingMutex));
 	
-	delete chain;
-
 	s_initiated = false;
 	s_instance = NULL;
 	// TODO check how to properly destroy
 	// s_daemonThread = NULL;
 	pthread_join(s_daemonThread, NULL);
+
+	delete chain;
 
 	return NULL;
 }

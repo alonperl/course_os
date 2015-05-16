@@ -135,6 +135,7 @@ int Chain::getLowestID()
 		return _size;
 	}
 
+	_usedIDList.sort();
 	int smallestUsedId = _usedIDList.front(); //assuming usedID list is always sorted after adding an element there -if not change the .front())
 	
 	if (_size > smallestUsedId) 

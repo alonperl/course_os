@@ -471,6 +471,7 @@ int Chain::pruneChain()
 
 void *Chain::closeChainLogic(void *pChain)
 {
+	sleep(2);
 	Chain* chain = (Chain*)pChain;
 	pthread_mutex_lock(&(chain->_pendingMutex));
 	std::deque<AddRequest*>::iterator it = chain->_pending.begin();
@@ -536,7 +537,7 @@ int Chain::returnOnClose()
 		return CLOSE_CHAIN_NOT_CALLED;
 	}
 
-	// pthread_join(_closingThread, NULL);
+	pthread_join(_closingThread, NULL);
 	sleep(3);
 	std::cout<<"CLOSED\n";
 	sleep(3);

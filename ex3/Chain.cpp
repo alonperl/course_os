@@ -491,9 +491,12 @@ void *Chain::closeChainLogic(void *pChain)
 	//Delete from attached map - and destroy blocks
 	for (auto it = chain->_attached.begin(); it != chain->_attached.end(); ++it)
 	{
-		temp = *it;
+		temp = it->second;
 		chain->_tails.erase(it);
-		delete temp; // Destory the block
+		if (temp != NULL)
+		{
+			delete temp; // Destory the block
+		}
 	}
 	chain->_usedIDList.clear();
 	chain->_workers.clear();

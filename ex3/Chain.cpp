@@ -120,6 +120,9 @@ void Chain::pushBlock(Block* newTail)
 
 	// Update status
 	_status[newTail->getId()] = ATTACHED;
+
+	// Virtual Size update
+	_size++;
 }
 
 void Chain::deleteBlock(Block* toDelete)
@@ -268,8 +271,6 @@ int Chain::addRequest(char *data, int length)
 	pthread_mutex_lock(&_pendingMutex);
 	_pending.push_back(new AddRequest(data, length, newId, getRandomDeepest()));
 
-	// Virtual Size update
-	_size++;
 	pthread_mutex_unlock(&_pendingMutex);
 
 	// Signal daemon that it has more work

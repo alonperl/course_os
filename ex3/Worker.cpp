@@ -40,9 +40,11 @@ void Worker::act()
         // TODO maybe not unique but ==2 (cachedFather and blockFather)
         if ((_toLongestFlag && !cachedLongest) || cachedFather == NULL)
         {
+            std::cout << "TLF: " << _toLongestFlag << ", CachedLongest: " << cachedLongest << "\n";
             rehash = true;
             cachedFather = Chain::getInstance()->getRandomDeepest();
             cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();
+            std::cout << "Rehash? " << rehash "\n";
         }
     } while (rehash);
 

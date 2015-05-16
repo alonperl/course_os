@@ -28,6 +28,7 @@ Chain::Chain()
 	_isClosed = false;
 	_maxHeight = EMPTY;
 	_size = EMPTY;
+	_expected_size = EMPTY;
 
 	s_initiated = true;
 }
@@ -141,7 +142,7 @@ int Chain::getLowestID()
 	// get size of list - chose the smaller of the two
 	if (_usedIDList.empty())
 	{
-		return _size+1;
+		return _expected_size+1;
 	}
 
 	_usedIDList.sort();
@@ -276,6 +277,8 @@ int Chain::addRequest(char *data, int length)
 	// Signal daemon that it has more work
 	pthread_cond_signal(&_pendingCV);
 
+	// Update expected size
+	_expected_size++;
 	return newId;
 }
 

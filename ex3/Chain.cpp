@@ -9,7 +9,7 @@
 #define NOT_FOUND -2
 
 // Define static members
-bool Chain::s_initiated = false;^
+bool Chain::s_initiated = false;
 Chain *Chain::s_instance = NULL;
 pthread_t Chain::daemonThread;
 
@@ -363,35 +363,6 @@ int Chain::chainSize()
 	return isInitiated() ? Chain::chainSize() : FAIL;
 }
 
-
-void Chain::deleteFromDeepestTails(Block *toDelete)
-{
-	// find where the block is in the vector
-	Block *tempBlock = *_deepestTails.begin();
-	int counter = 0;
-	while (toDelete != tempBlock)
-	{
-		counter++;
-		tempBlock = *(_deepestTails.begin() + counter);
-	}
-	_deepestTails.erase(_deepestTails.begin() + counter);
-	tempBlock = NULL;
-}
-
-void Chain::deleteFromTails(Block *toDelete)
-{
-
-	Block *tempBlock = *_tails.begin();
-	int counter = 0;
-	while (toDelete != tempBlock)
-	{
-		counter++;
-		tempBlock = *(_tails.begin()+counter);
-	}
-	_tails.erase(_tails.begin()+counter);
-}
-
-
 int Chain::pruneChain()
 {
 	if (!isInitiated() || _isClosing)
@@ -402,7 +373,11 @@ int Chain::pruneChain()
 	pthread_mutex_lock(&_attachedMutex);
 	pthread_mutex_lock(&_deepestTailsMutex);
 	pthread_mutex_lock(&_tailsMutex); //TODO: do i need to lock more stuff??
+
+	// Find random deepest and go from him to the top and mark
+	// not to prune the longest path
 	Block *deepestBlock = getRandomDeepest();
+
 	// only in case we didn't reach the gensis block
 	// or we got to a part of a chain we pruned before - keep running
 	while (deepestBlock->getPrevBlock() != NULL || deepestBlock->getPruneFlag())
@@ -413,36 +388,47 @@ int Chain::pruneChain()
 	}
 	// by now we marked everyone not to prune
 	Block* blockToPrune;
-	Block* tempBlock;
 	int counter = 0;
-	//run on all tails
+
+	//TODO MEGA - is vector rearranging after erase??
+
+	//Delete from tails vector
 	for (std::vector<Block*>::iterator it = _tails.begin(); it != _tails.end(); ++it)
 	{
-		blockToPrune = (*it);
-		//if we got a tail to delete earase from lists it were on
+		blockToPrune = *it;
 		if (blockToPrune->getPruneFlag())
 		{
-			// in case was one of the deepests
-			if (toDelete->getHeight() == _maxHeight)
-			{
-				deleteFromDeepestTails(blockToPrune);
-			}
-			deleteFromTails(blockToPrune);
+			_tails.erase(_tails.begin() + counter);
 		}
-
-		// run through tree and delete all the sub branch
-		while (blockToPrune->getPruneFlag())
-		{
-			tempBlock = blockToPrune->getPrevBlock();
-			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
-			//~Block(*blockToPrune); //TODO: destory the block
-			blockToPrune = tempBlock;
-		}
-
+		counter++;
 	}
-	blockToPrune = NULL;
-	tempBlock = NULL;
 
+	//Delete from deepest tails vector
+	counter = 0;
+	for (std::vector<Block*>::iterator it = _deepestTails.begin(); it != _tails.end(); ++it)
+	{
+		blockToPrune = *it;
+		if (blockToPrune->getPruneFlag())
+		{
+			_tails.erase(_tails.begin() + counter);
+		}
+		counter++;
+	}
+
+	//Delete from attached map - nad add id to list
+	for (auto it = _attached.begin(); it != _attached.end(); ++it)
+	{
+		blockToPrune = *it;
+		if (blockToPrune->getPruneFlag())
+		{
+			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
+			_tails.erase(_tails.begin() + counter);
+		}
+		~Block(blockToPrune); //TODO: destory the block
+		counter++;
+	}
+
+	blockToPrune = NULL;
 	pthread_mutex_unlock(&_tailsMutex);
 	pthread_mutex_unlock(&_deepestTailsMutex);
 	pthread_mutex_unlock(&_attachedMutex);
@@ -451,17 +437,39 @@ int Chain::pruneChain()
 
 void *Chain::closeChainLogic(void *ptr)
 {
-	(void)ptr;
+	(void)ptr; //Suppress warnings.
 	pthread_mutex_lock(&(Chain::getInstance()->_pendingMutex));
 	std::deque<AddRequest*>::iterator it = Chain::getInstance()->_pending.begin();
+	// print out what's in pending list - and delete 'em
 	while (it != Chain::getInstance()->_pending.end())
 	{
 		//TODO - should First hash the data - and than print it
-		std::cout << (*it)->data;
-
+		std::cout << (*it)->data; //TODO: probebly should print /n enter
+		_pending.erase(it);
 		*it++;
-
 	}
+	// _pending.clear(); TODO maybe add to be sure
+
+	Block *blockToDelete;
+	//Delete everything on tails and deepest vectors
+
+	//Delete from tails vector
+	_tails.clear();
+	//Delete from deepest tails vector
+	_deepestTails.clear();
+	//Delete from attached map - and destroy blocks
+	for (auto it = _attached.begin(); it != _attached.end(); ++it)
+	{
+		blockToDelete = *it;
+		_tails.erase(_tails.begin() + counter);
+		~Block(blockToPrune); //TODO: destory the block
+		counter++;
+	}
+	_usedIDList.clear();
+	_workers.clear();
+	~Chain();
+
+
 	pthread_mutex_unlock(&(Chain::getInstance()->_pendingMutex));
 	return NULL;
 }

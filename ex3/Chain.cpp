@@ -283,6 +283,7 @@ int Chain::addRequest(char *data, int length)
  */
 int Chain::toLongest(int blockNum)
 {
+	std::cout << "ID " << blockNum;
 	if (!isInitiated() || _isClosing)
 	{
 		return FAIL;
@@ -295,7 +296,6 @@ int Chain::toLongest(int blockNum)
 
 	for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
 	{
-		// std::cout << it << "\n";
 		std::cout << "Checking pending...\n";
 		std::cout << *it << "\n";
 		if ((*it)->blockNum == blockNum) {

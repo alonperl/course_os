@@ -531,13 +531,13 @@ void Chain::printChain()
 	int q = 0;
 	while (it != _attached.end())
 	{
-		q = it->second->getHeight();
-		while(q--)
-		{
-			std::cout << " ";
-		}
 		if (it->second != NULL)
 		{
+			q = it->second->getHeight();
+			while(q--)
+			{
+				std::cout << " ";
+			}
 			std::cout << it->first;
 			std::cout << ": H" << it->second->getHeight() << ", P" << it->second->getPruneFlag();
 			if (it->second->getPrevBlock() != NULL)

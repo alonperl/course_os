@@ -248,7 +248,7 @@ int Chain::addRequest(char *data, int length)
 	pthread_mutex_unlock(&_pendingMutex);
 
 	// Signal daemon that it has more work
-	// pthread_cond_signal(&_pendingCV);
+	pthread_cond_signal(&_pendingCV);
 
 	return newId;
 }

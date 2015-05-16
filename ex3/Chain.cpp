@@ -174,9 +174,9 @@ void *Chain::daemonRoutine(void *chain_ptr)
 	while (!_isClosed)
 	{
 		// Wait for "hey! someone pending" signal
-		std::cout << "DAEMON WAITING\n";
+		std::cout << "\nDAEMON WAITING\n";
 		pthread_cond_wait(&_pendingCV, &_pendingMutex);
-		std::cout << "DAEMON WAKEUP\n";
+		std::cout << "\nDAEMON WAKEUP\n";
 
 		// Process new request TODO do we need to make this for all request or only for front?
 		// Create worker thread
@@ -186,7 +186,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		_workers.push_back(worker);
 		// TODO unlock pending now?
 		worker->act();
-		std::cout << "DAEMON CAN SLEEP\n";
+		std::cout << "\nDAEMON CAN SLEEP\n";
 	}
 	// Unlock _pendingBlocks
 	pthread_mutex_unlock(&_pendingMutex);
@@ -259,6 +259,7 @@ int Chain::addRequest(char *data, int length)
 	pthread_mutex_unlock(&_pendingMutex);
 
 	// Signal daemon that it has more work
+	std::cout << "\nSEND SIGNAL ABOUT " << newId << " TO DAEMON\n";
 	pthread_cond_signal(&_pendingCV);
 
 	return newId;

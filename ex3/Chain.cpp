@@ -82,14 +82,18 @@ void Chain::pushBlock(std::shared_ptr<Block> newTail)
 		_maxHeight++;
 	}
 
-	// Delete my father from tails list
-	int fatherId = newTail->getPrevBlock()->getId();
-	for (std::vector<std::shared_ptr<Block> >::iterator it = _tails.begin(); it != _tails.end(); ++it)
+	// If I am not Genesis, I have a father leaf, that is no more a leaf
+	if (newTail->getId() != 0)
 	{
-		if ((*it)->getId() == fatherId)
+		// Delete my father from tails list
+		int fatherId = newTail->getPrevBlock()->getId();
+		for (std::vector<std::shared_ptr<Block> >::iterator it = _tails.begin(); it != _tails.end(); ++it)
 		{
-			_tails.erase(it);
-			break;
+			if ((*it)->getId() == fatherId)
+			{
+				_tails.erase(it);
+				break;
+			}
 		}
 	}
 }

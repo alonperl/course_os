@@ -111,8 +111,3 @@ int return_on_close()
 	Chain* c = Chain::getInstance();
 	return c->returnOnClose();
 }
-
-void printChain()
-{
-	Chain::printChain();
-}

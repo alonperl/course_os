@@ -73,7 +73,7 @@ int main() {
 	}
 
 	cout << "Expected chain size: " << OUT_ITER*IN_ITER << ". actual: " << chain_size() << endl;
-	printChain(); prune_chain();
+	prune_chain();
 
 	cout << "Phase 2:\n" << endl;
 

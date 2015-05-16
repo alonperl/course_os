@@ -50,7 +50,7 @@ void Worker::act()
         {
             rehash = false;
         }
-        std::cout << "Rehash? " << rehash  << "\n";
+        std::cout << "ID: " << blockNum << " Rehash? " << rehash  << "\n";
     } while (rehash);
 
     // TODO lock more

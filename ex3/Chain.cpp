@@ -411,7 +411,7 @@ printChain();
 	}
 
 	//Delete from deepest tails vector
-	for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _tails.end();)
+	for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _deepestTails.end();)
 	{
 		blockToPrune = *it;
 		std::cout<< blockToPrune << " " << blockToPrune->getId() << " " << blockToPrune->getPruneFlag()<<"\n";

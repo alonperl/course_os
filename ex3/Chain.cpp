@@ -174,7 +174,10 @@ void *Chain::daemonRoutine(void *chain_ptr)
 	while (!_isClosed)
 	{
 		// Wait for "hey! someone pending" signal
-		pthread_cond_wait(&_pendingCV, &_pendingMutex);
+		if (_pending.empty())
+		{
+			pthread_cond_wait(&_pendingCV, &_pendingMutex);
+		}
 
 		// Process new request TODO do we need to make this for all request or only for front?
 		// Create worker thread

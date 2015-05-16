@@ -205,6 +205,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		pthread_mutex_lock(&_pendingMutex);
 		_pending.pop_front();
 		pthread_mutex_unlock(&_pendingMutex);
+		printChain();
 	}
 	// Unlock _pendingBlocks
 	pthread_mutex_unlock(&_pendingMutex);
@@ -535,7 +536,6 @@ void Chain::printChain()
 	int q = 0;
 	while (it != _attached.end())
 	{
-		std::cout << it->first << ":: ";sleep(0.1);
 		q = it->second->getHeight();
 		while(q--)
 		{

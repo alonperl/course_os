@@ -497,7 +497,7 @@ void *Chain::closeChainLogic(void *pChain)
 			delete temp; // Destory the block
 		}
 	}
-	chain->attached.clear();
+	chain->_attached.clear();
 	chain->_usedIDList.clear();
 	chain->_workers.clear();
 

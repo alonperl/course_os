@@ -409,11 +409,10 @@ int Chain::pruneChain()
 			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
 			_tails.erase(_tails.begin() + counter);
 		}
-		delete blockToPrune.get(); //TODO: destory the block
+		delete blockToPrune; //TODO: destory the block
 		counter++;
 	}
 
-	blockToPrune.reset();
 	pthread_mutex_unlock(&_tailsMutex);
 	pthread_mutex_unlock(&_deepestTailsMutex);
 	pthread_mutex_unlock(&_attachedMutex);

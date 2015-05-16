@@ -28,7 +28,7 @@ void Worker::act()
 {
     Block* cachedFather(blockFather);
     // Save if current father is longest or not
-    bool cachedLongest = cachedFather.get()->getHeight() == Chain::getInstance()->getMaxHeight();
+    bool cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();
     bool rehash = false;
 
     do
@@ -39,12 +39,12 @@ void Worker::act()
          * or all other shared_ptrs to father's block were reset
          * this means we need to find new father and rehash. */
         // TODO maybe not unique but ==2 (cachedFather and blockFather)
-        if ((_toLongestFlag && !cachedLongest) || cachedFather.unique())
+        if ((_toLongestFlag && !cachedLongest) || cachedFather == NULL)
         {
             rehash = true;
             cachedFather = Chain::getInstance()->getRandomDeepest();
             blockFather = cachedFather;
-            cachedLongest = cachedFather.get()->getHeight() == Chain::getInstance()->getMaxHeight();
+            cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();
         }
     } while (rehash);
 

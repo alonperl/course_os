@@ -511,6 +511,8 @@ void *Chain::closeChainLogic(void *pChain)
 	s_instance = NULL;
 	// TODO check how to properly destroy
 	// s_daemonThread = NULL;
+	
+	pthread_cond_signal(&_pendingCV);
 	pthread_join(s_daemonThread, NULL);
 
 	delete chain;

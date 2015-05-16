@@ -8,7 +8,6 @@ Worker::Worker(AddRequest *pRequest)
 {
     pthread_mutex_init(&_toLongestFlagMutex, NULL);
     _toLongestFlag = false;
-    blockFather = pRequest->father;
 //    finished = NOT_FINISHED;
     req = pRequest;
 }
@@ -27,8 +26,8 @@ Worker::~Worker()
  */
 void Worker::act()
 {
-    std::cout << "\n" << blockNum << ": WORKER STARTED\n";
-    Block* cachedFather(blockFather);
+    std::cout << "\n" << req->blockNum << ": WORKER STARTED\n";
+    Block* cachedFather = req->blockFather;
     // Save if current father is longest or not
     bool cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();
     bool rehash = false;
@@ -54,12 +53,12 @@ void Worker::act()
     // _toLongestFlag was false till now, so from now on toLongest(this) will not act on this block
     pthread_mutex_lock(&_toLongestFlagMutex);
     // Create block
-    Block* newBlock(new Block(blockNum, blockHash, HASH_LENGTH,
-                               blockFather->getHeight()+1, blockFather));
+    Block* newBlock(new Block(req->blockNum, blockHash, HASH_LENGTH,
+                               req->blockFather->getHeight()+1, req->blockFather));
 
     // Attach block to chain
     Chain::getInstance()->pushBlock(newBlock);
-    std::cout << "\n" << blockNum << ": WORKER FINISHED\n";
+    std::cout << "\n" << req->blockNum << ": WORKER FINISHED\n";
     pthread_mutex_unlock(&_toLongestFlagMutex);
 
     // Self-destroy

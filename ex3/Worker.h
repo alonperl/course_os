@@ -19,9 +19,7 @@ public:
 //    int finished;
 
     const AddRequest* req;
-    int blockNum;
     char* blockHash;
-    Block* blockFather;
     bool _toLongestFlag;
 private:
 //    pthread_t _worker;

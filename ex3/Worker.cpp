@@ -57,7 +57,7 @@ void Worker::act()
 
     // Attach block to chain
     Chain::getInstance()->pushBlock(newBlock);
-    getInstance()->_status[blockNum] = ATTACHED;
+    Chain::getInstance()->_status[blockNum] = ATTACHED;
     pthread_mutex_unlock(&_toLongestFlagMutex);
 
     // Self-destroy

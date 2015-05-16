@@ -85,5 +85,8 @@ void close_chain();
 
 int return_on_close();
 
-
+void printChain()
+{
+	Chain::printChain();
+}
 #endif

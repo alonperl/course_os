@@ -215,6 +215,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
  */
 Block* Chain::getRandomDeepest()
 {
+	while(!_deepestTails.size());
 	pthread_mutex_lock(&_deepestTailsMutex);
 	long index = rand() % _deepestTails.size();
 	pthread_mutex_unlock(&_deepestTailsMutex);
@@ -382,6 +383,7 @@ int Chain::chainSize()
 
 int Chain::pruneChain()
 {
+	// TODO prune is non-blocking! but we block...?
 	if (!isInitiated() || _isClosing)
 	{
 		return FAIL;

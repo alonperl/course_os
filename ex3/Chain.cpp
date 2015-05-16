@@ -70,17 +70,21 @@ int Chain::getMaxHeight(void)
 
 void Chain::pushBlock(std::shared_ptr<Block> newTail)
 {
-	// Add myself to tails list
-	_tails.push_back(newTail);
-
-	// Size increment
-	_size++;
-	
-	// in case the new block is of bigger height update height
+	// In case the new block is of bigger height update height
 	if (Chain::getMaxHeight() < newTail->getHeight())
 	{
 		_maxHeight++;
 	}
+
+	// Add myself to tails list
+	_tails.push_back(newTail);
+	if (newTail->getHeight() == _maxHeight)
+	{
+		_deepestTails.push_back(newTail);
+	}
+
+	// Size increment
+	_size++;
 
 	// If I am not Genesis, I have a father leaf, that is no more a leaf
 	if (newTail->getId() != 0)

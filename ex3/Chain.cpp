@@ -202,7 +202,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		pthread_mutex_unlock(&_pendingMutex);
 		worker->act();
 		
-		printChain();
+		// printChain();
 	}
 	// Unlock _pendingBlocks
 	pthread_mutex_unlock(&_pendingMutex);
@@ -410,7 +410,7 @@ pthread_mutex_lock(&_deepestTailsMutex);
 	Block* blockToPrune;
 
 	//TODO MEGA - is vector rearranging after erase??
-printChain();
+// printChain();
 	//Delete from tails vector
 	for (std::vector<Block* >::iterator it = _tails.begin(); it != _tails.end();)
 	{
@@ -454,7 +454,7 @@ printChain();
 			++it;
 		}
 	}
-printChain();
+// printChain();
 	pthread_mutex_unlock(&_tailsMutex);
 	pthread_mutex_unlock(&_deepestTailsMutex);
 	pthread_mutex_unlock(&_attachedMutex);
@@ -533,7 +533,6 @@ void Chain::printChain()
 	int q = 0;
 	while (it != _attached.end())
 	{
-		while(it->first == NULL || it->second == NULL);
 		q = it->second->getHeight();
 		while(q--)
 		{

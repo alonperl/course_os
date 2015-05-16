@@ -76,17 +76,28 @@ void Chain::pushBlock(Block* newTail)
 	pthread_mutex_lock(&_deepestTailsMutex);
 	pthread_mutex_lock(&_attachedMutex);
 	
+	int height = newTail->getHeight();
+
 	// In case the new block is of bigger height update height
-	if (Chain::getMaxHeight() < newTail->getHeight())
+	if (Chain::getMaxHeight() < height)
 	{
 		_maxHeight++;
 	}
 
 	// Add myself to tails list
 	_tails.push_back(newTail);
-	if (newTail->getHeight() == _maxHeight)
+	if (height == _maxHeight)
 	{
 		_deepestTails.push_back(newTail);
+		for (std::vector<Block* >::iterator it = _deepestTails.begin(); 
+			 it != _deepestTails.end(); it++)
+		{
+			if (*it != NULL && (*it)->getHeight < height)
+			{
+				_deepestTails.erase(it);
+			}
+		}
+
 
 	}
 
@@ -552,7 +563,7 @@ void Chain::printChain()
 
 void Chain::printDeepest()
 {
-	std::cout << "DEEPEST SIZE " << _deepestTails.size()-1 <<"\n";
+	std::cout << "DEEPEST SIZE " << _deepestTails.size() <<"\n";
 	std::vector<Block*>::iterator it = _deepestTails.begin();
 	int q = 0;
 	while (it != _deepestTails.end())

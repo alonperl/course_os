@@ -535,7 +535,7 @@ void Chain::printChain()
 	int q = 0;
 	while (it != _attached.end())
 	{
-		std::cout << it->first << ":: ";
+		std::cout << it->first << ":: ";sleep(1);
 		q = it->second->getHeight();
 		while(q--)
 		{

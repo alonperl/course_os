@@ -8,6 +8,7 @@
 #define PENDING 0
 #define ATTACHED 1
 #define PROCESSING 2
+#define CLOSE_CHAIN_NOT_CALLED -2
 
 // Define static members
 bool Chain::s_initiated = false;
@@ -360,7 +361,7 @@ int Chain::pruneChain()
 
 	// Find random deepest and go from him to the top and mark
 	// not to prune the longest path
-	Block *deepestBlock = getRandomDeepest();
+	std::shared_ptr<Block> deepestBlock = getRandomDeepest();
 
 	// only in case we didn't reach the gensis block
 	// or we got to a part of a chain we pruned before - keep running
@@ -371,13 +372,13 @@ int Chain::pruneChain()
 		deepestBlock = deepestBlock->getPrevBlock();
 	}
 	// by now we marked everyone not to prune
-	Block* blockToPrune;
+	std::shared_ptr<Block> blockToPrune;
 	int counter = 0;
 
 	//TODO MEGA - is vector rearranging after erase??
 
 	//Delete from tails vector
-	for (std::vector<Block*>::iterator it = _tails.begin(); it != _tails.end(); ++it)
+	for (std::vector<std::shared_ptr<Block> >::iterator it = _tails.begin(); it != _tails.end(); ++it)
 	{
 		blockToPrune = *it;
 		if (blockToPrune->getPruneFlag())
@@ -389,7 +390,7 @@ int Chain::pruneChain()
 
 	//Delete from deepest tails vector
 	counter = 0;
-	for (std::vector<Block*>::iterator it = _deepestTails.begin(); it != _tails.end(); ++it)
+	for (std::vector<std::shared_ptr<Block> >::iterator it = _deepestTails.begin(); it != _tails.end(); ++it)
 	{
 		blockToPrune = *it;
 		if (blockToPrune->getPruneFlag())
@@ -400,19 +401,19 @@ int Chain::pruneChain()
 	}
 
 	//Delete from attached map - nad add id to list
-	for (auto it = _attached.begin(); it != _attached.end(); ++it)
+	for (std::unordered_map<unsigned int, std::shared_ptr<Block> >::iterator it = _attached.begin(); it != _attached.end(); ++it)
 	{
-		blockToPrune = *it;
+		blockToPrune = it->second;
 		if (blockToPrune->getPruneFlag())
 		{
 			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
 			_tails.erase(_tails.begin() + counter);
 		}
-		~Block(blockToPrune); //TODO: destory the block
+		delete blockToPrune.get(); //TODO: destory the block
 		counter++;
 	}
 
-	blockToPrune = NULL;
+	blockToPrune.reset();
 	pthread_mutex_unlock(&_tailsMutex);
 	pthread_mutex_unlock(&_deepestTailsMutex);
 	pthread_mutex_unlock(&_attachedMutex);
@@ -441,7 +442,7 @@ void Chain::closeChain()
 	pthread_t closingThread;
 	pthread_create(&closingThread, NULL, Chain::closeChainLogic, this);
 	pthread_join(closingThread, NULL);
-	pthread_cond_signal(&_finishedClosing);
+	pthread_cond_signal(&_finishedClosingCV);
 }
 
 int Chain::returnOnClose()
@@ -453,9 +454,9 @@ int Chain::returnOnClose()
 
 	if( _isClosing != true)
 	{
-		return CLOSE_CHAIN_WASNT_CALLED;
+		return CLOSE_CHAIN_NOT_CALLED;
 	}
-	pthread_cond_wait(&_finishedClosing, &_pendingMutex);
+	pthread_cond_wait(&_finishedClosingCV, &_pendingMutex);
 
 	return SUCESS;
 }

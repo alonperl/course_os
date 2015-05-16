@@ -68,6 +68,8 @@ private:
 	pthread_mutex_t _pendingMutex;
 
 	pthread_cond_t _pendingCV;
+	pthread_cond_t _finishedClosingCV;
+
 
 	int _maxHeight;
 	int _size;

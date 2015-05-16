@@ -14,7 +14,7 @@
 // Define static members
 bool Chain::s_initiated = false;
 Chain *Chain::s_instance = NULL;
-pthread_t Chain::daemonThread;
+pthread_t Chain::_daemonThread;
 
 Chain::Chain()
 {	
@@ -247,7 +247,7 @@ int Chain::initChain()
 
 	init_hash_generator();
 
-	pthread_create(&daemonThread, NULL, Chain::staticDaemonRoutine, NULL);	// master thread created
+	pthread_create(&_daemonThread, NULL, Chain::staticDaemonRoutine, NULL);	// master thread created
 	
 	// Create genesis block and insert to chain
 	Block* genesisBlock(new Block(GENESIS_BLOCK_NUM, NULL, EMPTY, EMPTY, NULL)); // TODO maybe height is determined from father later
@@ -468,15 +468,39 @@ int Chain::pruneChain()
 
 void *Chain::closeChainLogic(void *ptr)
 {
-	(void)ptr;
+	(void)ptr; //Suppress warnings.
 	pthread_mutex_lock(&(Chain::getInstance()->_pendingMutex));
 	std::deque<AddRequest*>::iterator it = Chain::getInstance()->_pending.begin();
+	// print out what's in pending list - and delete 'em
 	while (it != Chain::getInstance()->_pending.end())
 	{
 		//TODO - should First hash the data - and than print it
-		std::cout << (*it)->data;
+		std::cout << (*it)->data; //TODO: probebly should print /n enter
+		_pending.erase(it);
 		*it++;
 	}
+	// _pending.clear(); TODO maybe add to be sure
+
+	Block *blockToDelete;
+	//Delete everything on tails and deepest vectors
+
+	//Delete from tails vector
+	_tails.clear();
+	//Delete from deepest tails vector
+	_deepestTails.clear();
+	//Delete from attached map - and destroy blocks
+	for (auto it = _attached.begin(); it != _attached.end(); ++it)
+	{
+		blockToDelete = *it;
+		_tails.erase(_tails.begin() + counter);
+		~Block(blockToPrune); //TODO: destory the block
+		counter++;
+	}
+	_usedIDList.clear();
+	_workers.clear();
+	~Chain();
+
+
 	pthread_mutex_unlock(&(Chain::getInstance()->_pendingMutex));
 	return NULL;
 }
@@ -485,10 +509,7 @@ void *Chain::closeChainLogic(void *ptr)
 void Chain::closeChain()
 {
 	_isClosing = true;
-	pthread_t closingThread;
-	pthread_create(&closingThread, NULL, Chain::closeChainLogic, this);
-	pthread_join(closingThread, NULL);
-	pthread_cond_signal(&_finishedClosingCV);
+	pthread_create(&_closingThread, NULL, Chain::closeChainLogic, this);
 }
 
 int Chain::returnOnClose()
@@ -498,13 +519,12 @@ int Chain::returnOnClose()
 		return FAIL;
 	}
 
-	if( _isClosing != true)
+	if(!_isClosing)
 	{
 		return CLOSE_CHAIN_NOT_CALLED;
 	}
-	pthread_cond_wait(&_finishedClosingCV, &_pendingMutex);
 
-	return SUCESS;
+	return pthread_join(_closingThread, NULL);
 }
 
 

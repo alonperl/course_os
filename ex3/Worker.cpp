@@ -94,6 +94,7 @@ char* Worker::hash(const AddRequest *pRequest)
         calculatedHash = "a";
         // If the father was changed meanwhile, update it and recalculate the hash
         fatherId = req->father->getId();
+        std::cout<<"A\n";
     } while (originalFatherId != fatherId);
 
     return calculatedHash;

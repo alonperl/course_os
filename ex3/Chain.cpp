@@ -508,8 +508,7 @@ void *Chain::closeChainLogic(void *pChain)
 	s_instance = NULL;
 	// TODO check how to properly destroy
 	// s_daemonThread = NULL;
-	
-	return NULL;
+	return pthread_join(s_daemonThread, NULL);
 }
 
 

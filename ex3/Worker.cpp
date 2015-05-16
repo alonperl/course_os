@@ -43,7 +43,6 @@ void Worker::act()
         {
             rehash = true;
             cachedFather = Chain::getInstance()->getRandomDeepest();
-            blockFather = cachedFather;
             cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();
         }
     } while (rehash);

@@ -538,7 +538,7 @@ void Chain::printChain()
 		{
 			std::cout << " ";
 		}
-		std::cout << it->first;
+		std::cout << it->first;sleep(0.1);
 		std::cout << ": H" << it->second->getHeight() << ", P" << it->second->getPruneFlag();
 		if (it->second->getPrevBlock() != NULL)
 		{

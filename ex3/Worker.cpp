@@ -51,8 +51,8 @@ void Worker::act()
     // _toLongestFlag was false till now, so from now on toLongest(this) will not act on this block
     pthread_mutex_lock(&_toLongestFlagMutex);
     // Create block
-    Block* newBlock(new Block(req->blockNum, blockHash, HASH_LENGTH,
-                               req->father->getHeight()+1, req->father));
+    Block* newBlock = new Block(req->blockNum, blockHash, HASH_LENGTH,
+                               req->father->getHeight()+1, req->father);
 
     // Attach block to chain
     Chain::getInstance()->pushBlock(newBlock);

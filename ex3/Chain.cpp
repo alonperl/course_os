@@ -27,7 +27,6 @@ Chain::Chain()
 
 	_isClosed = false;
 	_maxHeight = EMPTY;
-	_size = EMPTY;
 	_expected_size = EMPTY;
 
 	s_initiated = true;
@@ -248,6 +247,7 @@ int Chain::initChain()
 	Block* genesisBlock(new Block(GENESIS_BLOCK_NUM, NULL, EMPTY, EMPTY, NULL)); // TODO maybe height is determined from father later
 	getInstance()->pushBlock(genesisBlock);
 	getInstance()->_status[EMPTY] = ATTACHED;
+	_size = EMPTY;
 
 	return SUCESS;
 }

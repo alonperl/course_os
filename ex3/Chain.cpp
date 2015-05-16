@@ -424,7 +424,7 @@ printChain();
 		if (blockToPrune->getPruneFlag())
 		{
 			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
-			it = _tails.erase(it);
+			_tails.erase(it);
 		}
 		delete blockToPrune; //TODO: destory the block
 	}

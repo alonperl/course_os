@@ -369,7 +369,7 @@ int Chain::pruneChain()
 	{
 		return FAIL;
 	}
-	//TODO: add field named toPrune to all blocks and setter - make genesis crate with toPrune=false
+	//TODO: add field named toPrune to all blocks and setter - make genesis crate with toPrune = false
 	pthread_mutex_lock(&_attachedMutex);
 	pthread_mutex_lock(&_deepestTailsMutex);
 	pthread_mutex_lock(&_tailsMutex); //TODO: do i need to lock more stuff??

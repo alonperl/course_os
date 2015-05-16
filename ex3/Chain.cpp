@@ -1,5 +1,5 @@
 #include <iostream>
-#include <signal.h>
+#include <unistd.h>
 #include "Chain.hpp"
 
 #define GENESIS_BLOCK_NUM 0

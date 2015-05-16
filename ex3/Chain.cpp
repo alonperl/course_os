@@ -424,16 +424,20 @@ printChain();
 	}
 
 	//Delete from attached map - nad add id to list
-	for (std::unordered_map<unsigned int, Block* >::iterator it = _attached.begin(); it != _attached.end(); ++it)
+	for (std::unordered_map<unsigned int, Block* >::iterator it = _attached.begin(); it != _attached.end();)
 	{
 		blockToPrune = it->second;
 		std::cout<< blockToPrune << " " << blockToPrune->getId() << " " << blockToPrune->getPruneFlag()<<"\n";
 		if (blockToPrune->getPruneFlag())
 		{
 			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
-			_attached.erase(blockToPrune->getId());
+			_attached.erase(it++);
+			delete blockToPrune; //TODO: destory the block
 		}
-		delete blockToPrune; //TODO: destory the block
+		else
+		{
+			++it;
+		}
 	}
 printChain();
 	pthread_mutex_unlock(&_tailsMutex);

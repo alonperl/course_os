@@ -89,9 +89,6 @@ void Chain::pushBlock(Block* newTail)
 
 	_attached[newTail->getId()] = newTail;
 
-	// Virtual Size update
-	_size++;
-
 	// If I am not Genesis, I have a father leaf, that is no more a leaf
 	if (newTail->getId() != 0)
 	{
@@ -132,7 +129,7 @@ int Chain::getLowestID()
 	// get size of list - chose the smaller of the two
 	if (_usedIDList.empty())
 	{
-		return _attached.size();
+		return _size;
 	}
 
 	_usedIDList.sort();
@@ -263,6 +260,9 @@ int Chain::addRequest(char *data, int length)
 	// Add new task for daemon
 	pthread_mutex_lock(&_pendingMutex);
 	_pending.push_back(new AddRequest(data, length, newId, getRandomDeepest()));
+	
+	// Virtual Size update
+	_size++;
 	pthread_mutex_unlock(&_pendingMutex);
 
 	// Signal daemon that it has more work

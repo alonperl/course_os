@@ -55,7 +55,7 @@ void printDeepest();
 private:
 	static bool s_initiated;
 	static Chain *s_instance;
-	static pthread_t _daemonThread;
+	static pthread_t s_daemonThread;
 	pthread_t _closingThread;
 
 	Chain();

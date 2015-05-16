@@ -108,6 +108,5 @@ void close_chain()
 */
 int return_on_close()
 {
-	Chain* c = Chain::getInstance();
-	return c->returnOnClose();
+	return Chain::getInstance()->returnOnClose();
 }

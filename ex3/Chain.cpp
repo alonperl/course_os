@@ -14,7 +14,7 @@
 // Define static members
 bool Chain::s_initiated = false;
 Chain *Chain::s_instance = NULL;
-pthread_t Chain::_daemonThread;
+pthread_t Chain::s_daemonThread;
 
 Chain::Chain()
 {	
@@ -59,7 +59,7 @@ Chain *Chain::getInstance()
 	{
 		return Chain::s_instance;
 	}
-	throw FAIL;
+	return NULL
 }
 
 /**
@@ -247,7 +247,7 @@ int Chain::initChain()
 
 	init_hash_generator();
 
-	pthread_create(&_daemonThread, NULL, Chain::staticDaemonRoutine, NULL);	// master thread created
+	pthread_create(&s_daemonThread, NULL, Chain::staticDaemonRoutine, NULL);	// master thread created
 	
 	// Create genesis block and insert to chain
 	Block* genesisBlock(new Block(GENESIS_BLOCK_NUM, NULL, EMPTY, EMPTY, NULL)); // TODO maybe height is determined from father later
@@ -504,6 +504,10 @@ void *Chain::closeChainLogic(void *pChain)
 	pthread_mutex_unlock(&(chain->_pendingMutex));
 	
 	delete chain;
+
+	s_initiated = false;
+	s_instance = NULL;
+	s_daemonThread = NULL;
 	
 	return NULL;
 }

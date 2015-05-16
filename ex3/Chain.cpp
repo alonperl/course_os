@@ -512,7 +512,7 @@ void *Chain::closeChainLogic(void *pChain)
 void Chain::closeChain()
 {
 	_isClosing = true;
-	pthread_create(&_closingThread, NULL, Chain::closeChainLogic, this);
+	pthread_create(&(Chain::_closingThread), NULL, Chain::closeChainLogic, this);
 }
 
 int Chain::returnOnClose()
@@ -527,7 +527,7 @@ int Chain::returnOnClose()
 		return CLOSE_CHAIN_NOT_CALLED;
 	}
 
-	return pthread_join(_closingThread, NULL);
+	return pthread_join(Chain::_closingThread, NULL);
 }
 
 

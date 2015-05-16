@@ -50,7 +50,6 @@ void Worker::act()
         {
             rehash = false;
         }
-        std::cout<<"Rehash? "<<rehash<<"\n";
     } while (rehash);
 
     // TODO lock more
@@ -80,22 +79,9 @@ char* Worker::hash(const AddRequest *pRequest)
 {
     AddRequest *req = (AddRequest*) pRequest;
 
-    // TODO rehashing here too?
-    // Save father id
-    int originalFatherId = req->father->getId();
-    int fatherId;
-
-    char* calculatedHash;
     // Calculate hash
-    do
-    {
-        int nonce = generate_nonce(req->blockNum, req->father->getId());
-        // calculatedHash = generate_hash(req->data, (size_t)req->dataLength, nonce);
-        calculatedHash = "a";
-        // If the father was changed meanwhile, update it and recalculate the hash
-        fatherId = req->father->getId();
-        std::cout<<"A\n";
-    } while (originalFatherId != fatherId);
+    int nonce = generate_nonce(req->blockNum, req->father->getId());
 
-    return calculatedHash;
+    // return generate_hash(req->data, (size_t)req->dataLength, nonce);
+    return "a";
 }

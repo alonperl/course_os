@@ -7,7 +7,7 @@
 class Block
 {
 public:
-	Block(int id, char* hash, int height, int hashLength, std::shared_ptr<Block> father);
+	Block(int id, char* hash, int height, int hashLength, Block* father);
 	~Block();
 
 	/**
@@ -43,7 +43,7 @@ public:
 	/**
 	 * @return the blocks father
 	 */
-	std::shared_ptr<Block> getPrevBlock();
+	Block* getPrevBlock();
 
 	pthread_mutex_t blockMutex;
 
@@ -55,7 +55,7 @@ public:
 		int _hashLength;
 		char* _hash;
 		
-		std::shared_ptr<Block> _prevBlock;
+		Block* _prevBlock;
 };
 
 #endif

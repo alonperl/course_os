@@ -4,7 +4,6 @@
 #include <vector>
 #include <unordered_map>
 #include <deque>
-#include <memory>
 #include <list>
 #include "Block.hpp"
 #include "AddRequest.hpp"
@@ -27,8 +26,8 @@ public:
 	 */
 	int getMaxHeight(void);
 	
-	void pushBlock(std::shared_ptr<Block> newBlock);
-	void deleteBlock(std::shared_ptr<Block> toDelete);
+	void pushBlock(Block* newBlock);
+	void deleteBlock(Block* toDelete);
 
 	/**
 	 * @return the lowest ID available
@@ -39,7 +38,7 @@ public:
 	bool isPendingEmpty();
 	
 	void *daemonRoutine(void* c);
-	std::shared_ptr<Block> getRandomDeepest();
+	Block* getRandomDeepest();
 
 	int  addRequest(char *data, int length);
 	int  toLongest(int blockNum);
@@ -76,9 +75,9 @@ private:
 
 	std::deque<AddRequest*> _pending;
 	
-	std::unordered_map<unsigned int, std::shared_ptr<Block> > _attached;
-	std::vector<std::shared_ptr<Block> > _tails;
-	std::vector<std::shared_ptr<Block> > _deepestTails;
+	std::unordered_map<unsigned int, Block*> _attached;
+	std::vector<Block*> _tails;
+	std::vector<Block*> _deepestTails;
 	std::list<int> _usedIDList;
 
 	std::vector<Worker*> _workers;

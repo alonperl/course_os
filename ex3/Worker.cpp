@@ -7,7 +7,7 @@ Worker::Worker(AddRequest *pRequest)
 {
     pthread_mutex_init(&_toLongestFlagMutex, NULL);
     _toLongestFlag = false;
-    blockFather = std::shared_ptr<Block>(pRequest->father);
+    blockFather = pRequest->father;
 //    finished = NOT_FINISHED;
     req = pRequest;
 }
@@ -26,7 +26,7 @@ Worker::~Worker()
  */
 void Worker::act()
 {
-    std::shared_ptr<Block> cachedFather(blockFather);
+    Block* cachedFather(blockFather);
     // Save if current father is longest or not
     bool cachedLongest = cachedFather.get()->getHeight() == Chain::getInstance()->getMaxHeight();
     bool rehash = false;
@@ -51,7 +51,7 @@ void Worker::act()
     // _toLongestFlag was false till now, so from now on toLongest(this) will not act on this block
     pthread_mutex_lock(&_toLongestFlagMutex);
     // Create block
-    std::shared_ptr<Block> newBlock(new Block(blockNum, blockHash, HASH_LENGTH,
+    Block* newBlock(new Block(blockNum, blockHash, HASH_LENGTH,
                                blockFather->getHeight()+1, blockFather));
 
     // Attach block to chain

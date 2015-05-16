@@ -8,7 +8,7 @@ class AddRequest
 {
 public:
 	AddRequest(const char* data, const int dataLength, const int blockNum, 
-			   std::shared_ptr<Block>  father);
+			   Block*  father);
 	~AddRequest();
 
 	// Data for the new block
@@ -22,7 +22,7 @@ public:
 
 	// Expected father. 
 	// May be changed before actual block attachment.
-	std::shared_ptr<Block> father;
+	Block* father;
 };
 
 #endif

@@ -21,7 +21,7 @@ public:
     const AddRequest* req;
     int blockNum;
     char* blockHash;
-    std::shared_ptr<Block> blockFather;
+    Block* blockFather;
     bool _toLongestFlag;
 private:
 //    pthread_t _worker;

@@ -69,7 +69,7 @@ int Chain::getMaxHeight(void)
 	return _maxHeight;
 }
 
-void Chain::pushBlock(std::shared_ptr<Block> newTail)
+void Chain::pushBlock(Block* newTail)
 {
 	// In case the new block is of bigger height update height
 	if (Chain::getMaxHeight() < newTail->getHeight())
@@ -92,7 +92,7 @@ void Chain::pushBlock(std::shared_ptr<Block> newTail)
 	{
 		// Delete my father from tails list
 		int fatherId = newTail->getPrevBlock()->getId();
-		for (std::vector<std::shared_ptr<Block> >::iterator it = _tails.begin(); it != _tails.end(); ++it)
+		for (std::vector<Block* >::iterator it = _tails.begin(); it != _tails.end(); ++it)
 		{
 			if ((*it)->getId() == fatherId)
 			{
@@ -103,7 +103,7 @@ void Chain::pushBlock(std::shared_ptr<Block> newTail)
 	}
 }
 
-void Chain::deleteBlock(std::shared_ptr<Block> toDelete)
+void Chain::deleteBlock(Block* toDelete)
 {
 	(void)toDelete;
 	// TODO
@@ -189,7 +189,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 /**
  * @return random longest tip
  */
-std::shared_ptr<Block> Chain::getRandomDeepest()
+Block* Chain::getRandomDeepest()
 {
 	unsigned long index = rand() % _deepestTails.size();
 	return _deepestTails[index];
@@ -215,7 +215,7 @@ int Chain::initChain()
 	pthread_create(&daemonThread, NULL, Chain::staticDaemonRoutine, NULL);	// master thread created
 	
 	// Create genesis block and insert to chain
-	std::shared_ptr<Block> genesisBlock(new Block(GENESIS_BLOCK_NUM, NULL, EMPTY, EMPTY, NULL)); // TODO maybe height is determined from father later
+	Block* genesisBlock(new Block(GENESIS_BLOCK_NUM, NULL, EMPTY, EMPTY, NULL)); // TODO maybe height is determined from father later
 	getInstance()->pushBlock(genesisBlock);
 
 	return SUCESS;
@@ -361,7 +361,7 @@ int Chain::pruneChain()
 
 	// Find random deepest and go from him to the top and mark
 	// not to prune the longest path
-	std::shared_ptr<Block> deepestBlock = getRandomDeepest();
+	Block* deepestBlock = getRandomDeepest();
 
 	// only in case we didn't reach the gensis block
 	// or we got to a part of a chain we pruned before - keep running
@@ -372,13 +372,13 @@ int Chain::pruneChain()
 		deepestBlock = deepestBlock->getPrevBlock();
 	}
 	// by now we marked everyone not to prune
-	std::shared_ptr<Block> blockToPrune;
+	Block* blockToPrune;
 	int counter = 0;
 
 	//TODO MEGA - is vector rearranging after erase??
 
 	//Delete from tails vector
-	for (std::vector<std::shared_ptr<Block> >::iterator it = _tails.begin(); it != _tails.end(); ++it)
+	for (std::vector<Block* >::iterator it = _tails.begin(); it != _tails.end(); ++it)
 	{
 		blockToPrune = *it;
 		if (blockToPrune->getPruneFlag())
@@ -390,7 +390,7 @@ int Chain::pruneChain()
 
 	//Delete from deepest tails vector
 	counter = 0;
-	for (std::vector<std::shared_ptr<Block> >::iterator it = _deepestTails.begin(); it != _tails.end(); ++it)
+	for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _tails.end(); ++it)
 	{
 		blockToPrune = *it;
 		if (blockToPrune->getPruneFlag())
@@ -401,7 +401,7 @@ int Chain::pruneChain()
 	}
 
 	//Delete from attached map - nad add id to list
-	for (std::unordered_map<unsigned int, std::shared_ptr<Block> >::iterator it = _attached.begin(); it != _attached.end(); ++it)
+	for (std::unordered_map<unsigned int, Block* >::iterator it = _attached.begin(); it != _attached.end(); ++it)
 	{
 		blockToPrune = it->second;
 		if (blockToPrune->getPruneFlag())

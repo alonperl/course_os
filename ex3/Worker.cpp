@@ -25,7 +25,6 @@ Worker::~Worker()
  */
 void Worker::act()
 {
-    std::cout << "\n" << req->blockNum << ": WORKER STARTED\n";
     Block* cachedFather = req->father;
     // Save if current father is longest or not
     bool cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();
@@ -58,7 +57,6 @@ void Worker::act()
     Chain::getInstance()->pushBlock(newBlock);
     pthread_mutex_unlock(&_toLongestFlagMutex);
 
-    std::cout << "\n" << req->blockNum << ": WORKER FINISHED\n";
     // Self-destroy
     delete this;
 }

@@ -389,33 +389,29 @@ int Chain::pruneChain()
 	{
 		return FAIL;
 	}
-	//TODO: add field named toPrune to all blocks and setter - make genesis crate with toPrune = false
-	pthread_mutex_lock(&_attachedMutex);
-	
-	pthread_mutex_lock(&_tailsMutex); //TODO: do i need to lock more stuff??
 
-	// Find random deepest and go from him to the top and mark
-	// not to prune the longest path
+	// Save random longest chain
 	Block* deepestBlock = getRandomDeepest();
-pthread_mutex_lock(&_deepestTailsMutex);
-	// only in case we didn't reach the gensis block
-	// or we got to a part of a chain we pruned before - keep running
-	while (deepestBlock != NULL)// || deepestBlock->getPruneFlag())
+
+	pthread_mutex_lock(&_attachedMutex);	
+	pthread_mutex_lock(&_tailsMutex);
+	pthread_mutex_lock(&_deepestTailsMutex);
+	
+	// Bubble up on longest chain and mark not to prune it
+	while (deepestBlock != NULL)
 	{
-		// TODO refactor flag check, maybe use _atomic_flag
 		deepestBlock->setPruneFlag(false);
 		deepestBlock = deepestBlock->getPrevBlock();
 	}
+	
 	// by now we marked everyone not to prune
-	Block* blockToPrune;
+	Block* temp;
 
-	//TODO MEGA - is vector rearranging after erase??
-// printChain();
 	//Delete from tails vector
 	for (std::vector<Block* >::iterator it = _tails.begin(); it != _tails.end();)
 	{
-		blockToPrune = *it;
-		if (blockToPrune != NULL && blockToPrune->getPruneFlag())
+		temp = *it;
+		if (temp != NULL && temp->getPruneFlag())
 		{
 			it = _tails.erase(it);
 		}
@@ -428,8 +424,8 @@ pthread_mutex_lock(&_deepestTailsMutex);
 	//Delete from deepest tails vector
 	for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _deepestTails.end();)
 	{
-		blockToPrune = *it;
-		if (blockToPrune != NULL && blockToPrune->getPruneFlag())
+		temp = *it;
+		if (temp != NULL && temp->getPruneFlag())
 		{
 			it = _deepestTails.erase(it);
 		}
@@ -442,22 +438,25 @@ pthread_mutex_lock(&_deepestTailsMutex);
 	//Delete from attached map - nad add id to list
 	for (std::unordered_map<unsigned int, Block* >::iterator it = _attached.begin(); it != _attached.end();)
 	{
-		blockToPrune = it->second;
-		if (blockToPrune != NULL && blockToPrune->getPruneFlag())
+		temp = it->second;
+		if (temp != NULL && temp->getPruneFlag())
 		{
-			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
+			_usedIDList.push_back(temp->getId()); // Reuse later
 			_attached.erase(it++);
-			delete blockToPrune; //TODO: destory the block
+			delete temp; // Finally destory the block
 		}
 		else
 		{
 			++it;
 		}
 	}
-// printChain();
-	pthread_mutex_unlock(&_tailsMutex);
+
+	temp = NULL;
+
 	pthread_mutex_unlock(&_deepestTailsMutex);
+	pthread_mutex_unlock(&_tailsMutex);
 	pthread_mutex_unlock(&_attachedMutex);
+	
 	return SUCESS;
 }
 

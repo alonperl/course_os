@@ -204,8 +204,8 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		
 		pthread_mutex_lock(&_pendingMutex);
 		_pending.pop_front();
-		pthread_mutex_unlock(&_pendingMutex);
 		printChain();
+		pthread_mutex_unlock(&_pendingMutex);
 	}
 	// Unlock _pendingBlocks
 	pthread_mutex_unlock(&_pendingMutex);

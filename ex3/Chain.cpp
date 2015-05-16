@@ -217,6 +217,7 @@ int Chain::initChain()
 	// Create genesis block and insert to chain
 	Block* genesisBlock(new Block(GENESIS_BLOCK_NUM, NULL, EMPTY, EMPTY, NULL)); // TODO maybe height is determined from father later
 	getInstance()->pushBlock(genesisBlock);
+	getInstance()->_status[EMPTY] = ATTACHED;
 
 	return SUCESS;
 }

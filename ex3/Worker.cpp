@@ -48,6 +48,7 @@ void Worker::act()
         }
     } while (rehash);
 
+    // TODO lock more
     // _toLongestFlag was false till now, so from now on toLongest(this) will not act on this block
     pthread_mutex_lock(&_toLongestFlagMutex);
     // Create block
@@ -56,6 +57,7 @@ void Worker::act()
 
     // Attach block to chain
     Chain::getInstance()->pushBlock(newBlock);
+    getInstance()->_status[blockNum] = ATTACHED;
     pthread_mutex_unlock(&_toLongestFlagMutex);
 
     // Self-destroy

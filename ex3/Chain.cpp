@@ -353,11 +353,15 @@ int Chain::pruneChain()
 	{
 		return FAIL;
 	}
-	//TODO: add field named toPrune to all blocks and setter - make genesis crate with toPrune=false
+	//TODO: add field named toPrune to all blocks and setter - make genesis crate with toPrune = false
 	pthread_mutex_lock(&_attachedMutex);
 	pthread_mutex_lock(&_deepestTailsMutex);
 	pthread_mutex_lock(&_tailsMutex); //TODO: do i need to lock more stuff??
-	std::shared_ptr<Block> deepestBlock = getRandomDeepest();
+
+	// Find random deepest and go from him to the top and mark
+	// not to prune the longest path
+	Block *deepestBlock = getRandomDeepest();
+
 	// only in case we didn't reach the gensis block
 	// or we got to a part of a chain we pruned before - keep running
 	while (deepestBlock->getPrevBlock() != NULL || deepestBlock->getPruneFlag())
@@ -367,54 +371,48 @@ int Chain::pruneChain()
 		deepestBlock = deepestBlock->getPrevBlock();
 	}
 	// by now we marked everyone not to prune
-	std::shared_ptr<Block>  blockToPrune;
-	std::shared_ptr<Block>  tempBlock;
+	Block* blockToPrune;
 	int counter = 0;
-	//run on all tails
-	for (std::vector<std::shared_ptr<Block> >::iterator it = _tails.begin(); it != _tails.end(); ++it)
+
+	//TODO MEGA - is vector rearranging after erase??
+
+	//Delete from tails vector
+	for (std::vector<Block*>::iterator it = _tails.begin(); it != _tails.end(); ++it)
 	{
-		blockToPrune = (*it);
-		//if we got a tail to delete earase from lists it were on
+		blockToPrune = *it;
 		if (blockToPrune->getPruneFlag())
 		{
-			// in case was one of the deepests
-			if (blockToPrune->getHeight() == _maxHeight)
-			{
-				// find where the block is in the vector
-				tempBlock = *_deepestTails.begin();
-				while (blockToPrune != tempBlock)
-				{
-					counter++;
-					tempBlock = *(_deepestTails.begin()+counter);
-				}
-				_deepestTails.erase(_deepestTails.begin()+counter);
-				counter = 0;
-			}
-
-			//anyways delete from alltails list
-			tempBlock = *_tails.begin();
-			while (blockToPrune != tempBlock)
-			{
-				counter++;
-				tempBlock = *(_tails.begin()+counter);
-			}
-			_tails.erase(_tails.begin()+counter);
-
+			_tails.erase(_tails.begin() + counter);
 		}
-
-		// run through tree and delete all the sub branch
-		while (blockToPrune->getPruneFlag())
-		{
-			tempBlock = blockToPrune->getPrevBlock();
-			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
-			//~Block(*blockToPrune); //TODO: destory the block
-			blockToPrune = tempBlock;
-		}
-
+		counter++;
 	}
-	blockToPrune = NULL;
-	tempBlock = NULL;
 
+	//Delete from deepest tails vector
+	counter = 0;
+	for (std::vector<Block*>::iterator it = _deepestTails.begin(); it != _tails.end(); ++it)
+	{
+		blockToPrune = *it;
+		if (blockToPrune->getPruneFlag())
+		{
+			_tails.erase(_tails.begin() + counter);
+		}
+		counter++;
+	}
+
+	//Delete from attached map - nad add id to list
+	for (auto it = _attached.begin(); it != _attached.end(); ++it)
+	{
+		blockToPrune = *it;
+		if (blockToPrune->getPruneFlag())
+		{
+			_usedIDList.push_back(blockToPrune->getId()); //adds tp usedIDList
+			_tails.erase(_tails.begin() + counter);
+		}
+		~Block(blockToPrune); //TODO: destory the block
+		counter++;
+	}
+
+	blockToPrune = NULL;
 	pthread_mutex_unlock(&_tailsMutex);
 	pthread_mutex_unlock(&_deepestTailsMutex);
 	pthread_mutex_unlock(&_attachedMutex);
@@ -443,12 +441,25 @@ void Chain::closeChain()
 	pthread_t closingThread;
 	pthread_create(&closingThread, NULL, Chain::closeChainLogic, this);
 	pthread_join(closingThread, NULL);
+	pthread_cond_signal(&_finishedClosing);
 }
 
 int Chain::returnOnClose()
 {
-	return 0;
+	if (!isInitiated())
+	{
+		return FAIL;
+	}
+
+	if( _isClosing != true)
+	{
+		return CLOSE_CHAIN_WASNT_CALLED;
+	}
+	pthread_cond_wait(&_finishedClosing, &_pendingMutex);
+
+	return SUCESS;
 }
+
 
 /**
  * @return block status, or -1 in case of illegal input

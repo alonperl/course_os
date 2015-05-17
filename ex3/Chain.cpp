@@ -512,6 +512,7 @@ void *Chain::closeChainLogic(void *pChain)
 	{
 		std::cout << Worker::hash(chain->_pending.front()) << std::endl;
 		chain->_pending.pop_front();
+		std::cout<<"SIZEOF PENDING "<<chain->_pending.size()<<std::endl;
 	}
 	// _pending.clear(); TODO maybe add to be sure
 

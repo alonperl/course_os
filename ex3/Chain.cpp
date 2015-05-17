@@ -371,10 +371,12 @@ int Chain::attachNow(int blockNum)
 			pthread_mutex_lock(&_pendingMutex);
 			for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
 			{
-				if ((*it)->blockNum == blockNum) {
-				_pending.erase(it);
-				_pending.push_front((*it));
-				break;
+				if ((*it)->blockNum == blockNum)
+				{
+					_pending.erase(it);
+					_pending.push_front((*it));
+					break;
+				}
 			}
 			pthread_mutex_unlock(&_pendingMutex);
 

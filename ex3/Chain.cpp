@@ -354,7 +354,7 @@ int Chain::toLongest(int blockNum)
 	}
 
 	pthread_mutex_lock(&_statusMutex);
-	if (_status.find(blockNum) != _status.end() && _status[blockNum] != NULL)
+	if (_status.find(blockNum) != _status.end() && _status[blockNum] == ATTACHED)
 	{
 		pthread_mutex_unlock(&_statusMutex);
 		return ATTACHED;

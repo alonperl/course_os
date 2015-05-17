@@ -1,4 +1,5 @@
 #include "Chain.hpp"
+#include <memory>
 #include <iostream>
 
 // TODO

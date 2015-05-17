@@ -364,6 +364,8 @@ int Chain::attachNow(int blockNum)
 		return FAIL;
 	}
 
+	// Lock pending from new requests
+	pthread_mutex_lock(&_pendingMutex);
 	pthread_mutex_lock(&_attachedMutex);
 
 	if (_attached.find(blockNum) != _attached.end() && _attached[blockNum] != NULL)
@@ -376,8 +378,7 @@ int Chain::attachNow(int blockNum)
 	{
 		if ((*it)->blockNum == blockNum) {
 			/* This request is not yet processed, force it to process right now */
-			// Lock pending from new requests
-			pthread_mutex_lock(&_pendingMutex);
+			
 			/* TODO THIS IS OVERKILL BUT I LIKE IT
 			// Run worker with chain blocking
 			BlockingWorker *worker = new BlockingWorker(*it);
@@ -402,12 +403,15 @@ int Chain::attachNow(int blockNum)
 		{
 			pthread_cond_wait(&_attachedCV, &_attachedMutex);
 			pthread_mutex_unlock(&_attachedMutex);
+			pthread_mutex_unlock(&_pendingMutex);
+
 			return ATTACHED;
 		}
 	}
 
 	pthread_mutex_unlock(&_attachedMutex);
-
+	pthread_mutex_unlock(&_pendingMutex);
+	
 	return NOT_FOUND;
 }
 

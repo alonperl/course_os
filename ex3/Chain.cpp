@@ -552,6 +552,7 @@ int Chain::pruneChain()
 
 void *Chain::closeChainLogic(void *pChain)
 {
+	std::cout<<"Start close logic"<<std::endl;
 	Chain* chain = (Chain*)pChain;
 	pthread_mutex_lock(&(chain->_pendingMutex));
 
@@ -592,7 +593,7 @@ void *Chain::closeChainLogic(void *pChain)
 	
 	s_instance = NULL;
 	s_initiated = false;
-
+	std::cout<<"End close logic"<<std::endl;
 	return NULL;
 }
 

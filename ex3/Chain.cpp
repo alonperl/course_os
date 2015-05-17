@@ -22,9 +22,11 @@ Chain::Chain()
 	pthread_mutex_init(&_deepestTailsMutex, NULL);
 	pthread_mutex_init(&_attachedMutex, NULL);
 	pthread_mutex_init(&_pendingMutex, NULL);
+	pthread_mutex_init(&_closedMutex, NULL);
 
 	pthread_cond_init(&_pendingCV, NULL);
 	pthread_cond_init(&_attachedCV, NULL);
+	pthread_cond_init(&_closedCV, NULL);
 
 	_maxHeight = EMPTY;
 	_expected_size = EMPTY;
@@ -602,7 +604,53 @@ void *Chain::closeChainLogic(void *pChain)
 void Chain::closeChain()
 {
 	_isClosing = true;
-	pthread_create(&_closingThread, NULL, Chain::closeChainLogic, this);
+	// pthread_create(&_closingThread, NULL, Chain::closeChainLogic, this);
+	// 
+	pthread_mutex_lock(&(_pendingMutex));
+
+	// print out what's in pending list - and delete 'em
+	while (_pending.size())
+	{
+		std::cout << Worker::hash(_pending.front()) << std::endl;
+		_pending.pop_front();
+	}
+	// _pending.clear(); TODO maybe add to be sure
+
+	Block* temp;
+	//Delete everything on tails and deepest vectors
+
+	//Delete from tails vector
+	_tails.clear();
+	//Delete from deepest tails vector
+	_deepestTails.clear();
+	//Delete from attached map - and destroy blocks
+	for (std::unordered_map<unsigned int, Block*>::iterator it = _attached.begin(); it != _attached.end(); ++it)
+	{
+		temp = it->second;
+		if (temp != NULL)
+		{
+			delete temp; // Destory the block
+		}
+	}
+	_attached.clear();
+	_usedIDList.clear();
+	_workers.clear();
+
+	pthread_mutex_unlock(&(_pendingMutex));
+	
+	s_initiated = false;
+	s_instance = NULL;
+	// TODO check how to properly destroy
+	// s_daemonThread = NULL;
+	
+	pthread_cond_signal(&(_pendingCV));
+	pthread_join(s_daemonThread, NULL);
+
+	delete chain;
+
+	pthread_cond_signal(&(_closedCV));
+
+	return NULL;
 }
 
 int Chain::returnOnClose()
@@ -617,7 +665,9 @@ int Chain::returnOnClose()
 		return CLOSE_CHAIN_NOT_CALLED;
 	}
 
-	pthread_join(_closingThread, NULL);
+	pthread_mutex_lock(&_closedMutex);
+	pthread_cond_wait(&_closedCV, &_closedMutex);
+	pthread_mutex_unlock(&_closedMutex);
 
 	return SUCESS;
 }

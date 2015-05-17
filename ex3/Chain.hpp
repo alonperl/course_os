@@ -65,11 +65,12 @@ private:
 	pthread_mutex_t _deepestTailsMutex;
 	pthread_mutex_t _tailsMutex;
 	pthread_mutex_t _attachedMutex;
-
+	pthread_mutex_t _closedMutex;
 	pthread_mutex_t _pendingMutex;
 
 	pthread_cond_t _pendingCV;
 	pthread_cond_t _attachedCV;
+	pthread_cond_t _closedCV;
 
 	int _maxHeight;
 	int _expected_size;

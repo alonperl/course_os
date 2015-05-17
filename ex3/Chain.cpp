@@ -389,8 +389,7 @@ int Chain::attachNow(int blockNum)
 	Two ideas:
 	1. Don't lock status, check realtime if attached
 	2. Lock status and make it work
-	3. Arithmetic
-	4. getRandomDeepest inf loop
+	4. getRandomDeepest inf loop - Problem is in Phase 2 - Size is stuck on 50 and not increasing to 59 like it should
 	*/
 
 	//std::cout<< __FUNCTION__;pthread_mutex_lock(&_statusMutex);std::cout<< ": status locked." <<std::endl;
@@ -704,6 +703,7 @@ void Chain::createBlock(AddRequest *req)
 		{
 			rehash = true;
 			cachedFather = Chain::getInstance()->getRandomDeepest();
+			std::cout << "\nWhy The Endless Rehash (1) ?? \n\n";
 			cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();
 		}
 		else

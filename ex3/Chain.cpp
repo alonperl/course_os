@@ -205,6 +205,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 
 		if (!s_initiated)
 		{
+			std::cout<<"WALLA CLOSING\n";
 			return NULL;
 		}
 
@@ -540,9 +541,9 @@ int Chain::returnOnClose()
 	}
 
 	pthread_join(_closingThread, NULL);
-	sleep(3);
+
 	std::cout<<"CLOSED\n";
-	sleep(3);
+
 	return SUCESS;
 }
 

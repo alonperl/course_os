@@ -371,8 +371,11 @@ int Chain::attachNow(int blockNum)
 			_pending.push_front((*it));
 			// Unlock pending
 			pthread_mutex_unlock(&_pendingMutex);
+
+			pthread_cond_wait(&_attachedCV, &_attachedMutex);
 			pthread_mutex_unlock(&_attachedMutex);
-			return SUCESS;
+			
+			return ATTACHED;
 		}
 	}
 
@@ -382,7 +385,7 @@ int Chain::attachNow(int blockNum)
 		{
 			pthread_cond_wait(&_attachedCV, &_attachedMutex);
 			pthread_mutex_unlock(&_attachedMutex);
-			return SUCESS;
+			return ATTACHED;
 		}
 	}
 

@@ -374,6 +374,7 @@ int Chain::attachNow(int blockNum)
 	{
 		std::cout<<"FOUND Unlocking _attached...\n";
 		pthread_mutex_unlock(&_attachedMutex);
+		pthread_mutex_lock(&_pendingMutex);
 		return ATTACHED;
 	}
 

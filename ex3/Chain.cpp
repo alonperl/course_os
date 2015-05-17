@@ -596,6 +596,7 @@ void *Chain::closeChainLogic(void *pChain)
 	pthread_mutex_unlock(&(chain->_pendingMutex));
 	
 	pthread_cond_signal(&(chain->_pendingCV));
+	std::cout<<"Waiting for daemon to finish..."<<std::endl;
 	pthread_join(s_daemonThread, NULL);
 
 	delete chain;

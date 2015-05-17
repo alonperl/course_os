@@ -69,13 +69,11 @@ private:
 	pthread_mutex_t _pendingMutex;
 
 	pthread_cond_t _pendingCV;
-	pthread_cond_t _finishedClosingCV;
-
+	pthread_cond_t _attachedCV;
 
 	int _maxHeight;
 	int _expected_size;
 	int _size;
-
 
 	std::deque<AddRequest*> _pending;
 	

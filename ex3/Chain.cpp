@@ -24,6 +24,7 @@ Chain::Chain()
 	pthread_mutex_init(&_pendingMutex, NULL);
 
 	pthread_cond_init(&_pendingCV, NULL);
+	pthread_cond_init(&_attachedCV, NULL);
 
 	_maxHeight = EMPTY;
 	_expected_size = EMPTY;
@@ -216,7 +217,12 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		_workers.push_back(worker);
 		_pending.pop_front();
 		pthread_mutex_unlock(&_pendingMutex);
+
+		// Do stuff
 		worker->act();
+
+		// Send signal to anyone waiting for attachNow
+		pthread_cond_signal(&_attachedCV);
 	}
 	// Unlock _pendingBlocks
 	// pthread_mutex_unlock(&_pendingMutex);
@@ -341,8 +347,11 @@ int Chain::attachNow(int blockNum)
 		return FAIL;
 	}
 
+	pthread_mutex_lock(&_attachedMutex);
+
 	if (_attached[blockNum] != NULL)
 	{
+		pthread_mutex_unlock(&_attachedMutex);
 		return ATTACHED;
 	}
 
@@ -362,6 +371,7 @@ int Chain::attachNow(int blockNum)
 			_pending.push_front((*it));
 			// Unlock pending
 			pthread_mutex_unlock(&_pendingMutex);
+			pthread_mutex_unlock(&_attachedMutex);
 			return SUCESS;
 		}
 	}
@@ -370,10 +380,13 @@ int Chain::attachNow(int blockNum)
 	{
 		if ((*it)->req->blockNum == blockNum)
 		{
-			while(_status[blockNum] != 1);
+			pthread_cond_wait(&_attachedCV, &_attachedMutex);
+			pthread_mutex_unlock(&_attachedMutex);
 			return SUCESS;
 		}
 	}
+
+	pthread_mutex_unlock(&_attachedMutex);
 
 	return NOT_FOUND;
 }

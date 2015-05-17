@@ -4,7 +4,6 @@
 #include <vector>
 #include <unordered_map>
 #include <deque>
-#include <iostream>
 #include <list>
 #include "hash.h"
 #include "Block.hpp"
@@ -34,9 +33,6 @@ public:
 	 * @return the lowest ID available
 	 */
 	int  getLowestID();
-
-	bool isDaemonWorking();
-	bool isPendingEmpty();
 	
 	void *daemonRoutine(void* c);
 	Block* getRandomDeepest();

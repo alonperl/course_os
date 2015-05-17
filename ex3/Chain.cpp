@@ -1,4 +1,5 @@
 #include "Chain.hpp"
+#include <iostream>
 
 // TODO
 #define HASH_LENGTH 128
@@ -164,20 +165,6 @@ int Chain::getLowestID()
 	_usedIDList.remove(smallestUsedId); // erase from used list
 	pthread_mutex_unlock(&_usedIDListMutex);
 	return smallestUsedId;
-}
-
-// TODO @eran - what is this?
-bool Chain::isDaemonWorking()
-{
-	return _daemonWorkFlag;
-}
-
-/**
- * @return Check if there are pending add requests
- */
-bool Chain::isPendingEmpty()
-{
-	return _pending.empty();
 }
 
 /**
@@ -573,7 +560,6 @@ void *Chain::closeChainLogic(void *pChain)
 		std::cout << getInstance()->hash(chain->_pending.front()) << std::endl;
 		chain->_pending.pop_front();
 	}
-	// _pending.clear(); TODO maybe add to be sure
 
 	Block* temp;
 	//Delete everything on tails and deepest vectors

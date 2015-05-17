@@ -312,6 +312,7 @@ int Chain::initChain()
  */
 int Chain::addRequest(char *data, int length)
 {
+	std::cout<<"ENTER AddRequest"<<std::endl;
 	if (!isInitiated() || _isClosing)
 	{
 		return FAIL;

@@ -552,20 +552,16 @@ int Chain::pruneChain()
 
 void *Chain::closeChainLogic(void *pChain)
 {
-	std::cout<<"Start close logic"<<std::endl;
 	Chain* chain = (Chain*)pChain;
 	pthread_mutex_lock(&(chain->_pendingMutex));
 	pthread_mutex_lock(&(chain->_attachedMutex));
 
 	// print out what's in pending list - and delete 'em
-	std::cout<<"Start cleaning pending..."<<std::endl;
 	while (chain->_pending.size())
 	{
-		std::cout<<"Cleaning pending..."<<std::endl;
 		std::cout << Worker::hash(chain->_pending.front()) << std::endl;
 		chain->_pending.pop_front();
 	}
-	std::cout<<"Fin cleaning pending..."<<std::endl;
 	// _pending.clear(); TODO maybe add to be sure
 
 	Block* temp;
@@ -576,18 +572,14 @@ void *Chain::closeChainLogic(void *pChain)
 	//Delete from deepest tails vector
 	chain->_deepestTails.clear();
 	//Delete from attached map - and destroy blocks
-	std::cout<<"Start cleaning map..."<<std::endl;
 	for (std::unordered_map<unsigned int, Block*>::iterator it = chain->_attached.begin(); it != chain->_attached.end(); ++it)
 	{
-		std::cout<<"Cleaning map..."<<std::endl;
 		temp = it->second;
 		if (temp != NULL)
 		{
-			std::cout<<"Delete block "<<it->first<<std::endl;
 			delete temp; // Destory the block
 		}
 	}
-	std::cout<<"Fin cleaning map..."<<std::endl;
 	chain->_attached.clear();
 	chain->_usedIDList.clear();
 	chain->_workers.clear();
@@ -596,14 +588,12 @@ void *Chain::closeChainLogic(void *pChain)
 	pthread_mutex_unlock(&(chain->_pendingMutex));
 	
 	pthread_cond_signal(&(chain->_pendingCV));
-	std::cout<<"Waiting for daemon to finish..."<<std::endl;
 	pthread_join(s_daemonThread, NULL);
 
 	delete chain;
 	
 	s_instance = NULL;
 	s_initiated = false;
-	std::cout<<"End close logic"<<std::endl;
 	return NULL;
 }
 
@@ -628,7 +618,7 @@ int Chain::returnOnClose()
 
 	if (isInitiated())
 	{
-		pthread_join(_closingThread, NULL);
+		return pthread_join(_closingThread, NULL);
 	}
 
 	return SUCESS;

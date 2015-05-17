@@ -194,28 +194,41 @@ bool Chain::isPendingEmpty()
 void *Chain::daemonRoutine(void *chain_ptr)
 {
 	(void) chain_ptr;
+	bool wokeUp = false;
 
 	// Lock _pendingBlocks
 	pthread_mutex_lock(&_pendingMutex);
 	while (s_initiated)
 	{
-		// Wait for "hey! someone pending" signal
+		// No requests to process
 		if (_pending.empty())
 		{
+			// Wait for "hey! someone pending" signal
 			pthread_cond_wait(&_pendingCV, &_pendingMutex);
+			wokeUp = true;
+		}
+		else
+		{
+			wokeUp = false;
 		}
 
+		// Chain is not initiated
 		if (!s_initiated)
 		{
 			return NULL;
 		}
 
-		// Process new request TODO do we need to make this for all request or only for front?
-		// Create worker thread
+		if (!wokeUp)
+		{
+			pthread_mutex_lock(&_pendingMutex);
+		}
+
+		// Process new request
 		AddRequest *newReq = _pending.front();
+		// Create worker thread
 		Worker *worker = new Worker(newReq);
 		_workers.push_back(worker);
-		pthread_mutex_lock(&_pendingMutex);
+
 		_pending.pop_front();
 		pthread_mutex_unlock(&_pendingMutex);
 

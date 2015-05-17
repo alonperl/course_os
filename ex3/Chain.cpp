@@ -639,18 +639,16 @@ void Chain::closeChain()
 	pthread_mutex_unlock(&(_pendingMutex));
 	
 	s_initiated = false;
-	s_instance = NULL;
 	// TODO check how to properly destroy
 	// s_daemonThread = NULL;
 	
 	pthread_cond_signal(&(_pendingCV));
 	pthread_join(s_daemonThread, NULL);
 
-	delete chain;
+	delete s_instance;
+	s_instance = NULL;
 
 	pthread_cond_signal(&(_closedCV));
-
-	return NULL;
 }
 
 int Chain::returnOnClose()

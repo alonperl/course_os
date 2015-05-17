@@ -73,6 +73,8 @@ int Chain::getMaxHeight(void)
 
 void Chain::pushBlock(Block* newTail)
 {
+		std::cout<<"IN PUSHBLOCK...\n";
+
 	pthread_mutex_lock(&_tailsMutex);
 	pthread_mutex_lock(&_deepestTailsMutex);
 	pthread_mutex_lock(&_attachedMutex);

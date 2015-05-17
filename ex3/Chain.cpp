@@ -232,6 +232,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 			_workers.push_back(worker);
 
 			_pending.pop_front();
+			_status[newReq->blockNum] = PROCESSING;
 			pthread_mutex_unlock(&_pendingMutex);
 
 			// Do stuff
@@ -305,7 +306,7 @@ int Chain::addRequest(char *data, int length)
 	// Add new task for daemon
 	pthread_mutex_lock(&_pendingMutex);
 	_pending.push_back(new AddRequest(data, length, newId, getRandomDeepest()));
-
+	_status[newId] = PENDING;
 	pthread_mutex_unlock(&_pendingMutex);
 
 	// Signal daemon that it has more work
@@ -364,7 +365,28 @@ int Chain::attachNow(int blockNum)
 		return FAIL;
 	}
 
-	// Lock pending from new requests
+	switch (_status[blockNum])
+	{
+		case PENDING:
+			pthread_mutex_lock(&_pendingMutex);
+			_pending.erase(it);
+			_pending.push_front((*it));
+			pthread_mutex_unlock(&_pendingMutex);
+
+		case PROCESSING:
+			pthread_mutex_lock(&_attachedMutex);
+			pthread_cond_wait(&_attachedCV, &_attachedMutex);
+			pthread_mutex_unlock(&_attachedMutex);
+			return ATTACHED;
+
+		case ATTACHED:
+			return ATTACHED;
+
+		default:
+			return NOT_FOUND;
+	}
+
+	/*// Lock pending from new requests
 	std::cout<<"Locking _pending...\n";
 	pthread_mutex_lock(&_pendingMutex);
 	std::cout<<"Locking _attached...\n";
@@ -390,7 +412,7 @@ int Chain::attachNow(int blockNum)
 			worker->act();
 			 */
 			// Move desired block to the deque front
-			_pending.erase(it);
+			/*_pending.erase(it);
 			_pending.push_front((*it));
 			// Unlock pending
 			std::cout<<"IN PENDING Unlocking _pending...\n";
@@ -423,7 +445,7 @@ int Chain::attachNow(int blockNum)
 	std::cout<<"Final Unlocking _attached...\n";
 	pthread_mutex_unlock(&_attachedMutex);
 	std::cout<<"Final Unlocking _pending...\n";
-	pthread_mutex_unlock(&_pendingMutex);
+	pthread_mutex_unlock(&_pendingMutex);*/
 	
 	return NOT_FOUND;
 }

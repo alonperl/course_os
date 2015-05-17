@@ -73,11 +73,9 @@ int Chain::getMaxHeight(void)
 
 void Chain::pushBlock(Block* newTail)
 {
-	std::cout<<"IN PUSHBLOCK...\n";
-
-	std::cout<<__FUNCTION__<<" locking tails "<<std::endl; pthread_mutex_lock(&_tailsMutex);
-	std::cout<<__FUNCTION__<<" locking deepestTails "<<std::endl; pthread_mutex_lock(&_deepestTailsMutex);
-	std::cout<<__FUNCTION__<<" locking attached "<<std::endl; pthread_mutex_lock(&_attachedMutex);
+	pthread_mutex_lock(&_tailsMutex);
+	pthread_mutex_lock(&_deepestTailsMutex);
+	pthread_mutex_lock(&_attachedMutex);
 	
 	int height = newTail->getHeight();
 
@@ -134,11 +132,9 @@ void Chain::pushBlock(Block* newTail)
 	// Virtual Size update
 	_size++;
 
-	std::cout<<__FUNCTION__<<" unlocking attached "<<std::endl; pthread_mutex_unlock(&_attachedMutex);
-	std::cout<<__FUNCTION__<<" unlocking deepestTails "<<std::endl; pthread_mutex_unlock(&_deepestTailsMutex);
-	std::cout<<__FUNCTION__<<" unlocking tails "<<std::endl; pthread_mutex_unlock(&_tailsMutex);
-		std::cout<<"OUT PUSHBLOCK...\n";
-
+	pthread_mutex_unlock(&_attachedMutex);
+	pthread_mutex_unlock(&_deepestTailsMutex);
+	pthread_mutex_unlock(&_tailsMutex);
 }
 
 void Chain::deleteBlock(Block* toDelete)
@@ -163,9 +159,9 @@ int Chain::getLowestID()
 	_usedIDList.sort();
 	int smallestUsedId = _usedIDList.front(); //assuming usedID list is always sorted after adding an element there -if not change the .front())
 	
-	std::cout<<__FUNCTION__<<" locking usedIDList "<<std::endl; pthread_mutex_lock(&_usedIDListMutex);
+	pthread_mutex_lock(&_usedIDListMutex);
 	_usedIDList.remove(smallestUsedId); // erase from used list
-	std::cout<<__FUNCTION__<<" unlocking usedIDList "<<std::endl; pthread_mutex_unlock(&_usedIDListMutex);
+	pthread_mutex_unlock(&_usedIDListMutex);
 	return smallestUsedId;
 }
 
@@ -201,7 +197,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 	bool wokeUp = false;
 
 	// Lock _pendingBlocks
-	std::cout<<__FUNCTION__<<" locking pending "<<std::endl; pthread_mutex_lock(&_pendingMutex);
+	pthread_mutex_lock(&_pendingMutex);
 	while (s_initiated)
 	{
 		// No requests to process
@@ -224,7 +220,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 
 		if (!wokeUp)
 		{
-			std::cout<<__FUNCTION__<<" locking pending "<<std::endl; pthread_mutex_lock(&_pendingMutex);
+			pthread_mutex_lock(&_pendingMutex);
 		}
 
 		if (_pending.size())
@@ -237,7 +233,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 
 			_pending.pop_front();
 			_status[newReq->blockNum] = PROCESSING;
-			std::cout<<__FUNCTION__<<" unlocking pending "<<std::endl; pthread_mutex_unlock(&_pendingMutex);
+			pthread_mutex_unlock(&_pendingMutex);
 
 			// Do stuff
 			worker->act();
@@ -247,7 +243,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		}
 	}
 	// Unlock _pendingBlocks
-	// std::cout<<__FUNCTION__<<" unlocking pending "<<std::endl; pthread_mutex_unlock(&_pendingMutex);
+	// pthread_mutex_unlock(&_pendingMutex);
 	return NULL;
 }
 
@@ -256,9 +252,9 @@ void *Chain::daemonRoutine(void *chain_ptr)
  */
 Block* Chain::getRandomDeepest()
 {
-	std::cout<<__FUNCTION__<<" locking deepestTails "<<std::endl; pthread_mutex_lock(&_deepestTailsMutex);
+	pthread_mutex_lock(&_deepestTailsMutex);
 	long index = rand() % _deepestTails.size();
-	std::cout<<__FUNCTION__<<" unlocking deepestTails "<<std::endl; pthread_mutex_unlock(&_deepestTailsMutex);
+	pthread_mutex_unlock(&_deepestTailsMutex);
 	return _deepestTails[index];
 }
 
@@ -308,10 +304,10 @@ int Chain::addRequest(char *data, int length)
 	int newId = Chain::getLowestID();
 
 	// Add new task for daemon
-	std::cout<<__FUNCTION__<<" locking pending "<<std::endl; pthread_mutex_lock(&_pendingMutex);
+	pthread_mutex_lock(&_pendingMutex);
 	_pending.push_back(new AddRequest(data, length, newId, getRandomDeepest()));
 	_status[newId] = PENDING;
-	std::cout<<__FUNCTION__<<" unlocking pending "<<std::endl; pthread_mutex_unlock(&_pendingMutex);
+	pthread_mutex_unlock(&_pendingMutex);
 
 	// Signal daemon that it has more work
 	pthread_cond_signal(&_pendingCV);
@@ -372,8 +368,7 @@ int Chain::attachNow(int blockNum)
 	switch (_status[blockNum])
 	{
 		case PENDING:
-			std::cout<<"Locking _pending...\n";
-			std::cout<<__FUNCTION__<<" locking pending "<<std::endl; pthread_mutex_lock(&_pendingMutex);
+			pthread_mutex_lock(&_pendingMutex);
 			for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
 			{
 				if ((*it)->blockNum == blockNum)
@@ -383,16 +378,12 @@ int Chain::attachNow(int blockNum)
 					break;
 				}
 			}
-			std::cout<<"UNLocking _pending...\n";
-			std::cout<<__FUNCTION__<<" unlocking pending "<<std::endl; pthread_mutex_unlock(&_pendingMutex);
+			pthread_mutex_unlock(&_pendingMutex);
 
 		case PROCESSING:
-			std::cout<<"Locking _attached...\n";
-			std::cout<<__FUNCTION__<<" locking attached "<<std::endl; pthread_mutex_lock(&_attachedMutex);
-			std::cout<<"WAITING...\n";
+			pthread_mutex_lock(&_attachedMutex);
 			pthread_cond_wait(&_attachedCV, &_attachedMutex);
-			std::cout<<"UNLocking _attached...\n";
-			std::cout<<__FUNCTION__<<" unlocking attached "<<std::endl; pthread_mutex_unlock(&_attachedMutex);
+			pthread_mutex_unlock(&_attachedMutex);
 			return ATTACHED;
 
 		case ATTACHED:
@@ -404,16 +395,16 @@ int Chain::attachNow(int blockNum)
 
 	// // Lock pending from new requests
 	// std::cout<<"Locking _pending...\n";
-	// std::cout<<__FUNCTION__<<" locking pending "<<std::endl; pthread_mutex_lock(&_pendingMutex);
+	// pthread_mutex_lock(&_pendingMutex);
 	// std::cout<<"Locking _attached...\n";
-	// std::cout<<__FUNCTION__<<" locking attached "<<std::endl; pthread_mutex_lock(&_attachedMutex);
+	// pthread_mutex_lock(&_attachedMutex);
 
 	// if (_attached.find(blockNum) != _attached.end() && _attached[blockNum] != NULL)
 	// {
 	// 	std::cout<<"FOUND Unlocking _attached...\n";
-	// 	std::cout<<__FUNCTION__<<" unlocking attached "<<std::endl; pthread_mutex_unlock(&_attachedMutex);
+	// 	pthread_mutex_unlock(&_attachedMutex);
 	// 	std::cout<<"FOUND Unlocking _pending...\n";
-	// 	std::cout<<__FUNCTION__<<" unlocking pending "<<std::endl; pthread_mutex_unlock(&_pendingMutex);
+	// 	pthread_mutex_unlock(&_pendingMutex);
 	// 	return ATTACHED;
 	// }
 
@@ -432,12 +423,12 @@ int Chain::attachNow(int blockNum)
 	// 		_pending.push_front((*it));
 	// 		// Unlock pending
 	// 		std::cout<<"IN PENDING Unlocking _pending...\n";
-	// 		std::cout<<__FUNCTION__<<" unlocking pending "<<std::endl; pthread_mutex_unlock(&_pendingMutex);
+	// 		pthread_mutex_unlock(&_pendingMutex);
 
 	// 		std::cout<<"IN PENDING Waiting for _attachedCV...\n";
 	// 		pthread_cond_wait(&_attachedCV, &_attachedMutex);
 	// 		std::cout<<"IN PENDING Unlocking _attached...\n";
-	// 		std::cout<<__FUNCTION__<<" unlocking attached "<<std::endl; pthread_mutex_unlock(&_attachedMutex);
+	// 		pthread_mutex_unlock(&_attachedMutex);
 			
 	// 		return ATTACHED;
 	// 	}
@@ -448,20 +439,20 @@ int Chain::attachNow(int blockNum)
 	// 	if ((*it)->req->blockNum == blockNum)
 	// 	{
 	// 		std::cout<<"IN WORKERS Unlocking _pending...\n";
-	// 		std::cout<<__FUNCTION__<<" unlocking pending "<<std::endl; pthread_mutex_unlock(&_pendingMutex);
+	// 		pthread_mutex_unlock(&_pendingMutex);
 	// 		std::cout<<"IN WORKERS Waiting for _attachedCV...\n";
 	// 		pthread_cond_wait(&_attachedCV, &_attachedMutex);
 	// 		std::cout<<"IN WORKERS Unlocking _attached...\n";
-	// 		std::cout<<__FUNCTION__<<" unlocking attached "<<std::endl; pthread_mutex_unlock(&_attachedMutex);
+	// 		pthread_mutex_unlock(&_attachedMutex);
 
 	// 		return ATTACHED;
 	// 	}
 	// }
 	
 	// std::cout<<"Final Unlocking _attached...\n";
-	// std::cout<<__FUNCTION__<<" unlocking attached "<<std::endl; pthread_mutex_unlock(&_attachedMutex);
+	// pthread_mutex_unlock(&_attachedMutex);
 	// std::cout<<"Final Unlocking _pending...\n";
-	// std::cout<<__FUNCTION__<<" unlocking pending "<<std::endl; pthread_mutex_unlock(&_pendingMutex);
+	// pthread_mutex_unlock(&_pendingMutex);
 	
 	return NOT_FOUND;
 }
@@ -493,9 +484,9 @@ int Chain::pruneChain()
 	// Save random longest chain
 	Block* deepestBlock = getRandomDeepest();
 
-	std::cout<<__FUNCTION__<<" locking attached "<<std::endl; pthread_mutex_lock(&_attachedMutex);	
-	std::cout<<__FUNCTION__<<" locking tails "<<std::endl; pthread_mutex_lock(&_tailsMutex);
-	std::cout<<__FUNCTION__<<" locking deepestTails "<<std::endl; pthread_mutex_lock(&_deepestTailsMutex);
+	pthread_mutex_lock(&_attachedMutex);	
+	pthread_mutex_lock(&_tailsMutex);
+	pthread_mutex_lock(&_deepestTailsMutex);
 	
 	// Bubble up on longest chain and mark not to prune it
 	while (deepestBlock != NULL)
@@ -553,9 +544,9 @@ int Chain::pruneChain()
 
 	temp = NULL;
 
-	std::cout<<__FUNCTION__<<" unlocking deepestTails "<<std::endl; pthread_mutex_unlock(&_deepestTailsMutex);
-	std::cout<<__FUNCTION__<<" unlocking tails "<<std::endl; pthread_mutex_unlock(&_tailsMutex);
-	std::cout<<__FUNCTION__<<" unlocking attached "<<std::endl; pthread_mutex_unlock(&_attachedMutex);
+	pthread_mutex_unlock(&_deepestTailsMutex);
+	pthread_mutex_unlock(&_tailsMutex);
+	pthread_mutex_unlock(&_attachedMutex);
 	return SUCESS;
 }
 

@@ -1,7 +1,8 @@
 #include <iostream>
-#include <unistd.h>
 #include "Chain.hpp"
 
+// TODO
+#define HASH_LENGTH 128
 #define GENESIS_BLOCK_NUM 0
 
 // TODO write right numbers
@@ -19,13 +20,12 @@ pthread_t Chain::s_daemonThread;
 Chain::Chain()
 {	
 	pthread_mutex_init(&_usedIDListMutex, NULL);
-	pthread_mutex_init(&_deepestTailsMutex, NULL);
-	pthread_mutex_init(&_tailsMutex, NULL);
-	pthread_mutex_init(&_closedMutex, NULL);
-	pthread_mutex_init(&_attachedMutex, NULL);
-	pthread_mutex_init(&_pendingMutex, NULL);
 	pthread_mutex_init(&_statusMutex, NULL);
-	pthread_mutex_init(&_workerMutex, NULL);
+	pthread_mutex_init(&_pendingMutex, NULL);
+
+	pthread_mutex_init(&_chainMutex, NULL);
+	pthread_mutex_init(&_deepestTailsMutex, NULL);
+	pthread_mutex_init(&_attachedMutex, NULL);
 
 	pthread_cond_init(&_pendingCV, NULL);
 	pthread_cond_init(&_attachedCV, NULL);
@@ -77,9 +77,8 @@ int Chain::getMaxHeight(void)
 
 void Chain::pushBlock(Block* newTail)
 {
-	pthread_mutex_lock(&_tailsMutex);
-	pthread_mutex_lock(&_deepestTailsMutex);
-	pthread_mutex_lock(&_attachedMutex);
+	pthread_mutex_lock(&_chainMutex);
+	pthread_mutex_lock(&_statusMutex);
 	
 	int height = newTail->getHeight();
 
@@ -94,7 +93,7 @@ void Chain::pushBlock(Block* newTail)
 	if (height == _maxHeight)
 	{
 		_deepestTails.push_back(newTail);
-		for (std::vector<Block* >::iterator it = _deepestTails.begin(); 
+		for (std::vector<Block* >::iterator it = _deepestTails.begin();
 			 it != _deepestTails.end(); it++)
 		{
 			if (*it != NULL && (*it)->getHeight() < height)
@@ -136,9 +135,8 @@ void Chain::pushBlock(Block* newTail)
 	// Virtual Size update
 	_size++;
 
-	pthread_mutex_unlock(&_attachedMutex);
-	pthread_mutex_unlock(&_deepestTailsMutex);
-	pthread_mutex_unlock(&_tailsMutex);
+	pthread_mutex_unlock(&_statusMutex);
+	pthread_mutex_unlock(&_chainMutex);
 }
 
 void Chain::deleteBlock(Block* toDelete)
@@ -231,38 +229,19 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		{
 			// Process new request
 			AddRequest *newReq = _pending.front();
-			// Create worker thread
-			Worker *worker = new Worker(newReq);
-			pthread_mutex_lock(&_workerMutex);
-			_workers.push_back(worker);
-			pthread_mutex_unlock(&_workerMutex);
-
 			_pending.pop_front();
 			_status[newReq->blockNum] = PROCESSING;
 			pthread_mutex_unlock(&_pendingMutex);
 
 			// Do stuff
-			worker->act();
-
-			pthread_mutex_lock(&_workerMutex);
-			for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
-			{
-				if (*it != NULL)
-				{
-					if ((*it)->blockNum == newReq->blockNum)
-					{
-						_workers.erase(it);
-					}
-				}
-			}
-			pthread_mutex_unlock(&_workerMutex);
+			hash(newReq);
 
 			// Send signal to anyone waiting for attachNow
 			pthread_cond_signal(&_attachedCV);
 		}
 	}
 	// Unlock _pendingBlocks
-	// pthread_mutex_unlock(&_pendingMutex);
+	pthread_mutex_unlock(&_pendingMutex);
 	return NULL;
 }
 
@@ -352,9 +331,34 @@ int Chain::toLongest(int blockNum)
 	{
 		return FAIL;
 	}
-std::cout<<"Enter ToLongest"<<std::endl;
-std::cout<<"Locking status"<<std::endl;
-
+//std::cout<<"Enter ToLongest"<<std::endl;
+//
+//std::cout<<"Locking pending"<<std::endl;
+//	pthread_mutex_lock(&_pendingMutex);
+//	for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
+//	{
+//		if ((*it)->blockNum == blockNum)
+//		{
+//			(*it)->father = getRandomDeepest();
+//			pthread_mutex_unlock(&_pendingMutex);
+//			return SUCESS;
+//		}
+//	}
+//	pthread_mutex_unlock(&_pendingMutex);
+//std::cout<<"Locking workers"<<std::endl;
+//	pthread_mutex_lock(&_workerMutex);
+//	for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
+//	{
+//		if ((*it)->blockNum == blockNum) {
+//			(*it)->_toLongestFlag = true;
+//			pthread_mutex_unlock(&_workerMutex);
+//			return SUCESS;
+//		}
+//	}
+//	pthread_mutex_unlock(&_workerMutex);
+//std::cout<<"Finished ToLongest"<<std::endl;
+//
+//std::cout<<"Locking status"<<std::endl;
 	pthread_mutex_lock(&_statusMutex);
 	if (_status.find(blockNum) != _status.end() && _status[blockNum] == ATTACHED)
 	{
@@ -362,30 +366,10 @@ std::cout<<"Locking status"<<std::endl;
 		return ATTACHED;
 	}
 	pthread_mutex_unlock(&_statusMutex);
-std::cout<<"Locking pending"<<std::endl;
-	pthread_mutex_lock(&_pendingMutex);	
-	for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
-	{
-		if ((*it)->blockNum == blockNum)
-		{
-			(*it)->father = getRandomDeepest();
-			pthread_mutex_unlock(&_pendingMutex);
-			return SUCESS;
-		}
-	}
-	pthread_mutex_unlock(&_pendingMutex);
-std::cout<<"Locking workers"<<std::endl;
-	pthread_mutex_lock(&_workerMutex);
-	for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
-	{
-		if ((*it)->blockNum == blockNum) {
-			(*it)->_toLongestFlag = true;
-			pthread_mutex_unlock(&_workerMutex);
-			return SUCESS;
-		}
-	}
-	pthread_mutex_unlock(&_workerMutex);
-std::cout<<"Finished ToLongest"<<std::endl;
+
+	pthread_mutex_lock(&_toLongestMutex);
+	_toLongestFlags[blockNum] = true;
+	pthread_mutex_unlock(&_toLongestMutex);
 
 	return NOT_FOUND;
 }
@@ -516,9 +500,7 @@ int Chain::pruneChain()
 	// Save random longest chain
 	Block* deepestBlock = getRandomDeepest();
 
-	pthread_mutex_lock(&_attachedMutex);	
-	pthread_mutex_lock(&_tailsMutex);
-	pthread_mutex_lock(&_deepestTailsMutex);
+	pthread_mutex_lock(&_chainMutex);
 	
 	// Bubble up on longest chain and mark not to prune it
 	while (deepestBlock != NULL)
@@ -576,9 +558,7 @@ int Chain::pruneChain()
 
 	temp = NULL;
 
-	pthread_mutex_unlock(&_deepestTailsMutex);
-	pthread_mutex_unlock(&_tailsMutex);
-	pthread_mutex_unlock(&_attachedMutex);
+	pthread_mutex_unlock(&_chainMutex);
 	return SUCESS;
 }
 
@@ -586,12 +566,12 @@ void *Chain::closeChainLogic(void *pChain)
 {
 	Chain* chain = (Chain*)pChain;
 	pthread_mutex_lock(&(chain->_pendingMutex));
-	pthread_mutex_lock(&(chain->_attachedMutex));
+	pthread_mutex_lock(&(chain->_chainMutex));
 
 	// print out what's in pending list - and delete 'em
 	while (chain->_pending.size())
 	{
-		std::cout << Worker::hash(chain->_pending.front()) << std::endl;
+		std::cout << getInstance()->hash(chain->_pending.front()) << std::endl;
 		chain->_pending.pop_front();
 	}
 	// _pending.clear(); TODO maybe add to be sure
@@ -614,9 +594,8 @@ void *Chain::closeChainLogic(void *pChain)
 	}
 	chain->_attached.clear();
 	chain->_usedIDList.clear();
-	chain->_workers.clear();
 
-	pthread_mutex_unlock(&(chain->_attachedMutex));
+	pthread_mutex_unlock(&(chain->_chainMutex));
 	pthread_mutex_unlock(&(chain->_pendingMutex));
 	
 	pthread_cond_signal(&(chain->_pendingCV));
@@ -736,4 +715,41 @@ void Chain::printDeepest()
 		}
 		it++;
 	}
+}
+
+void Chain::hash(AddRequest *req)
+{
+	Block* cachedFather = req->father;
+	// Save if current father is longest or not
+	bool cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();
+	bool rehash = false;
+	char* blockHash;
+
+	do
+	{
+		// Calculate hash
+		int nonce = generate_nonce(req->blockNum, req->father->getId());
+
+		blockHash =  generate_hash(req->data, (size_t)req->dataLength, nonce);
+//		blockHash = "a";
+
+		if ((_toLongestFlags[req->blockNum] && !cachedLongest) || cachedFather == NULL)
+		{
+			rehash = true;
+			cachedFather = Chain::getInstance()->getRandomDeepest();
+			cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();
+		}
+		else
+		{
+			rehash = false;
+		}
+	} while (rehash);
+
+	// _toLongestFlag was false till now, so from now on toLongest(this) will not act on this block
+	// Create block
+	Block* newBlock = new Block(req->blockNum, blockHash, HASH_LENGTH,
+								req->father->getHeight()+1, req->father);
+
+	// Attach block to chain
+	Chain::getInstance()->pushBlock(newBlock);
 }

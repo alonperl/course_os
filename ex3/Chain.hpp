@@ -7,7 +7,6 @@
 #include <list>
 #include "Block.hpp"
 #include "AddRequest.hpp"
-#include "Worker.h"
 
 #define FAIL -1
 #define EMPTY 0
@@ -61,31 +60,27 @@ private:
 	Chain();
 	~Chain();
 
-	pthread_mutex_t _usedIDListMutex;
+	pthread_mutex_t _chainMutex;
 	pthread_mutex_t _deepestTailsMutex;
-	pthread_mutex_t _workerMutex;
-	pthread_mutex_t _tailsMutex;
 	pthread_mutex_t _attachedMutex;
-	pthread_mutex_t _closedMutex;
-	pthread_mutex_t _pendingMutex;
+
+	pthread_mutex_t _usedIDListMutex;
 	pthread_mutex_t _statusMutex;
+	pthread_mutex_t _pendingMutex;
 
 	pthread_cond_t _pendingCV;
 	pthread_cond_t _attachedCV;
-	pthread_cond_t _closedCV;
 
 	int _maxHeight;
 	int _expected_size;
 	int _size;
 
 	std::deque<AddRequest*> _pending;
-	
+
 	std::unordered_map<unsigned int, Block*> _attached;
 	std::vector<Block*> _tails;
 	std::vector<Block*> _deepestTails;
 	std::list<int> _usedIDList;
-
-	std::vector<Worker*> _workers;
 
 	bool _daemonWorkFlag;
 	bool _isClosing;
@@ -101,6 +96,10 @@ private:
 	int getBlockStatus(int blockNum);
 
 	std::unordered_map<int, int> _status;
+	pthread_mutex_t _toLongestMutex;
+	std::unordered_map<int, bool>_toLongestFlags;
+
+	void hash(AddRequest *req);
 };
 
 #endif

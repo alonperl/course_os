@@ -7,9 +7,6 @@
 #include "AddRequest.hpp"
 #include "Block.hpp"
 
-#define NOT_FINISHED -1;
-#define FINISHED 0;
-
 class Worker {
 public:
     Worker(AddRequest *pRequest);

@@ -110,7 +110,7 @@ int main() {
 
 	for (int i = 1; i <= PHASE_4; i++)
 	{
-		cout << "add " << i << ": ";sleep(2);
+		cout << "add " << i << ": ";
 		id = add_block(pl, 4);
 		cout << id << endl << " Calling to_longest..."<<endl;;
 		to_longest(id);

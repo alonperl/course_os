@@ -369,8 +369,13 @@ int Chain::attachNow(int blockNum)
 	{
 		case PENDING:
 			pthread_mutex_lock(&_pendingMutex);
-			_pending.erase(it);
-			_pending.push_front((*it));
+			for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
+			{
+				if ((*it)->blockNum == blockNum) {
+				_pending.erase(it);
+				_pending.push_front((*it));
+				break;
+			}
 			pthread_mutex_unlock(&_pendingMutex);
 
 		case PROCESSING:

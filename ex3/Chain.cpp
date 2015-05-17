@@ -508,14 +508,12 @@ void *Chain::closeChainLogic(void *pChain)
 {
 	Chain* chain = (Chain*)pChain;
 	pthread_mutex_lock(&(chain->_pendingMutex));
-	std::cout<<"SIZEOF PENDING "<<chain->_pending.size()<<std::endl;
 
 	// print out what's in pending list - and delete 'em
 	while (chain->_pending.size())
 	{
 		std::cout << Worker::hash(chain->_pending.front()) << std::endl;
 		chain->_pending.pop_front();
-		std::cout<<"SIZEOF PENDING "<<chain->_pending.size()<<std::endl;
 	}
 	// _pending.clear(); TODO maybe add to be sure
 

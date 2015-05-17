@@ -365,7 +365,7 @@ int Chain::attachNow(int blockNum)
 		return FAIL;
 	}
 
-	switch (_status[blockNum])
+	/*switch (_status[blockNum])
 	{
 		case PENDING:
 			pthread_mutex_lock(&_pendingMutex);
@@ -391,9 +391,9 @@ int Chain::attachNow(int blockNum)
 
 		default:
 			return NOT_FOUND;
-	}
+	}*/
 
-	/*// Lock pending from new requests
+	// Lock pending from new requests
 	std::cout<<"Locking _pending...\n";
 	pthread_mutex_lock(&_pendingMutex);
 	std::cout<<"Locking _attached...\n";
@@ -419,7 +419,7 @@ int Chain::attachNow(int blockNum)
 			worker->act();
 			 */
 			// Move desired block to the deque front
-			/*_pending.erase(it);
+			_pending.erase(it);
 			_pending.push_front((*it));
 			// Unlock pending
 			std::cout<<"IN PENDING Unlocking _pending...\n";
@@ -452,7 +452,7 @@ int Chain::attachNow(int blockNum)
 	std::cout<<"Final Unlocking _attached...\n";
 	pthread_mutex_unlock(&_attachedMutex);
 	std::cout<<"Final Unlocking _pending...\n";
-	pthread_mutex_unlock(&_pendingMutex);*/
+	pthread_mutex_unlock(&_pendingMutex);
 	
 	return NOT_FOUND;
 }

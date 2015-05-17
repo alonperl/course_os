@@ -249,7 +249,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 			{
 				if (*it != NULL)
 				{
-					if ((*it)->blockNum == worker->blockNum)
+					if ((*it)->blockNum == newReq->blockNum)
 					{
 						_workers.erase(it);
 					}

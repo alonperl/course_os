@@ -352,7 +352,7 @@ int Chain::toLongest(int blockNum)
 	{
 		return FAIL;
 	}
-
+std::cout<<"Enter ToLongest"<<std::endl;
 	pthread_mutex_lock(&_statusMutex);
 	if (_status.find(blockNum) != _status.end() && _status[blockNum] == ATTACHED)
 	{
@@ -383,6 +383,7 @@ int Chain::toLongest(int blockNum)
 		}
 	}
 	pthread_mutex_unlock(&_workerMutex);
+std::cout<<"Finished ToLongest"<<std::endl;
 
 	return NOT_FOUND;
 }

@@ -365,9 +365,10 @@ int Chain::attachNow(int blockNum)
 		return FAIL;
 	}
 
-	/*switch (_status[blockNum])
+	switch (_status[blockNum])
 	{
 		case PENDING:
+			std::cout<<"Locking _pending...\n";
 			pthread_mutex_lock(&_pendingMutex);
 			for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
 			{
@@ -378,11 +379,15 @@ int Chain::attachNow(int blockNum)
 					break;
 				}
 			}
+			std::cout<<"UNLocking _pending...\n";
 			pthread_mutex_unlock(&_pendingMutex);
 
 		case PROCESSING:
+			std::cout<<"Locking _attached...\n";
 			pthread_mutex_lock(&_attachedMutex);
+			std::cout<<"WAITING...\n";
 			pthread_cond_wait(&_attachedCV, &_attachedMutex);
+			std::cout<<"UNLocking _attached...\n";
 			pthread_mutex_unlock(&_attachedMutex);
 			return ATTACHED;
 
@@ -391,68 +396,68 @@ int Chain::attachNow(int blockNum)
 
 		default:
 			return NOT_FOUND;
-	}*/
-
-	// Lock pending from new requests
-	std::cout<<"Locking _pending...\n";
-	pthread_mutex_lock(&_pendingMutex);
-	std::cout<<"Locking _attached...\n";
-	pthread_mutex_lock(&_attachedMutex);
-
-	if (_attached.find(blockNum) != _attached.end() && _attached[blockNum] != NULL)
-	{
-		std::cout<<"FOUND Unlocking _attached...\n";
-		pthread_mutex_unlock(&_attachedMutex);
-		std::cout<<"FOUND Unlocking _pending...\n";
-		pthread_mutex_unlock(&_pendingMutex);
-		return ATTACHED;
 	}
 
-	for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
-	{
-		if ((*it)->blockNum == blockNum) {
-			/* This request is not yet processed, force it to process right now */
+	// // Lock pending from new requests
+	// std::cout<<"Locking _pending...\n";
+	// pthread_mutex_lock(&_pendingMutex);
+	// std::cout<<"Locking _attached...\n";
+	// pthread_mutex_lock(&_attachedMutex);
+
+	// if (_attached.find(blockNum) != _attached.end() && _attached[blockNum] != NULL)
+	// {
+	// 	std::cout<<"FOUND Unlocking _attached...\n";
+	// 	pthread_mutex_unlock(&_attachedMutex);
+	// 	std::cout<<"FOUND Unlocking _pending...\n";
+	// 	pthread_mutex_unlock(&_pendingMutex);
+	// 	return ATTACHED;
+	// }
+
+	// for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
+	// {
+	// 	if ((*it)->blockNum == blockNum) {
+	// 		/* This request is not yet processed, force it to process right now */
 			
-			/* TODO THIS IS OVERKILL BUT I LIKE IT
-			// Run worker with chain blocking
-			BlockingWorker *worker = new BlockingWorker(*it);
-			worker->act();
-			 */
-			// Move desired block to the deque front
-			_pending.erase(it);
-			_pending.push_front((*it));
-			// Unlock pending
-			std::cout<<"IN PENDING Unlocking _pending...\n";
-			pthread_mutex_unlock(&_pendingMutex);
+	// 		/* TODO THIS IS OVERKILL BUT I LIKE IT
+	// 		// Run worker with chain blocking
+	// 		BlockingWorker *worker = new BlockingWorker(*it);
+	// 		worker->act();
+	// 		 */
+	// 		// Move desired block to the deque front
+	// 		_pending.erase(it);
+	// 		_pending.push_front((*it));
+	// 		// Unlock pending
+	// 		std::cout<<"IN PENDING Unlocking _pending...\n";
+	// 		pthread_mutex_unlock(&_pendingMutex);
 
-			std::cout<<"IN PENDING Waiting for _attachedCV...\n";
-			pthread_cond_wait(&_attachedCV, &_attachedMutex);
-			std::cout<<"IN PENDING Unlocking _attached...\n";
-			pthread_mutex_unlock(&_attachedMutex);
+	// 		std::cout<<"IN PENDING Waiting for _attachedCV...\n";
+	// 		pthread_cond_wait(&_attachedCV, &_attachedMutex);
+	// 		std::cout<<"IN PENDING Unlocking _attached...\n";
+	// 		pthread_mutex_unlock(&_attachedMutex);
 			
-			return ATTACHED;
-		}
-	}
+	// 		return ATTACHED;
+	// 	}
+	// }
 
-	for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
-	{
-		if ((*it)->req->blockNum == blockNum)
-		{
-			std::cout<<"IN WORKERS Unlocking _pending...\n";
-			pthread_mutex_unlock(&_pendingMutex);
-			std::cout<<"IN WORKERS Waiting for _attachedCV...\n";
-			pthread_cond_wait(&_attachedCV, &_attachedMutex);
-			std::cout<<"IN WORKERS Unlocking _attached...\n";
-			pthread_mutex_unlock(&_attachedMutex);
+	// for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
+	// {
+	// 	if ((*it)->req->blockNum == blockNum)
+	// 	{
+	// 		std::cout<<"IN WORKERS Unlocking _pending...\n";
+	// 		pthread_mutex_unlock(&_pendingMutex);
+	// 		std::cout<<"IN WORKERS Waiting for _attachedCV...\n";
+	// 		pthread_cond_wait(&_attachedCV, &_attachedMutex);
+	// 		std::cout<<"IN WORKERS Unlocking _attached...\n";
+	// 		pthread_mutex_unlock(&_attachedMutex);
 
-			return ATTACHED;
-		}
-	}
+	// 		return ATTACHED;
+	// 	}
+	// }
 	
-	std::cout<<"Final Unlocking _attached...\n";
-	pthread_mutex_unlock(&_attachedMutex);
-	std::cout<<"Final Unlocking _pending...\n";
-	pthread_mutex_unlock(&_pendingMutex);
+	// std::cout<<"Final Unlocking _attached...\n";
+	// pthread_mutex_unlock(&_attachedMutex);
+	// std::cout<<"Final Unlocking _pending...\n";
+	// pthread_mutex_unlock(&_pendingMutex);
 	
 	return NOT_FOUND;
 }

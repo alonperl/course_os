@@ -215,6 +215,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		AddRequest *newReq = _pending.front();
 		Worker *worker = new Worker(newReq);
 		_workers.push_back(worker);
+		pthread_mutex_lock(&_pendingMutex);
 		_pending.pop_front();
 		pthread_mutex_unlock(&_pendingMutex);
 

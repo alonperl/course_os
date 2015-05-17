@@ -349,7 +349,7 @@ int Chain::attachNow(int blockNum)
 
 	pthread_mutex_lock(&_attachedMutex);
 
-	if (_attached[blockNum] != NULL)
+	if (_attached.find(blockNum) != _attached.end())
 	{
 		pthread_mutex_unlock(&_attachedMutex);
 		return ATTACHED;

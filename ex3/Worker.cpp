@@ -82,6 +82,6 @@ char* Worker::hash(const AddRequest *pRequest)
     // Calculate hash
     int nonce = generate_nonce(req->blockNum, req->father->getId());
 
-    // return generate_hash(req->data, (size_t)req->dataLength, nonce);
-    return "a";
+    return generate_hash(req->data, (size_t)req->dataLength, nonce);
+    // return "a";
 }

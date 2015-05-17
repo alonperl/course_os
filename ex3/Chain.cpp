@@ -368,8 +368,9 @@ int Chain::attachNow(int blockNum)
 
 	for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
 	{
-		if ((*it)->req->blockNum == blockNum) {
-			// return STATUS_WORKING
+		if ((*it)->req->blockNum == blockNum)
+		{
+			while(_status[blockNum] != 1);
 			return SUCESS;
 		}
 	}

@@ -365,11 +365,14 @@ int Chain::attachNow(int blockNum)
 	}
 
 	// Lock pending from new requests
+	std::cout<<"Locking _pending...\n";
 	pthread_mutex_lock(&_pendingMutex);
+	std::cout<<"Locking _attached...\n";
 	pthread_mutex_lock(&_attachedMutex);
 
 	if (_attached.find(blockNum) != _attached.end() && _attached[blockNum] != NULL)
 	{
+		std::cout<<"FOUND Unlocking _attached...\n";
 		pthread_mutex_unlock(&_attachedMutex);
 		return ATTACHED;
 	}
@@ -388,9 +391,12 @@ int Chain::attachNow(int blockNum)
 			_pending.erase(it);
 			_pending.push_front((*it));
 			// Unlock pending
+			std::cout<<"IN PENDING Unlocking _pending...\n";
 			pthread_mutex_unlock(&_pendingMutex);
 
+			std::cout<<"IN PENDING Waiting for _attachedCV...\n";
 			pthread_cond_wait(&_attachedCV, &_attachedMutex);
+			std::cout<<"IN PENDING Unlocking _attached...\n";
 			pthread_mutex_unlock(&_attachedMutex);
 			
 			return ATTACHED;
@@ -401,15 +407,20 @@ int Chain::attachNow(int blockNum)
 	{
 		if ((*it)->req->blockNum == blockNum)
 		{
+			std::cout<<"IN WORKERS Waiting for _attachedCV...\n";
 			pthread_cond_wait(&_attachedCV, &_attachedMutex);
+			std::cout<<"IN WORKERS Unlocking _attached...\n";
 			pthread_mutex_unlock(&_attachedMutex);
+			std::cout<<"IN WORKERS Unlocking _pending...\n";
 			pthread_mutex_unlock(&_pendingMutex);
 
 			return ATTACHED;
 		}
 	}
-
+	
+	std::cout<<"Final Unlocking _attached...\n";
 	pthread_mutex_unlock(&_attachedMutex);
+	std::cout<<"Final Unlocking _pending...\n";
 	pthread_mutex_unlock(&_pendingMutex);
 	
 	return NOT_FOUND;

@@ -213,7 +213,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		}
 
 		// Chain is not initiated
-		if (!s_initiated)
+		if (_isClosing)
 		{
 			return NULL;
 		}

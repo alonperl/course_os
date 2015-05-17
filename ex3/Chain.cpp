@@ -223,21 +223,23 @@ void *Chain::daemonRoutine(void *chain_ptr)
 			pthread_mutex_lock(&_pendingMutex);
 		}
 
-		// Process new request
-		std::cout<<"DAEMON: SIZEOF PENDING "<<_pending.size()<<std::endl;
-		AddRequest *newReq = _pending.front();
-		// Create worker thread
-		Worker *worker = new Worker(newReq);
-		_workers.push_back(worker);
+		if (_pending.size())
+		{
+			// Process new request
+			AddRequest *newReq = _pending.front();
+			// Create worker thread
+			Worker *worker = new Worker(newReq);
+			_workers.push_back(worker);
 
-		_pending.pop_front();
-		pthread_mutex_unlock(&_pendingMutex);
+			_pending.pop_front();
+			pthread_mutex_unlock(&_pendingMutex);
 
-		// Do stuff
-		worker->act();
+			// Do stuff
+			worker->act();
 
-		// Send signal to anyone waiting for attachNow
-		pthread_cond_signal(&_attachedCV);
+			// Send signal to anyone waiting for attachNow
+			pthread_cond_signal(&_attachedCV);
+		}
 	}
 	// Unlock _pendingBlocks
 	// pthread_mutex_unlock(&_pendingMutex);

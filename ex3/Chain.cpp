@@ -137,6 +137,8 @@ void Chain::pushBlock(Block* newTail)
 	pthread_mutex_unlock(&_attachedMutex);
 	pthread_mutex_unlock(&_deepestTailsMutex);
 	pthread_mutex_unlock(&_tailsMutex);
+		std::cout<<"OUT PUSHBLOCK...\n";
+
 }
 
 void Chain::deleteBlock(Block* toDelete)

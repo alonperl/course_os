@@ -353,6 +353,8 @@ int Chain::toLongest(int blockNum)
 		return FAIL;
 	}
 std::cout<<"Enter ToLongest"<<std::endl;
+std::cout<<"Locking status"<<std::endl;
+
 	pthread_mutex_lock(&_statusMutex);
 	if (_status.find(blockNum) != _status.end() && _status[blockNum] == ATTACHED)
 	{
@@ -360,7 +362,7 @@ std::cout<<"Enter ToLongest"<<std::endl;
 		return ATTACHED;
 	}
 	pthread_mutex_unlock(&_statusMutex);
-
+std::cout<<"Locking pending"<<std::endl;
 	pthread_mutex_lock(&_pendingMutex);	
 	for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
 	{
@@ -372,7 +374,7 @@ std::cout<<"Enter ToLongest"<<std::endl;
 		}
 	}
 	pthread_mutex_unlock(&_pendingMutex);
-
+std::cout<<"Locking workers"<<std::endl;
 	pthread_mutex_lock(&_workerMutex);
 	for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
 	{

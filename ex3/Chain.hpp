@@ -4,7 +4,9 @@
 #include <vector>
 #include <unordered_map>
 #include <deque>
+#include <iostream>
 #include <list>
+#include "hash.h"
 #include "Block.hpp"
 #include "AddRequest.hpp"
 

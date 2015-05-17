@@ -27,6 +27,7 @@ Chain::Chain()
 
 	_maxHeight = EMPTY;
 	_expected_size = EMPTY;
+	_isClosing = false;
 
 	s_initiated = true;
 }
@@ -205,7 +206,6 @@ void *Chain::daemonRoutine(void *chain_ptr)
 
 		if (!s_initiated)
 		{
-			std::cout<<"WALLA CLOSING\n";
 			return NULL;
 		}
 

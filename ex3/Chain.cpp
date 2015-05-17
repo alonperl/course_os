@@ -246,7 +246,13 @@ void *Chain::daemonRoutine(void *chain_ptr)
 Block* Chain::getRandomDeepest()
 {
 	std::cout<< __FUNCTION__;pthread_mutex_lock(&_deepestTailsMutex);std::cout<< ": deepestTails locked." <<std::endl;
+	std::cout << "Deepest Tails Size Is: " << _deepestTails.size() <<std::endl;
+	if (_deepestTails.size() == 0)
+	{
+		std::cout << "\n\nCAN'T FUCKING BE \n\n";
+	}
 	long index = rand() % _deepestTails.size();
+	std::cout << "(First in vector is 0), - Index is: " << index << " Vector Size is: " << _deepestTails.size() << std::endl; 
 	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_deepestTailsMutex);std::cout<< ": deepestTails unlocked." <<std::endl;
 	return _deepestTails[index];
 }
@@ -445,6 +451,8 @@ int Chain::wasAdded(int blockNum)
 
 int Chain::chainSize()
 {
+	std::cout << "Entered Chain::chainSize()\n";
+	std::cout << "Size is: " << _size << std::endl;
 	return (isInitiated() ? _size : FAIL);
 }
 
@@ -524,9 +532,16 @@ int Chain::pruneChain()
 void *Chain::closeChainLogic(void *pChain)
 {
 	Chain* chain = (Chain*)pChain;
+
+	// Wait untill deamon closes
+	pthread_cond_signal(&(chain->_pendingCV));
+	pthread_join(s_daemonThread, NULL);
+	s_instance = NULL;
+	s_initiated = false;
+
 	pthread_mutex_lock(&(chain->_pendingMutex));
 	pthread_mutex_lock(&(chain->_chainMutex));
-
+	pthread_mutex_lock(&(chain->_deepestTailsMutex));
 	// print out what's in pending list - and delete 'em
 	while (chain->_pending.size())
 	{
@@ -556,14 +571,10 @@ void *Chain::closeChainLogic(void *pChain)
 
 	pthread_mutex_unlock(&(chain->_chainMutex));
 	pthread_mutex_unlock(&(chain->_pendingMutex));
+	pthread_mutex_unlock(&(chain->_deepestTailsMutex));
 	
-	pthread_cond_signal(&(chain->_pendingCV));
-	pthread_join(s_daemonThread, NULL);
-
 	delete chain;
-	
-	s_instance = NULL;
-	s_initiated = false;
+
 	return NULL;
 }
 

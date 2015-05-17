@@ -499,7 +499,7 @@ void *Chain::closeChainLogic(void *pChain)
 		//TODO - should First hash the data - and than print it
 		std::cout << (*it)->data; //TODO: probebly should print /n enter
 		chain->_pending.erase(it);
-		*it++;
+		it++;
 	}
 	// _pending.clear(); TODO maybe add to be sure
 

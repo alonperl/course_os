@@ -112,8 +112,9 @@ int main() {
 	{
 		cout << "add " << i << ": ";
 		id = add_block(pl, 4);
-		cout << id << endl;
+		cout << id << endl << " Calling to_longest..."<<endl;;
 		to_longest(id);
+		cout << "to_longest finished"<<endl;;
 	}
 	a2 = false;
 

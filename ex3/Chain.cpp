@@ -496,10 +496,12 @@ void *Chain::closeChainLogic(void *pChain)
 	// print out what's in pending list - and delete 'em
 	while (it != chain->_pending.end())
 	{
-		//TODO - should First hash the data - and than print it
-		std::cout << (*it)->data; //TODO: probebly should print /n enter
-		chain->_pending.erase(it);
-		it++;
+		if (*it != NULL)
+		{
+			std::cout << Worker::hash(*it) << std::endl;
+			chain->_pending.erase(it);
+			it++;
+		}
 	}
 	// _pending.clear(); TODO maybe add to be sure
 

@@ -63,10 +63,12 @@ private:
 
 	pthread_mutex_t _usedIDListMutex;
 	pthread_mutex_t _deepestTailsMutex;
+	pthread_mutex_t _workerMutex;
 	pthread_mutex_t _tailsMutex;
 	pthread_mutex_t _attachedMutex;
 	pthread_mutex_t _closedMutex;
 	pthread_mutex_t _pendingMutex;
+	pthread_mutex_t _statusMutex;
 
 	pthread_cond_t _pendingCV;
 	pthread_cond_t _attachedCV;

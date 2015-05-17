@@ -20,8 +20,12 @@ Chain::Chain()
 {	
 	pthread_mutex_init(&_usedIDListMutex, NULL);
 	pthread_mutex_init(&_deepestTailsMutex, NULL);
+	pthread_mutex_init(&_tailsMutex, NULL);
+	pthread_mutex_init(&_closedMutex, NULL);
 	pthread_mutex_init(&_attachedMutex, NULL);
 	pthread_mutex_init(&_pendingMutex, NULL);
+	pthread_mutex_init(&_statusMutex, NULL);
+	pthread_mutex_init(&_workerMutex, NULL);
 
 	pthread_cond_init(&_pendingCV, NULL);
 	pthread_cond_init(&_attachedCV, NULL);
@@ -229,7 +233,9 @@ void *Chain::daemonRoutine(void *chain_ptr)
 			AddRequest *newReq = _pending.front();
 			// Create worker thread
 			Worker *worker = new Worker(newReq);
+			pthread_mutex_lock(&_workerMutex);
 			_workers.push_back(worker);
+			pthread_mutex_unlock(&_workerMutex);
 
 			_pending.pop_front();
 			_status[newReq->blockNum] = PROCESSING;
@@ -237,6 +243,16 @@ void *Chain::daemonRoutine(void *chain_ptr)
 
 			// Do stuff
 			worker->act();
+
+			pthread_mutex_lock(&_workerMutex);
+			for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
+			{
+				if (*it == worker)
+				{
+					_workers.erase(it);
+				}
+			}
+			pthread_mutex_unlock(&_workerMutex);
 
 			// Send signal to anyone waiting for attachNow
 			pthread_cond_signal(&_attachedCV);
@@ -296,24 +312,26 @@ int Chain::initChain()
  */
 int Chain::addRequest(char *data, int length)
 {
-	if (!Chain::isInitiated())
+	if (!isInitiated() || _isClosing)
 	{
 		return FAIL;
 	}
 
-	int newId = Chain::getLowestID();
+	int newId = getLowestID();
 
 	// Add new task for daemon
 	pthread_mutex_lock(&_pendingMutex);
+	pthread_mutex_lock(&_statusMutex);
 	_pending.push_back(new AddRequest(data, length, newId, getRandomDeepest()));
 	_status[newId] = PENDING;
+	pthread_mutex_unlock(&_statusMutex);
 	pthread_mutex_unlock(&_pendingMutex);
-
-	// Signal daemon that it has more work
-	pthread_cond_signal(&_pendingCV);
 
 	// Update expected size
 	_expected_size++;
+
+	// Signal daemon that it has more work
+	pthread_cond_signal(&_pendingCV);
 	return newId;
 }
 
@@ -331,29 +349,36 @@ int Chain::toLongest(int blockNum)
 		return FAIL;
 	}
 
-	if (_attached[blockNum] != NULL)
+	pthread_mutex_lock(&_statusMutex);
+	if (_status.find(blockNum) != _status.end() && _status[blockNum] != NULL)
 	{
+		pthread_mutex_unlock(&_statusMutex);
 		return ATTACHED;
 	}
+	pthread_mutex_unlock(&_statusMutex);
 
+	pthread_mutex_lock(&_pendingMutex);	
 	for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
 	{
 		if ((*it)->blockNum == blockNum)
 		{
 			(*it)->father = getRandomDeepest();
-			// return STATUS_PENDING
+			pthread_mutex_unlock(&_pendingMutex);
 			return SUCESS;
 		}
 	}
+	pthread_mutex_unlock(&_pendingMutex);
 
+	pthread_mutex_lock(&_workerMutex);
 	for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
 	{
 		if ((*it)->blockNum == blockNum) {
 			(*it)->_toLongestFlag = true;
-			// return STATUS_WORKING
+			pthread_mutex_unlock(&_workerMutex);
 			return SUCESS;
 		}
 	}
+	pthread_mutex_unlock(&_workerMutex);
 
 	return NOT_FOUND;
 }

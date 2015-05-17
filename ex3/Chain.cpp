@@ -249,7 +249,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 			{
 				if (*it != NULL)
 				{
-					if (*it == worker)
+					if (*it->blockNum == worker->blockNum)
 					{
 						_workers.erase(it);
 					}

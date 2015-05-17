@@ -221,7 +221,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 			pthread_mutex_unlock(&_pendingMutex);
 
 			// Do stuff
-			hash(newReq);
+			createBlock(newReq);
 
 			// Send signal to anyone waiting for attachNow
 			pthread_cond_signal(&_attachedCV);
@@ -558,7 +558,8 @@ void *Chain::closeChainLogic(void *pChain)
 	// print out what's in pending list - and delete 'em
 	while (chain->_pending.size())
 	{
-		std::cout << getInstance()->hash(chain->_pending.front()) << std::endl;
+		char* unusedHash = getInstance()->hash(chain->_pending.front());
+		std::cout << unusedHash << std::endl;
 		chain->_pending.pop_front();
 	}
 
@@ -703,7 +704,7 @@ void Chain::printDeepest()
 	}
 }
 
-void Chain::hash(AddRequest *req)
+void Chain::createBlock(AddRequest *req)
 {
 	Block* cachedFather = req->father;
 	// Save if current father is longest or not
@@ -713,10 +714,7 @@ void Chain::hash(AddRequest *req)
 
 	do
 	{
-		// Calculate hash
-		int nonce = generate_nonce(req->blockNum, req->father->getId());
-
-		blockHash =  generate_hash(req->data, (size_t)req->dataLength, nonce);
+		blockHash = hash(req);
 //		blockHash = "a";
 
 		if ((_toLongestFlags[req->blockNum] && !cachedLongest) || cachedFather == NULL)
@@ -738,4 +736,10 @@ void Chain::hash(AddRequest *req)
 
 	// Attach block to chain
 	Chain::getInstance()->pushBlock(newBlock);
+}
+
+char* Chain::hash(AddRequest *req)
+{
+	int nonce = generate_nonce(req->blockNum, req->father->getId());
+	return generate_hash(req->data, (size_t)req->dataLength, nonce);
 }

@@ -510,7 +510,7 @@ void *Chain::closeChainLogic(void *pChain)
 	// print out what's in pending list - and delete 'em
 	while (chain->_pending.size())
 	{
-		std::cout << Worker::hash(*(chain->_pending.front())) << std::endl;
+		std::cout << Worker::hash(chain->_pending.front()) << std::endl;
 		chain->_pending.pop_front();
 	}
 	// _pending.clear(); TODO maybe add to be sure

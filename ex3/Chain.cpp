@@ -224,7 +224,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		}
 
 		// Process new request
-		std::cout<<"DAEMON: SIZEOF PENDING "<<chain->_pending.size()<<std::endl;
+		std::cout<<"DAEMON: SIZEOF PENDING "<<_pending.size()<<std::endl;
 		AddRequest *newReq = _pending.front();
 		// Create worker thread
 		Worker *worker = new Worker(newReq);

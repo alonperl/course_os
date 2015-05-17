@@ -407,12 +407,12 @@ int Chain::attachNow(int blockNum)
 	{
 		if ((*it)->req->blockNum == blockNum)
 		{
+			std::cout<<"IN WORKERS Unlocking _pending...\n";
+			pthread_mutex_unlock(&_pendingMutex);
 			std::cout<<"IN WORKERS Waiting for _attachedCV...\n";
 			pthread_cond_wait(&_attachedCV, &_attachedMutex);
 			std::cout<<"IN WORKERS Unlocking _attached...\n";
 			pthread_mutex_unlock(&_attachedMutex);
-			std::cout<<"IN WORKERS Unlocking _pending...\n";
-			pthread_mutex_unlock(&_pendingMutex);
 
 			return ATTACHED;
 		}

@@ -247,7 +247,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 			pthread_mutex_lock(&_workerMutex);
 			for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
 			{
-				if (*it == worker)
+				if (*it != NULL && *it == worker)
 				{
 					_workers.erase(it);
 				}

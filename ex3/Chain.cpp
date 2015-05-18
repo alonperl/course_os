@@ -22,7 +22,7 @@ pthread_t Chain::s_daemonThread;
  */
 Chain::Chain()
 {	
-	pthread_mutex_init(&_usedIDListMutex, NULL);
+	pthread_mutex_init(&_recycledIdsMutex, NULL);
 	pthread_mutex_init(&_statusMutex, NULL);
 	pthread_mutex_init(&_pendingMutex, NULL);
 
@@ -304,17 +304,17 @@ int Chain::getLowestID()
 	// TODO: looks for the lowest number available and returns it:
 	// get lowest number from usedID list
 	// get size of list - chose the smaller of the two
-	if (_usedIDList.empty())
+	if (_recycledIds.empty())
 	{
 		return _expected_size+1;
 	}
 
-	_usedIDList.sort();
-	int smallestUsedId = _usedIDList.front(); //assuming usedID list is always sorted after adding an element there -if not change the .front())
+	_recycledIds.sort();
+	int smallestUsedId = _recycledIds.front(); //assuming usedID list is always sorted after adding an element there -if not change the .front())
 	
-	pthread_mutex_lock(&_usedIDListMutex);
-	_usedIDList.remove(smallestUsedId); // erase from used list
-	pthread_mutex_unlock(&_usedIDListMutex);
+	pthread_mutex_lock(&_recycledIdsMutex);
+	_recycledIds.remove(smallestUsedId); // erase from used list
+	pthread_mutex_unlock(&_recycledIdsMutex);
 	return smallestUsedId;
 }
 

@@ -13,80 +13,109 @@
 #define EMPTY 0
 #define SUCESS 0
 
-// typedef std::unordered_map<unsigned int, Block*> BlockMap;
-typedef std::vector<Block*> BlockMap;
-typedef std::unordered_map<unsigned int, BlockMap> BlockHeightMap;
+typedef std::deque<Request*> RequestQueue;
+typedef std::unordered_map<unsigned int, Block*> BlockMap;
+typedef std::vector<Block*> BlockVector;
+typedef std::unordered_map<unsigned int, BlockVector> BlockHeightMap;
 
 class Chain
 {
 public:
-	static void *staticDaemonRoutine(void* c);
-	static bool isInitiated(void);
+	/* Singleton instance getter */
+	/**
+	 * @return Chain instance if exists, throw FAIL otherwise
+	 */
 	static Chain *getInstance();
+
+	/**
+	 * @brief Create chain instance, init hash library, create genesis
+	 *
+	 * @return -1 if already initiated, 0 otherwise
+	 */
 	static int initChain();
+
+	/**
+	 * @brief Static handler for Daemon Thread
+	 *
+	 * @param pChain Pointer to the chain it is called for
+	 */
+	static void *staticDaemonRoutine(void* c);
+
+	/**
+	 * @brief Daemon thread routine
+	 * @details This function is passed as start_routine to daemon thread,
+	 *          it waits for new requests to come, and when _pendingCV is fired:
+	 *          	- daemon takes the request from _pending queue and hashes its data
+	 *          	- when hashing finished, it adds the block to chain
+	 *
+	 * @param chain_ptr pointer to chain
+	 * @return NULL
+	 */
+	void *daemonRoutine(void*pChain);
+
+	/**
+	 * @return true if was initiated
+	 */
+	static bool isInitiated(void);
+
+	/**
+	 * @brief Routine to close the chain: forces the daemon to finish,
+	 * 		  removes all the chain data, resets instance pointer.
+	 */
+	static void *closeChainLogic(void *c);
 
 	/**
 	 * @return the chain's max height
 	 */
 	int getMaxHeight(void);
-	
-	void pushBlock(Block* newBlock);
-	void deleteBlock(Block* toDelete);
 
 	/**
+	 * @brief Attach block to the Chain
+	 * @details Update tails, update status
+	 *
+	 * @param newTail Pointer to new Block
+	 */
+	void pushBlock(Block* newBlock);
+
+	/**
+	 * @description Looks for the lowest number available and returns it:
+	 *              - get lowest number from usedID list
+					- get virtual size of chain - chooses smaller of the two
+	 *
 	 * @return the lowest ID available
 	 */
 	int  getLowestID();
-	
-	void *daemonRoutine(void* c);
+
+	/**
+	 * @return random longest tip
+	 */
 	Block* getRandomDeepest();
 
+	/**
+	 * @brief Add new data to pending list for daemon to process
+	 *
+	 * @param data New block data
+	 * @param length Data length
+	 *
+	 * @return New block ID
+	 */
 	int  addRequest(char *data, int length);
+
+	/**
+	 * @brief Force block to be attached to longest chain when its time comes
+	 *
+	 * @param blockNum Unique block id
+	 * @return -2 if block does not exist, 1 if succeed, -1 if error occurred
+	 */
 	int  toLongest(int blockNum);
+
+	/**
+	 * @brief Block current thread until block with given number is attached to the chain
+	 *
+	 * @param blockNum unique block id
+	 * @return -2 if block does not exist, 0 if succeed, -1 if error occurred
+	 */
 	int  attachNow(int blockNum);
-	int  wasAdded(int blockNum);
-	int  chainSize();
-	int  pruneChain();
-	void closeChain();
-	// TODO @eran
-	static void *closeChainLogic(void *c);
-	int  returnOnClose();
-void printChain();
-
-private:
-	static bool s_initiated;
-	static Chain *s_instance;
-	static pthread_t s_daemonThread;
-	pthread_t _closingThread;
-
-	Chain();
-	~Chain();
-
-	pthread_mutex_t _chainMutex;
-	pthread_mutex_t _tailsMutex;
-	// pthread_mutex_t _deepestTailsMutex;
-	pthread_mutex_t _attachedMutex;
-
-	pthread_mutex_t _usedIDListMutex;
-	pthread_mutex_t _statusMutex;
-	pthread_mutex_t _pendingMutex;
-
-	pthread_cond_t _pendingCV;
-	pthread_cond_t _attachedCV;
-
-	int _maxHeight;
-	int _expected_size;
-	int _size;
-
-	std::deque<Request *> _pending;
-
-	std::unordered_map<unsigned int, Block*> _attached;
-	BlockHeightMap _tails;
-	// std::vector<Block*> _deepestTails;
-	std::list<int> _usedIDList;
-
-	bool _daemonWorkFlag;
-	bool _isClosing;
 
 	/**
 	 * @return block status, or -1 in case of illegal input
@@ -96,13 +125,107 @@ private:
 	 * 1	ATTACHED
 	 * 2	PROCESSING
 	 */
-	int getBlockStatus(int blockNum);
+	int  wasAdded(int blockNum);
 
-	std::unordered_map<int, int> _status;
+	/**
+	 * @return chain virtual size, i.e. number of blocks attached from last init
+	 */
+	int  chainSize();
+
+	/**
+	 * @brief	Randomly select longest chain and prune all forks.
+	 * 			After pruneChain() returns, the chain is a single list.
+	 *
+	 * 	@return 0 if succeed, -1 if error occurred
+	 */
+	int  pruneChain();
+
+	/**
+	 * @brief	Randomly select longest chain and prune all forks.
+	 * 			After pruneChain() returns, the chain is a single list.
+	 *
+	 * 	@return 0 if succeed, -1 if error occurred
+	 */
+
+	/**
+	 * @brief Create closing thread.
+	 */
+	void closeChain();
+
+	/**
+	 * @brief Block calling thread until the chain is closed.
+	 */
+	int  returnOnClose();
+
+private:
+	/* Singleton instance */
+	static Chain *s_instance;
+	static bool s_initiated;
+
+	/* Daemon thread */
+	static pthread_t s_daemonThread;
+
+	/* Close Routine thread */
+	pthread_t _closingThread;
+
+	/**
+	 * @brief Chain Constructor
+	 */
+	Chain();
+
+	/**
+	 * @brief Chain Destructor
+	 */
+	~Chain();
+
+	pthread_mutex_t _chainMutex;
+	pthread_mutex_t _tailsMutex;
+	pthread_mutex_t _attachedMutex;
+
+	pthread_mutex_t _recycledIdsMutex;
+	pthread_mutex_t _statusMutex;
+	pthread_mutex_t _pendingMutex;
+
 	pthread_mutex_t _toLongestMutex;
-	std::unordered_map<int, bool>_toLongestFlags;
 
+	pthread_cond_t _pendingCV;
+	pthread_cond_t _attachedCV;
+
+	int _maxHeight;
+	int _expected_size;
+	int _size;
+
+	bool _daemonWorkFlag;
+	bool _isClosing;
+
+	/* Queue of incoming data for new blocks */
+	RequestQueue _pending;
+
+	/* BlockNum -> Block* map of already attached blocks */
+	BlockMap _attached;
+
+	/* Level -> vector<Block*> map */
+	BlockHeightMap _tails;
+
+	/* List of ids that can be reused by new blocks */
+	std::list<int> _recycledIds;
+
+	/* BlockNum->Status map */
+	std::unordered_map<int, int> _status;
+
+	/* BlockNum->_toLongestFlag map */
+	std::unordered_map<int, bool> _toLongestFlags;
+
+	/**
+	 * @brief Hash given request's data, create block and attach it to the chain
+	 *
+	 * @return new block id
+	 */
 	int createBlock(Request *req);
+
+	/**
+	 * @return Hash for given request
+	 */
 	char* hash(Request *req);
 
 };

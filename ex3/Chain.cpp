@@ -179,10 +179,19 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		// No requests to process
 		if (_pending.empty())
 		{
+			if (_isClosing)
+			{
+				pthread_mutex_unlock(&_pendingMutex);
+				std::cout <<"KILL MYSELF 1\n";
+				return NULL;
+			}
 			// Wait for "hey! someone pending" signal
 			std::cout<< "pending unlocked - waiting\n";
+			_daemonWorkFlag = false;
+			for (int i = 0; i < 2000; i++) {std::cout << "!";}
 			pthread_cond_wait(&_pendingCV, &_pendingMutex);
-			std::cout<< "pending locked from signal. Have " << _pending.size() << " items pending.\n";
+			_daemonWorkFlag = true;
+			std::cout << "pending locked from signal. Have " << _pending.size() << " items pending.\n";
 		// 	wokeUp = true;
 		// }
 		// else
@@ -190,10 +199,10 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		// 	wokeUp = false;
 		}
 
-		// Chain is not initiated
 		if (_isClosing)
 		{
 			pthread_mutex_unlock(&_pendingMutex);
+			std::cout <<"KILL MYSELF 2\n";
 			return NULL;
 		}
 
@@ -213,6 +222,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 
 			_pending.pop_front();
 			
+			std::cout << "PRINTING\n";
 			pthread_mutex_unlock(&_pendingMutex);
 
 			// Do stuff
@@ -396,8 +406,6 @@ int Chain::attachNow(int blockNum)
 
 	pthread_mutex_lock(&_statusMutex);
 	int blockStatus = _status[blockNum];
-	std::cout << "STATUS " << blockStatus;
-	for (int i = 0; i < 2000; i++){std::cout << " ";}
 	switch (blockStatus)
 	{
 		case PENDING:
@@ -416,17 +424,17 @@ int Chain::attachNow(int blockNum)
 
 					pthread_mutex_unlock(&_pendingMutex);
 					pthread_mutex_unlock(&_statusMutex);
-					return ATTACHED;
+					return SUCESS;
 				}
 			}
 
 			pthread_cond_wait(&_attachedCV, &_statusMutex);
 			pthread_mutex_unlock(&_statusMutex);
-			return ATTACHED;
+			return SUCESS;
 
 		case ATTACHED:
 			pthread_mutex_unlock(&_statusMutex);
-			return ATTACHED;
+			return SUCESS;
 
 		default:
 			pthread_mutex_unlock(&_statusMutex);
@@ -544,15 +552,28 @@ void *Chain::closeChainLogic(void *pChain)
 {
 	Chain* chain = (Chain*)pChain;
 
+	std::cout <<"isClosing?" << chain->_isClosing << "\n";
+	std::cout <<"CLOSE STARTED\n";
 	// Wait untill deamon closes
-	pthread_cond_signal(&(chain->_pendingCV));
+	while(!chain->_daemonWorkFlag)
+	{
+		pthread_cond_signal(&(chain->_pendingCV));
+	}
+	std::cout << chain->_daemonWorkFlag;
+	for (int i = 0; i < 2000; i++) {std::cout << ".";}
 	pthread_join(s_daemonThread, NULL);
+	
 	s_instance = NULL;
 	s_initiated = false;
 
+	std::cout <<"CLOSE STARTED LOCKING\n";
+	std::cout <<"CLOSE LOCK 1\n";
 	pthread_mutex_lock(&(chain->_pendingMutex));
+	std::cout <<"CLOSE LOCK 2\n";
 	pthread_mutex_lock(&(chain->_chainMutex));
+	std::cout <<"CLOSE LOCK 3\n";
 	pthread_mutex_lock(&(chain->_tailsMutex));
+	std::cout <<"CLOSE LOCKED\n";
 	// print out what's in pending list - and delete 'em
 	while (chain->_pending.size())
 	{
@@ -576,9 +597,9 @@ void *Chain::closeChainLogic(void *pChain)
 	chain->_attached.clear();
 	chain->_usedIDList.clear();
 
+	pthread_mutex_unlock(&(chain->_tailsMutex));
 	pthread_mutex_unlock(&(chain->_chainMutex));
 	pthread_mutex_unlock(&(chain->_pendingMutex));
-	pthread_mutex_unlock(&(chain->_tailsMutex));
 	
 	delete chain;
 
@@ -606,7 +627,10 @@ int Chain::returnOnClose()
 
 	if (isInitiated())
 	{
-		return pthread_join(_closingThread, NULL);
+		if (pthread_join(_closingThread, NULL))
+		{
+			return FAIL;
+		}
 	}
 
 	return SUCESS;

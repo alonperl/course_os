@@ -277,7 +277,7 @@ std::cout << "\n\nCAN'T FUCKING BE \n\n";
 int heightPos = 0;
 for (; heightPos < _tails.size(); heightPos++)
 {
-	std::cout << "HEIGHT " << heightPos << ": ";
+	std::cout << "\nGRD: HEIGHT " << heightPos << ": ";
 	for (BlockMap::iterator heightIterator = _tails[heightPos].begin(); heightIterator != _tails[heightPos].end();)
 	{
 		if (heightIterator->second != NULL)

@@ -691,7 +691,7 @@ void Chain::createBlock(AddRequest *req)
 	bool cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();
 	bool rehash = false;
 	char* blockHash;
-
+	int rehashCount = 0;
 	do
 	{
 		blockHash = hash(req);
@@ -700,8 +700,12 @@ void Chain::createBlock(AddRequest *req)
 		if ((_toLongestFlags[req->blockNum] && !cachedLongest) || cachedFather == NULL)
 		{
 			rehash = true;
+			rehashCount++;
+			if (rehashCount > 3)
+			{
+				std::cout << "\nWhy The Endless Rehash (1) ?? \n\n";
+			}
 			cachedFather = Chain::getInstance()->getRandomDeepest();
-			std::cout << "\nWhy The Endless Rehash (1) ?? \n\n";
 			cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();
 		}
 		else

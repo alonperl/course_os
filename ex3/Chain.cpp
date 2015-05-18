@@ -25,7 +25,7 @@ Chain::Chain()
 	pthread_mutex_init(&_pendingMutex, NULL);
 
 	pthread_mutex_init(&_chainMutex, NULL);
-	pthread_mutex_init(&_deepestTailsMutex, NULL);
+	pthread_mutex_init(&_tailsMutex, NULL);
 	pthread_mutex_init(&_attachedMutex, NULL);
 
 	pthread_cond_init(&_pendingCV, NULL);
@@ -90,8 +90,10 @@ void Chain::pushBlock(Block* newTail)
 	}
 
 	// Add myself to tails list
-	_tails.push_back(newTail);
-	if (height == _maxHeight)
+	_tails[height].push_back(newTail);
+
+	// If I am of maximal current chain height, I am deepest tail
+	/*if (height == _maxHeight)
 	{
 		_deepestTails.push_back(newTail);
 		for (std::vector<Block* >::iterator it = _deepestTails.begin();
@@ -104,14 +106,15 @@ void Chain::pushBlock(Block* newTail)
 		}
 
 
-	}
+	}*/
 
 	// If I am not Genesis, I have a father leaf, that is no more a leaf
 	if (newTail->getId() != GENESIS_BLOCK_NUM)
 	{
 		// Delete my father from tails list
 		int fatherId = newTail->getPrevBlock()->getId();
-		for (std::vector<Block* >::iterator it = _tails.begin(); it != _tails.end(); ++it)
+		int fatherHeight = newTail->getPrevBlock()->getHeight();
+		for (std::vector<Block* >::iterator it = _tails[fatherHeight].begin(); it != _tails[fatherHeight].end(); ++it)
 		{
 			if ((*it)->getId() == fatherId)
 			{
@@ -119,14 +122,14 @@ void Chain::pushBlock(Block* newTail)
 				break;
 			}
 		}
-		for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _deepestTails.end(); ++it)
+		/*for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _deepestTails.end(); ++it)
 		{
 			if ((*it)->getId() == fatherId)
 			{
 				_deepestTails.erase(it);
 				break;
 			}
-		}
+		}*/
 	}
 	_attached[newTail->getId()] = newTail;
 
@@ -245,16 +248,16 @@ void *Chain::daemonRoutine(void *chain_ptr)
  */
 Block* Chain::getRandomDeepest()
 {
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_deepestTailsMutex);std::cout<< ": deepestTails locked." <<std::endl;
-	std::cout << "Deepest Tails Size Is: " << _deepestTails.size() <<std::endl;
-	if (_deepestTails.size() == 0)
+	std::cout<< __FUNCTION__;pthread_mutex_lock(&_tailsMutex);std::cout<< ": tails locked." <<std::endl;
+	std::cout << "Deepest Tails Size Is: " << _tails[_maxHeight].size() <<std::endl;
+	if (_tails[_maxHeight].size() == 0)
 	{
 		std::cout << "\n\nCAN'T FUCKING BE \n\n";
 	}
-	long index = rand() % _deepestTails.size();
-	std::cout << "(First in vector is 0), - Index is: " << index << " Vector Size is: " << _deepestTails.size() << std::endl; 
-	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_deepestTailsMutex);std::cout<< ": deepestTails unlocked." <<std::endl;
-	return _deepestTails[index];
+	long index = rand() % _tails[_maxHeight].size();
+	std::cout << "(First in vector is 0), - Index is: " << index << " Vector Size is: " << _tails[_maxHeight].size() << std::endl; 
+	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_tailsMutex);std::cout<< ": tails unlocked." <<std::endl;
+	return _tails[_maxHeight][index];
 }
 
 /**
@@ -477,20 +480,31 @@ int Chain::pruneChain()
 	Block* temp;
 
 	//Delete from tails vector
-	for (std::vector<Block* >::iterator it = _tails.begin(); it != _tails.end();)
+	int tailsPos = 0;
+	for (std::unordered_map<int, vector<Block*> >::iterator tailsIt = _tails.begin(); tailsIt != _tails.end();)
 	{
-		temp = *it;
-		if (temp != NULL && temp->getPruneFlag())
+		for (std::vector<Block*>::iterator it = tailsIt.begin(); it != tailsIt.end();)
 		{
-			it = _tails.erase(it);
+			temp = *it;
+			if (temp != NULL && temp->getPruneFlag())
+			{
+				it = tailsIt.erase(it);
+			}
+			else
+			{
+				++it;
+			}
 		}
-		else
+
+		if (_tails[tailsPos].empty())
 		{
-			++it;
+			_tails.erase(tailsIt++)
 		}
+
+		tailsPos++;
 	}
 
-	//Delete from deepest tails vector
+	/*//Delete from deepest tails vector
 	for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _deepestTails.end();)
 	{
 		temp = *it;
@@ -502,7 +516,7 @@ int Chain::pruneChain()
 		{
 			++it;
 		}
-	}
+	}*/
 
 	//Delete from attached map - nad add id to list
 	for (std::unordered_map<unsigned int, Block* >::iterator it = _attached.begin(); it != _attached.end();)
@@ -538,7 +552,7 @@ void *Chain::closeChainLogic(void *pChain)
 
 	pthread_mutex_lock(&(chain->_pendingMutex));
 	pthread_mutex_lock(&(chain->_chainMutex));
-	pthread_mutex_lock(&(chain->_deepestTailsMutex));
+	pthread_mutex_lock(&(chain->_tailsMutex));
 	// print out what's in pending list - and delete 'em
 	while (chain->_pending.size())
 	{
@@ -553,7 +567,7 @@ void *Chain::closeChainLogic(void *pChain)
 	//Delete from tails vector
 	chain->_tails.clear();
 	//Delete from deepest tails vector
-	chain->_deepestTails.clear();
+	// chain->_deepestTails.clear();
 	//Delete from attached map - and destroy blocks
 	for (std::unordered_map<unsigned int, Block*>::iterator it = chain->_attached.begin(); it != chain->_attached.end(); ++it)
 	{
@@ -568,7 +582,7 @@ void *Chain::closeChainLogic(void *pChain)
 
 	pthread_mutex_unlock(&(chain->_chainMutex));
 	pthread_mutex_unlock(&(chain->_pendingMutex));
-	pthread_mutex_unlock(&(chain->_deepestTailsMutex));
+	pthread_mutex_unlock(&(chain->_tailsMutex));
 	
 	delete chain;
 
@@ -645,35 +659,6 @@ void Chain::printChain()
 			if (it->second->getPrevBlock() != NULL)
 			{
 				std::cout << ", F" << it->second->getPrevBlock()->getId() << "\n";
-			}
-			else
-			{
-				std::cout << ", GENESIS\n";			
-			}
-		}
-		it++;
-	}
-}
-
-void Chain::printDeepest()
-{
-	std::cout << "DEEPEST SIZE " << _deepestTails.size() <<"\n";
-	std::vector<Block*>::iterator it = _deepestTails.begin();
-	int q = 0;
-	while (it != _deepestTails.end())
-	{
-		if (*it != NULL)
-		{
-			q = (*it)->getHeight();
-			while(q--)
-			{
-				std::cout << " ";
-			}
-			std::cout << (*it)->getId();
-			std::cout << ": H" << (*it)->getHeight() << ", P" << (*it)->getPruneFlag();
-			if ((*it)->getPrevBlock() != NULL)
-			{
-				std::cout << ", F" << (*it)->getPrevBlock()->getId() << "\n";
 			}
 			else
 			{

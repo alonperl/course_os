@@ -111,6 +111,10 @@ void Chain::pushBlock(Block* newTail)
 	// If I am not Genesis, I have a father leaf, that is no more a leaf
 	if (newTail->getId() != GENESIS_BLOCK_NUM)
 	{
+		if (newTail->getPrevBlock() == NULL)
+		{
+			std::cout<<"\n\nFUCKING NULL FATHER FOR ID "<<newTail->getId()<<endl;
+		}
 		// Delete my father from tails list
 		int fatherId = newTail->getPrevBlock()->getId();
 		int fatherHeight = newTail->getPrevBlock()->getHeight();
@@ -254,13 +258,13 @@ void *Chain::daemonRoutine(void *chain_ptr)
 Block* Chain::getRandomDeepest()
 {
 	std::cout<< __FUNCTION__;pthread_mutex_lock(&_tailsMutex);std::cout<< ": tails locked." <<std::endl;
+	std::cout << "MaxHeight is: " << _maxHeight <<std::endl;
 	std::cout << "Deepest Tails Size Is: " << _tails[_maxHeight].size() <<std::endl;
 	if (_tails[_maxHeight].size() == 0)
 	{
 		std::cout << "\n\nCAN'T FUCKING BE \n\n";
 	}
 	long index = rand() % _tails[_maxHeight].size();
-	std::cout << "(First in vector is 0), - Index is: " << index << " Vector Size is: " << _tails[_maxHeight].size() << std::endl; 
 	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_tailsMutex);std::cout<< ": tails unlocked." <<std::endl;
 	return _tails[_maxHeight][index];
 }
@@ -485,7 +489,7 @@ int Chain::pruneChain()
 	Block* temp;
 
 	//Delete from tails vector
-	int tailsPos = 0;
+	/*int tailsPos = 0;
 	for (std::unordered_map<int, std::vector<Block*> >::iterator tailsIt = _tails.begin(); tailsIt != _tails.end();)
 	{
 		for (std::vector<Block*>::iterator it = _tails[tailsPos].begin(); it != _tails[tailsPos].end();)
@@ -507,7 +511,8 @@ int Chain::pruneChain()
 		}
 
 		tailsPos++;
-	}
+	}*/
+	_tails.erase();
 
 	/*//Delete from deepest tails vector
 	for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _deepestTails.end();)

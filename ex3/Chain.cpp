@@ -219,7 +219,7 @@ void* Chain::closeChainLogic(void *pChain)
 	}
 
 	chain->_attached.clear();
-	chain->recycledIds.clear(); // Clear recycled ids
+	chain->_recycledIds.clear(); // Clear recycled ids
 
 	pthread_mutex_unlock(&(chain->_tailsMutex));
 	pthread_mutex_unlock(&(chain->_attachedMutex));
@@ -303,14 +303,14 @@ int Chain::getLowestID()
 {
 	pthread_mutex_lock(&_recycledIdsMutex);
 
-	if (recycledIds.empty())
+	if (_recycledIds.empty())
 	{
 		return _expected_size+1;
 	}
 
-	recycledIds.sort(); // Sort to get smallest at the front
-	int smallestUsedId = recycledIds.front();
-	recycledIds.remove(smallestUsedId); // Erase from used list
+	_recycledIds.sort(); // Sort to get smallest at the front
+	int smallestUsedId = _recycledIds.front();
+	_recycledIds.remove(smallestUsedId); // Erase from used list
 
 	pthread_mutex_unlock(&_recycledIdsMutex);
 
@@ -531,7 +531,7 @@ int Chain::pruneChain()
 	{
 		if (blockIterator->second != NULL && blockIterator->second->getPruneFlag())
 		{
-			recycledIds.push_back(blockIterator->second->getId()); // Reuse later
+			_recycledIds.push_back(blockIterator->second->getId()); // Reuse later
 			delete blockIterator->second; // Finally destory the block
 			blockIterator = _attached.erase(blockIterator);
 		}

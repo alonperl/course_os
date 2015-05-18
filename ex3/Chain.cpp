@@ -96,9 +96,9 @@ void Chain::pushBlock(Block* newTail)
 
 	/*PRINT TAILS*/
 	int heightPos = 0;
-	for (BlockHeightMap::iterator tailsIterator = _tails.begin(); tailsIterator != _tails.end();)
+	for (; heightPos < _tails.size(); heightPos++)
 	{
-		std::cout << "HEIGHT " << tailsIterator->first << ": ";
+		std::cout << "HEIGHT " << heightPos << ": ";
 		for (BlockMap::iterator heightIterator = _tails[heightPos].begin(); heightIterator != _tails[heightPos].end();)
 		{
 			if (heightIterator->second != NULL)
@@ -114,8 +114,6 @@ void Chain::pushBlock(Block* newTail)
 		}
 
 		std::cout << "\n";
-		tailsIterator++;
-		heightPos++;
 	}
 	/*===========*/
 	/*if (height == _maxHeight)

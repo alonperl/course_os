@@ -682,6 +682,10 @@ void Chain::printChain()
 void Chain::createBlock(AddRequest *req)
 {
 	Block* cachedFather = req->father;
+	if (cachedFather == NULL)
+	{
+		std::cout<< "\n\nFUCKING NULL FATHER FOR ID "<<req->blockNum<<std::endl;
+	}
 	// Save if current father is longest or not
 	bool cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();
 	bool rehash = false;

@@ -95,6 +95,7 @@ void Chain::pushBlock(Block* newTail)
 	_tails[height][newTail->getId()] = newTail;
 
 	/*PRINT TAILS*/
+	int heightPos = 0;
 	for (BlockHeightMap::iterator tailsIterator = _tails.begin(); tailsIterator != _tails.end();)
 	{
 		std::cout << "HEIGHT " << tailsIterator->first << ": ";
@@ -114,6 +115,7 @@ void Chain::pushBlock(Block* newTail)
 
 		std::cout << "\n";
 		tailsIterator++;
+		heightPos++;
 	}
 	/*===========*/
 	/*if (height == _maxHeight)

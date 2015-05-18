@@ -302,10 +302,13 @@ int Chain::addRequest(char *data, int length)
 	}
 
 	int newId = getLowestID();
+	Block* father = getRandomDeepest();
 
 	// Add new task for daemon
 	std::cout<< __FUNCTION__;pthread_mutex_lock(&_pendingMutex);std::cout<< ": pending locked." <<std::endl;
-	_pending.push_back(new AddRequest(data, length, newId, getRandomDeepest()));
+	_pending.push_back(new AddRequest(data, length, newId, father));
+	if (father == NULL)
+		std::cout<< "\n\nCREATED REQUEST WITH NULL FATHER\n\n";
 	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_pendingMutex);std::cout<< ": pending unlocked." <<std::endl;
 
 	// Update status
@@ -668,6 +671,8 @@ void Chain::printChain()
 void Chain::createBlock(AddRequest *req)
 {
 	Block* cachedFather = req->father;
+	if (cachedFather == NULL)
+		std::cout<< "\n\nPROCESSING REQUEST WITH NULL FATHER\n\n";
 	// Save if current father is longest or not
 	bool cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();
 	bool rehash = false;

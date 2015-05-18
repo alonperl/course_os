@@ -94,6 +94,28 @@ void Chain::pushBlock(Block* newTail)
 	// I am a leaf now
 	_tails[height][newTail->getId()] = newTail;
 
+	/*PRINT TAILS*/
+	for (BlockHeightMap::iterator tailsIterator = _tails.begin(); tailsIterator != _tails.end();)
+	{
+		std::cout << "HEIGHT " << tailsIterator->first << ": ";
+		for (BlockMap::iterator heightIterator = _tails[heightPos].begin(); heightIterator != _tails[heightPos].end();)
+		{
+			if (heightIterator->second != NULL)
+			{
+				std::cout<< heightIterator->second->getID() << ", ";
+			}
+			else
+			{
+				std::cout<< "NULL, ";
+			}
+
+			heightIterator++;
+		}
+
+		std::cout << "\n";
+		tailsIterator++;
+	}
+	/*===========*/
 	/*if (height == _maxHeight)
 	{
 		_deepestTails.push_back(newTail);
@@ -533,7 +555,7 @@ int Chain::pruneChain()
 		{
 			_usedIDList.push_back(blockIterator->second->getId()); // Reuse later
 			_attached.erase(blockIterator);
-			// delete blockIterator->second; // Finally destory the block
+			delete blockIterator->second; // Finally destory the block
 		}
 		
 		blockIterator++;

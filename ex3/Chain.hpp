@@ -13,6 +13,9 @@
 #define EMPTY 0
 #define SUCESS 0
 
+typedef std::unordered_map<unsigned int, Block*> BlockMap
+typedef std::unordered_map<unsigned int, BlockMap> BlockHeightMap
+
 class Chain
 {
 public:
@@ -48,7 +51,7 @@ public:
 	static void *closeChainLogic(void *c);
 	int  returnOnClose();
 void printChain();
-void printDeepest();
+
 private:
 	static bool s_initiated;
 	static Chain *s_instance;
@@ -59,7 +62,8 @@ private:
 	~Chain();
 
 	pthread_mutex_t _chainMutex;
-	pthread_mutex_t _deepestTailsMutex;
+	pthread_mutex_t _tailsMutex;
+	// pthread_mutex_t _deepestTailsMutex;
 	pthread_mutex_t _attachedMutex;
 
 	pthread_mutex_t _usedIDListMutex;
@@ -75,9 +79,9 @@ private:
 
 	std::deque<AddRequest*> _pending;
 
-	std::unordered_map<unsigned int, Block*> _attached;
-	std::vector<Block*> _tails;
-	std::vector<Block*> _deepestTails;
+	BlockMap _attached;
+	BlockHeightMap _tails;
+	// std::vector<Block*> _deepestTails;
 	std::list<int> _usedIDList;
 
 	bool _daemonWorkFlag;

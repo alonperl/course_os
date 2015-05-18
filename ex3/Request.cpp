@@ -19,7 +19,7 @@ Request::Request(const char* newData, const int dataLength, const int blockNum,
 	if (newData == NULL)
 	{ 
 		// Cannot create block without data
-		throw FAIL;
+		throw -1;
 	}
 	data = (char*)malloc(sizeof(char) * dataLength);
 	strcpy(data, newData);

@@ -158,6 +158,62 @@ void* Chain::daemonRoutine(void *pChain)
 }
 
 /**
+ * @brief Routine to close the chain: forces the daemon to finish,
+ * 		  removes all the chain data, resets instance pointer.
+ */
+void* Chain::closeChainLogic(void *pChain)
+{
+	Chain* chain = (Chain*)pChain;
+
+	// Wait until daemon closes
+	while(chain->_daemonWorkFlag)
+	{
+		pthread_cond_signal(&(chain->_pendingCV));
+	}
+	pthread_join(s_daemonThread, NULL);
+
+	s_instance = NULL;
+	s_initiated = false;
+
+	pthread_mutex_lock(&(chain->_pendingMutex));
+	pthread_mutex_lock(&(chain->_attachedMutex));
+	pthread_mutex_lock(&(chain->_tailsMutex));
+
+	// Print out what's in pending list - and delete 'em
+	while (chain->_pending.size())
+	{
+		Request *req = chain->_pending.front();
+		chain->_pending.pop_front();
+
+		char* unusedHash = getInstance()->hash(req);
+		std::cout << unusedHash << std::endl;
+		delete req; // Free Request
+	}
+
+	chain->_tails.clear();
+
+	// Delete from attached map - and destroy blocks
+	for (std::unordered_map<unsigned int, Block*>::iterator it = chain->_attached.begin(); it != chain->_attached.end(); ++it)
+	{
+		if (it->second != NULL)
+		{
+			delete it->second; // Destroy the block
+		}
+	}
+
+	chain->_attached.clear();
+	chain->recycledIds.clear(); // Clear recycled ids
+
+	pthread_mutex_unlock(&(chain->_tailsMutex));
+	pthread_mutex_unlock(&(chain->_attachedMutex));
+	pthread_mutex_unlock(&(chain->_pendingMutex));
+
+	delete chain; // Delete instance, destroy mutexes and cvs
+
+	return NULL;
+}
+
+/**
  * @return true if was initiated
  */
 bool Chain::isInitiated(void)
@@ -499,60 +555,6 @@ int Chain::pruneChain()
 	return SUCESS;
 }
 
-void *Chain::closeChainLogic(void *pChain)
-{
-	Chain* chain = (Chain*)pChain;
-
-	// Wait untill deamon closes
-	while(chain->_daemonWorkFlag)
-	{
-		pthread_cond_signal(&(chain->_pendingCV));
-	}
-
-	pthread_join(s_daemonThread, NULL);
-	
-	s_instance = NULL;
-	s_initiated = false;
-
-	pthread_mutex_lock(&(chain->_pendingMutex));
-	pthread_mutex_lock(&(chain->_chainMutex));
-	pthread_mutex_lock(&(chain->_tailsMutex));
-
-	// Print out what's in pending list - and delete 'em
-	while (chain->_pending.size())
-	{
-		Request *req = chain->_pending.front();
-		chain->_pending.pop_front();
-
-		char* unusedHash = getInstance()->hash(req);
-		std::cout << unusedHash << std::endl;
-		delete req;
-	}
-
-	chain->_tails.clear();
-
-	//Delete from attached map - and destroy blocks
-	for (std::unordered_map<unsigned int, Block*>::iterator it = chain->_attached.begin(); it != chain->_attached.end(); ++it)
-	{
-		if (it->second != NULL)
-		{
-			delete it->second; // Destory the block
-		}
-	}
-	
-	chain->_attached.clear();
-	chain->_usedIDList.clear();
-
-	pthread_mutex_unlock(&(chain->_tailsMutex));
-	pthread_mutex_unlock(&(chain->_chainMutex));
-	pthread_mutex_unlock(&(chain->_pendingMutex));
-	
-	delete chain;
-
-	return NULL;
-}
-
-
 void Chain::closeChain()
 {
 	_isClosing = true;
@@ -647,5 +649,6 @@ int Chain::createBlock(Request *req)
 char* Chain::hash(Request *req)
 {
 	int nonce = generate_nonce(req->blockNum, req->father->getId());
-	return generate_hash(req->data, (size_t)req->dataLength, nonce);
+	// return generate_hash(req->data, (size_t)req->dataLength, nonce);
+	return "a";
 }

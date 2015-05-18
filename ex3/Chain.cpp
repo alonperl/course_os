@@ -193,7 +193,7 @@ void* Chain::closeChainLogic(void *pChain)
 	chain->_tails.clear();
 
 	// Delete from attached map - and destroy blocks
-	for (std::unordered_map<unsigned int, Block*>::iterator it = chain->_attached.begin(); it != chain->_attached.end(); ++it)
+	for (BlockMap::iterator it = chain->_attached.begin(); it != chain->_attached.end(); ++it)
 	{
 		if (it->second != NULL)
 		{
@@ -417,7 +417,7 @@ int Chain::attachNow(int blockNum)
 	{
 		case PENDING:
 			pthread_mutex_lock(&_pendingMutex);
-			for (std::deque<Request *>::iterator it = _pending.begin(); it != _pending.end(); ++it)
+			for (RequestQueue::iterator it = _pending.begin(); it != _pending.end(); ++it)
 			{
 				if ((*it)->blockNum == blockNum)
 				{
@@ -538,7 +538,7 @@ int Chain::pruneChain()
 	}*/
 
 	//Delete from attached map - nad add id to list
-	for (std::unordered_map<unsigned int, Block*>::iterator blockIterator = _attached.begin(); blockIterator != _attached.end();)
+	for (BlockMap::iterator blockIterator = _attached.begin(); blockIterator != _attached.end();)
 	{
 		if (blockIterator->second != NULL && blockIterator->second->getPruneFlag())
 		{

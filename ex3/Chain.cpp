@@ -113,7 +113,7 @@ void Chain::pushBlock(Block* newTail)
 	{
 		if (newTail->getPrevBlock() == NULL)
 		{
-			std::cout<<"\n\nFUCKING NULL FATHER FOR ID "<<newTail->getId()<<endl;
+			std::cout<<"\n\nFUCKING NULL FATHER FOR ID "<<newTail->getId()<<std::endl;
 		}
 		// Delete my father from tails list
 		int fatherId = newTail->getPrevBlock()->getId();

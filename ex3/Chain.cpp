@@ -484,7 +484,7 @@ int Chain::pruneChain()
 	int tailsPos = 0;
 	for (std::unordered_map<int, std::vector<Block*> >::iterator tailsIt = _tails.begin(); tailsIt != _tails.end();)
 	{
-		for (std::vector<Block*>::iterator it = tailsIt.begin(); it != tailsIt.end();)
+		for (std::vector<Block*>::iterator it = _tails[tailsPos].begin(); it != _tails[tailsPos].end();)
 		{
 			temp = *it;
 			if (temp != NULL && temp->getPruneFlag())

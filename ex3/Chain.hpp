@@ -75,7 +75,7 @@ private:
 	std::deque<AddRequest*> _pending;
 
 	std::unordered_map<unsigned int, Block*> _attached;
-	std::unordered_map<int, vector<Block*> > _tails;
+	std::unordered_map<int, std::vector<Block*> > _tails;
 	// std::vector<Block*> _deepestTails;
 	std::list<int> _usedIDList;
 

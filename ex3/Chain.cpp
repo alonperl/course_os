@@ -273,6 +273,28 @@ std::cout << "Tails[MaxHeight] Size Is: " << _tails[_maxHeight].size() <<std::en
 if (_tails[_maxHeight].size() == 0)
 std::cout << "\n\nCAN'T FUCKING BE \n\n";
 	long index = rand() % _tails[_maxHeight].size();
+/*PRINT TAILS*/
+int heightPos = 0;
+for (; heightPos < _tails.size(); heightPos++)
+{
+	std::cout << "HEIGHT " << heightPos << ": ";
+	for (BlockMap::iterator heightIterator = _tails[heightPos].begin(); heightIterator != _tails[heightPos].end();)
+	{
+		if (heightIterator->second != NULL)
+		{
+			std::cout<< heightIterator->second->getId() << ", ";
+		}
+		else
+		{
+			std::cout<< "NULL, ";
+		}
+
+		heightIterator++;
+	}
+
+	std::cout << "\n";
+}
+/*===========*/
 for(int i=0;i<20000000;i++);
 if (_tails[_maxHeight][index] == NULL)
 std::cout << "\n\nNULL BLOCK IN TAILS\n\n";

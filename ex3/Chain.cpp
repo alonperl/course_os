@@ -121,7 +121,11 @@ void Chain::pushBlock(Block* newTail)
 				_tails[fatherHeight].erase(it);
 				break;
 			}
-			// TODO if the height list is empty, remove it
+			
+			if (_tails[fatherHeight].empty())
+			{
+				_tails.erase(fatherHeight);
+			}
 		}
 		/*for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _deepestTails.end(); ++it)
 		{
@@ -499,7 +503,7 @@ int Chain::pruneChain()
 
 		if (_tails[tailsPos].empty())
 		{
-			_tails.erase(tailsIt++);
+			_tails.erase(tailsIt);
 		}
 
 		tailsPos++;

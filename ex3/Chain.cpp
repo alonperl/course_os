@@ -170,6 +170,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 {
 	(void) chain_ptr;
 	int blockId;
+	_daemonWorkFlag = true;
 
 	while (s_initiated)
 	{
@@ -183,14 +184,14 @@ void *Chain::daemonRoutine(void *chain_ptr)
 			{
 				pthread_mutex_unlock(&_pendingMutex);
 				std::cout <<"KILL MYSELF 1\n";
+				_daemonWorkFlag = false;
 				return NULL;
 			}
 			// Wait for "hey! someone pending" signal
 			std::cout<< "pending unlocked - waiting\n";
-			_daemonWorkFlag = false;
+			
 			for (int i = 0; i < 2000; i++) {std::cout << "!";}
 			pthread_cond_wait(&_pendingCV, &_pendingMutex);
-			_daemonWorkFlag = true;
 			std::cout << "pending locked from signal. Have " << _pending.size() << " items pending.\n";
 		// 	wokeUp = true;
 		// }
@@ -203,6 +204,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		{
 			pthread_mutex_unlock(&_pendingMutex);
 			std::cout <<"KILL MYSELF 2\n";
+			_daemonWorkFlag = false;
 			return NULL;
 		}
 
@@ -555,7 +557,7 @@ void *Chain::closeChainLogic(void *pChain)
 	std::cout <<"isClosing?" << chain->_isClosing << "\n";
 	std::cout <<"CLOSE STARTED\n";
 	// Wait untill deamon closes
-	while(!chain->_daemonWorkFlag)
+	while(chain->_daemonWorkFlag)
 	{
 		pthread_cond_signal(&(chain->_pendingCV));
 	}

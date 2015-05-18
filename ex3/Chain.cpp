@@ -28,7 +28,6 @@ Chain::Chain()
 
 	pthread_mutex_init(&_chainMutex, NULL);
 	pthread_mutex_init(&_tailsMutex, NULL);
-	// pthread_mutex_init(&_deepestTailsMutex, NULL);
 	pthread_mutex_init(&_attachedMutex, NULL);
 
 	pthread_cond_init(&_pendingCV, NULL);
@@ -177,6 +176,7 @@ void* Chain::closeChainLogic(void *pChain)
 
 	pthread_mutex_lock(&(chain->_pendingMutex));
 	pthread_mutex_lock(&(chain->_attachedMutex));
+	pthread_mutex_lock(&(chain->__recycledIdsMutex));
 	pthread_mutex_lock(&(chain->_tailsMutex));
 
 	// Print out what's in pending list - and delete 'em
@@ -202,9 +202,10 @@ void* Chain::closeChainLogic(void *pChain)
 	}
 
 	chain->_attached.clear();
-	chain->recycledIds.clear(); // Clear recycled ids
+	chain->_recycledIds.clear(); // Clear recycled ids
 
 	pthread_mutex_unlock(&(chain->_tailsMutex));
+	pthread_mutex_unlock(&(chain->_recycledIdsMutex));
 	pthread_mutex_unlock(&(chain->_attachedMutex));
 	pthread_mutex_unlock(&(chain->_pendingMutex));
 

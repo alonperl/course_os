@@ -3,7 +3,6 @@
 #include <iostream>
 
 // TODO
-#define HASH_LENGTH 128
 #define GENESIS_BLOCK_NUM 0
 
 // TODO write right numbers
@@ -214,7 +213,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		if (_pending.size())
 		{
 			// Process new request
-			AddRequest *newReq = _pending.front();
+			Request *newReq = _pending.front();
 			
 			/*pthread_mutex_lock(&_statusMutex);
 			_status[newReq->blockNum] = PROCESSING;
@@ -318,7 +317,7 @@ int Chain::addRequest(char *data, int length)
 
 	// Add new task for daemon
 	pthread_mutex_lock(&_pendingMutex);
-	_pending.push_back(new AddRequest(data, length, newId, father));
+	_pending.push_back(new Request(data, length, newId, father));
 	pthread_mutex_unlock(&_pendingMutex);
 
 	// Update status
@@ -383,7 +382,7 @@ int Chain::attachNow(int blockNum)
 	{
 		case PENDING:
 			pthread_mutex_lock(&_pendingMutex);
-			for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
+			for (std::deque<Request *>::iterator it = _pending.begin(); it != _pending.end(); ++it)
 			{
 				if ((*it)->blockNum == blockNum)
 				{
@@ -663,7 +662,7 @@ void Chain::printChain()
 	}
 }*/
 
-int Chain::createBlock(AddRequest *req)
+int Chain::createBlock(Request *req)
 {
 	Block* cachedFather = req->father;
 
@@ -692,7 +691,7 @@ int Chain::createBlock(AddRequest *req)
 
 	// _toLongestFlag was false till now, so from now on toLongest(this) will not act on this block
 	// Create block
-	Block* newBlock = new Block(req->blockNum, blockHash, HASH_LENGTH,
+	Block* newBlock = new Block(req->blockNum, blockHash,
 								req->father->getHeight()+1, req->father);
 
 	// Attach block to chain
@@ -701,7 +700,7 @@ int Chain::createBlock(AddRequest *req)
 	return newBlock->getId();
 }
 
-char* Chain::hash(AddRequest *req)
+char* Chain::hash(Request *req)
 {
 	int nonce = generate_nonce(req->blockNum, req->father->getId());
 	// return generate_hash(req->data, (size_t)req->dataLength, nonce);

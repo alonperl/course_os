@@ -1,8 +1,8 @@
 #include <string.h>
 #include <malloc.h>
-#include "AddRequest.hpp"
+#include "Request.hpp"
 
-AddRequest::AddRequest(const char* newData, const int dataLength, const int blockNum,
+Request::Request(const char* newData, const int dataLength, const int blockNum,
 					   Block* newFather) :
 		blockNum(blockNum), dataLength(dataLength), father(newFather) {
 	if (newData == NULL)
@@ -13,7 +13,7 @@ AddRequest::AddRequest(const char* newData, const int dataLength, const int bloc
 	strcpy(data, newData);
 }
 
-AddRequest::~AddRequest()
+Request::~Request()
 {
 	free(data);
 	data = NULL;

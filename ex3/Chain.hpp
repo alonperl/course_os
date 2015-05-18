@@ -7,7 +7,7 @@
 #include <list>
 #include "hash.h"
 #include "Block.hpp"
-#include "AddRequest.hpp"
+#include "Request.hpp"
 
 #define FAIL -1
 #define EMPTY 0
@@ -78,7 +78,7 @@ private:
 	int _expected_size;
 	int _size;
 
-	std::deque<AddRequest*> _pending;
+	std::deque<Request *> _pending;
 
 	std::unordered_map<unsigned int, Block*> _attached;
 	BlockHeightMap _tails;
@@ -102,8 +102,8 @@ private:
 	pthread_mutex_t _toLongestMutex;
 	std::unordered_map<int, bool>_toLongestFlags;
 
-	int createBlock(AddRequest *req);
-	char* hash(AddRequest *req);
+	int createBlock(Request *req);
+	char* hash(Request *req);
 
 };
 

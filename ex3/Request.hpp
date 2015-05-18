@@ -4,12 +4,12 @@
 #include <memory>
 #include "Block.hpp"
 
-class AddRequest
+class Request
 {
 public:
-	AddRequest(const char* newData, const int dataLength, const int blockNum, 
+	Request(const char* newData, const int dataLength, const int blockNum,
 			   Block* father);
-	~AddRequest();
+	~Request();
 
 	// Data for the new block
 	char* data;

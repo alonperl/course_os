@@ -2,14 +2,20 @@
 #include <malloc.h>
 #include "Block.hpp"
 
-Block::Block(int id, char* hash, int hashLength, int height, Block* father)
+/**
+ * @brief Block Constructor
+ * @details [long description]
+ * 
+ * @param id [description]
+ * @param hash [description]
+ * @param height [description]
+ * @param father [description]
+ */
+Block::Block(int id, char* hash, int height, Block* father)
 {
-	pthread_mutex_init(&blockMutex, NULL);
-
 	_pruneFlag = true;
 	_blockId = id;
 	_height = height;
-	_hashLength = hashLength;
 	_prevBlock = father;
 	if (hash != NULL)
 	{
@@ -30,7 +36,7 @@ Block::~Block()
 /**
  * @return the block's Id
  */
-int Block::getId(void)
+int Block::getId()
 {
 	return _blockId;
 }
@@ -38,25 +44,9 @@ int Block::getId(void)
 /**
  * @return the block's height
  */
-int Block::getHeight(void)
+int Block::getHeight()
 {
 	return _height;
-}
-
-/**
- * @return the block's hashdata
- */
-char* Block::getHash(void)
-{
-	return _hash;
-}
-
-/**
- * @return the block's hashdata length
- */
-int Block::getHashLength()
-{
-	return _hashLength;
 }
 
 /**
@@ -78,7 +68,7 @@ void Block::setPruneFlag(bool newState)
 /**
  * @return the block's father
  */
-Block* Block::getPrevBlock(void)
+Block* Block::getPrevBlock()
 {
 	return _prevBlock;
 }

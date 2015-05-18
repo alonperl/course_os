@@ -7,31 +7,24 @@
 class Block
 {
 public:
-	Block(int id, char* hash, int height, int hashLength, Block* father);
+	/**
+	 * Block constructur
+	 */
+	Block::Block(int id, char* hash, int height, Block* father);
 	~Block();
 
 	/**
-	 * @return the block's Id
+	 * @return block's Id
 	 */
 	int getId();
 
 	/**
-	 * @return the block's height
+	 * @return block's height
 	 */
 	int getHeight();
 
 	/**
-	 * @return the block's hashdata
-	 */
-	char* getHash();
-
-	/**
-	 * @return the block's data length
-	 */
-	int getHashLength();
-
-	/**
-	 * @return true if the block needs to be pruned
+	 * @return true if the block was marked to be pruned
 	 */
 	bool getPruneFlag();
 
@@ -41,20 +34,24 @@ public:
 	void setPruneFlag(bool newState);
 
 	/**
-	 * @return the blocks father
+	 * @return block's father
 	 */
 	Block* getPrevBlock();
 
-	pthread_mutex_t blockMutex;
-
 	private:
+		/* Indicates if this block will be pruned on prune_chain return */
 		bool _pruneFlag;
 
+		/* Block Unique Number */
 		int _blockId;
+
+		/* Block Height */
 		int _height;
-		int _hashLength;
+
+		/* Block Data Hash */
 		char* _hash;
-		
+
+		/* Pointer to Parent Block */
 		Block* _prevBlock;
 };
 

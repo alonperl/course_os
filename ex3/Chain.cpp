@@ -78,8 +78,8 @@ int Chain::getMaxHeight(void)
 
 void Chain::pushBlock(Block* newTail)
 {
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_chainMutex);std::cout<< ": chain locked." <<std::endl;
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_statusMutex);std::cout<< ": status locked." <<std::endl;
+	pthread_mutex_lock(&_chainMutex);
+	pthread_mutex_lock(&_statusMutex);
 	
 	int height = newTail->getHeight();
 
@@ -174,7 +174,7 @@ int Chain::getLowestID()
 	_usedIDList.sort();
 	int smallestUsedId = _usedIDList.front(); //assuming usedID list is always sorted after adding an element there -if not change the .front())
 	
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_usedIDListMutex);std::cout<< ": usedIDList locked." <<std::endl;
+	pthread_mutex_lock(&_usedIDListMutex);
 	_usedIDList.remove(smallestUsedId); // erase from used list
 	pthread_mutex_unlock(&_usedIDListMutex);
 	return smallestUsedId;
@@ -198,7 +198,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 	bool wokeUp = false;
 
 	// Lock _pendingBlocks
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_pendingMutex);std::cout<< ": pending locked." <<std::endl;
+	pthread_mutex_lock(&_pendingMutex);
 	while (s_initiated)
 	{
 		// No requests to process
@@ -224,7 +224,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 
 		// if (!wokeUp)
 		// {
-		// 	std::cout<< __FUNCTION__;pthread_mutex_lock(&_pendingMutex);std::cout<< ": pending locked." <<std::endl;
+		// 	pthread_mutex_lock(&_pendingMutex);
 		// }
 
 		if (_pending.size())
@@ -232,7 +232,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 			// Process new request
 			AddRequest *newReq = _pending.front();
 			
-			std::cout<< __FUNCTION__;pthread_mutex_lock(&_statusMutex);std::cout<< ": status locked." <<std::endl;
+			pthread_mutex_lock(&_statusMutex);
 			_status[newReq->blockNum] = PROCESSING;
 			pthread_mutex_unlock(&_statusMutex);
 
@@ -257,7 +257,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
  */
 Block* Chain::getRandomDeepest()
 {
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_tailsMutex);std::cout<< ": tails locked." <<std::endl;
+	pthread_mutex_lock(&_tailsMutex);
 	std::cout << "MaxHeight is: " << _maxHeight <<std::endl;
 	std::cout << "Deepest Tails Size Is: " << _tails[_maxHeight].size() <<std::endl;
 	if (_tails[_maxHeight].size() == 0)
@@ -316,12 +316,12 @@ int Chain::addRequest(char *data, int length)
 	int newId = getLowestID();
 
 	// Add new task for daemon
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_pendingMutex);std::cout<< ": pending locked." <<std::endl;
+	pthread_mutex_lock(&_pendingMutex);
 	_pending.push_back(new AddRequest(data, length, newId, getRandomDeepest()));
 	pthread_mutex_unlock(&_pendingMutex);
 
 	// Update status
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_statusMutex);std::cout<< ": status locked." <<std::endl;
+	pthread_mutex_lock(&_statusMutex);
 	_status[newId] = PENDING;
 	pthread_mutex_unlock(&_statusMutex);
 
@@ -350,7 +350,7 @@ int Chain::toLongest(int blockNum)
 //std::cout<<"Enter ToLongest"<<std::endl;
 //
 //std::cout<<"Locking pending"<<std::endl;
-//	std::cout<< __FUNCTION__;pthread_mutex_lock(&_pendingMutex);std::cout<< ": pending locked." <<std::endl;
+//	pthread_mutex_lock(&_pendingMutex);
 //	for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
 //	{
 //		if ((*it)->blockNum == blockNum)
@@ -362,7 +362,7 @@ int Chain::toLongest(int blockNum)
 //	}
 //	pthread_mutex_unlock(&_pendingMutex);
 //std::cout<<"Locking workers"<<std::endl;
-//	std::cout<< __FUNCTION__;pthread_mutex_lock(&_workerMutex);std::cout<< ": worker locked." <<std::endl;
+//	pthread_mutex_lock(&_workerMutex);
 //	for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
 //	{
 //		if ((*it)->blockNum == blockNum) {
@@ -375,7 +375,7 @@ int Chain::toLongest(int blockNum)
 //std::cout<<"Finished ToLongest"<<std::endl;
 //
 //std::cout<<"Locking status"<<std::endl;
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_statusMutex);std::cout<< ": status locked." <<std::endl;
+	pthread_mutex_lock(&_statusMutex);
 	if (_status.find(blockNum) != _status.end() && _status[blockNum] == ATTACHED)
 	{
 		pthread_mutex_unlock(&_statusMutex);
@@ -383,7 +383,7 @@ int Chain::toLongest(int blockNum)
 	}
 	pthread_mutex_unlock(&_statusMutex);
 
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_toLongestMutex);std::cout<< ": toLongest locked." <<std::endl;
+	pthread_mutex_lock(&_toLongestMutex);
 	_toLongestFlags[blockNum] = true;
 	pthread_mutex_unlock(&_toLongestMutex);
 
@@ -404,12 +404,12 @@ int Chain::attachNow(int blockNum)
 	4. getRandomDeepest inf loop - Problem is in Phase 2 - Size is stuck on 50 and not increasing to 59 like it should
 	*/
 
-	//std::cout<< __FUNCTION__;pthread_mutex_lock(&_statusMutex);std::cout<< ": status locked." <<std::endl;
+	//pthread_mutex_lock(&_statusMutex);
 	switch (_status[blockNum])
 	{
 		case PENDING:
 			std::cout << "Case Pending" << std::endl; 
-			std::cout<< __FUNCTION__;pthread_mutex_lock(&_pendingMutex);std::cout<< ": pending locked." <<std::endl;
+			pthread_mutex_lock(&_pendingMutex);
 			for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
 			{
 				if ((*it)->blockNum == blockNum)
@@ -425,9 +425,9 @@ int Chain::attachNow(int blockNum)
 
 		case PROCESSING:
 			std::cout << "Case Processing" << std::endl; 
-			std::cout<< __FUNCTION__;pthread_mutex_lock(&_attachedMutex);std::cout<< ": attached locked." <<std::endl;
+			pthread_mutex_lock(&_attachedMutex);
 
-			std::cout<< __FUNCTION__;pthread_mutex_lock(&_statusMutex);std::cout<< ": status locked." <<std::endl;
+			pthread_mutex_lock(&_statusMutex);
 			if (_status[blockNum] != ATTACHED)
 			{
 				pthread_cond_signal(&_pendingCV);std::cout<< "attachNow: signal sent." <<std::endl;
@@ -476,7 +476,7 @@ int Chain::pruneChain()
 	// Save random longest chain
 	Block* deepestBlock = getRandomDeepest();
 
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_chainMutex);std::cout<< ": chain locked." <<std::endl;
+	pthread_mutex_lock(&_chainMutex);
 	
 	// Bubble up on longest chain and mark not to prune it
 	while (deepestBlock != NULL)

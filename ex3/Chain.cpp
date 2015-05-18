@@ -489,7 +489,7 @@ int Chain::pruneChain()
 			temp = *it;
 			if (temp != NULL && temp->getPruneFlag())
 			{
-				it = tailsIt.erase(it);
+				it = _tails[tailsPos].erase(it);
 			}
 			else
 			{
@@ -499,7 +499,7 @@ int Chain::pruneChain()
 
 		if (_tails[tailsPos].empty())
 		{
-			_tails.erase(tailsIt++)
+			_tails.erase(tailsIt++);
 		}
 
 		tailsPos++;

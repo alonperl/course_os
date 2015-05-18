@@ -175,9 +175,11 @@ void *Chain::daemonRoutine(void *chain_ptr)
 	while (s_initiated)
 	{
 		// Lock _pendingBlocks
-		std::cout << "TRYING TO LOCK PENDING\n";
-		pthread_mutex_lock(&_pendingMutex);
-		std::cout << "LOCKED PENDING. Closing? " <<_isClosing << "\n";
+			std::cout << "IsClosing? "<<_isClosing<<"\n";
+		if (pthread_mutex_trylock(&_pendingMutex))
+		{
+			std::cout << "TRYING TO LOCK PENDING\n";
+		}
 		
 		// No requests to process
 		if (_pending.empty())

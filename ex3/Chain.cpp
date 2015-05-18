@@ -289,7 +289,7 @@ int Chain::initChain()
 	pthread_create(&s_daemonThread, NULL, Chain::staticDaemonRoutine, NULL);	// master thread created
 	
 	// Create genesis block and insert to chain
-	Block* genesisBlock(new Block(GENESIS_BLOCK_NUM, NULL, EMPTY, EMPTY, NULL)); // TODO maybe height is determined from father later
+	Block* genesisBlock(new Block(GENESIS_BLOCK_NUM, NULL, EMPTY, NULL)); // TODO maybe height is determined from father later
 	getInstance()->pushBlock(genesisBlock);
 	getInstance()->_status[EMPTY] = ATTACHED;
 	getInstance()->_size = EMPTY;

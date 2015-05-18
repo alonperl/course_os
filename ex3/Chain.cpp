@@ -118,9 +118,10 @@ void Chain::pushBlock(Block* newTail)
 		{
 			if ((*it)->getId() == fatherId)
 			{
-				_tails.erase(it);
+				_tails[fatherHeight].erase(it);
 				break;
 			}
+			// TODO if the height list is empty, remove it
 		}
 		/*for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _deepestTails.end(); ++it)
 		{

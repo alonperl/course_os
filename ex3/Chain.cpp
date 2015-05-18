@@ -175,6 +175,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 	while (s_initiated)
 	{
 		// Lock _pendingBlocks
+		std::cout << "TRYING TO LOCK PENDING\n";
 		pthread_mutex_lock(&_pendingMutex);
 		
 		// No requests to process
@@ -189,8 +190,6 @@ void *Chain::daemonRoutine(void *chain_ptr)
 			}
 			// Wait for "hey! someone pending" signal
 			std::cout<< "pending unlocked - waiting\n";
-			
-			for (int i = 0; i < 2000; i++) {std::cout << "!";}
 			pthread_cond_wait(&_pendingCV, &_pendingMutex);
 			std::cout << "pending locked from signal. Have " << _pending.size() << " items pending.\n";
 		// 	wokeUp = true;
@@ -562,7 +561,7 @@ void *Chain::closeChainLogic(void *pChain)
 		pthread_cond_signal(&(chain->_pendingCV));
 	}
 	std::cout << chain->_daemonWorkFlag;
-	for (int i = 0; i < 2000; i++) {std::cout << ".";}
+	// for (int i = 0; i < 2000; i++) {std::cout << ".";}
 	pthread_join(s_daemonThread, NULL);
 	
 	s_instance = NULL;

@@ -102,7 +102,7 @@ void Chain::pushBlock(Block* newTail)
 		{
 			if (heightIterator->second != NULL)
 			{
-				std::cout<< heightIterator->second->getID() << ", ";
+				std::cout<< heightIterator->second->getId() << ", ";
 			}
 			else
 			{

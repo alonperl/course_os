@@ -13,8 +13,8 @@
 #define EMPTY 0
 #define SUCESS 0
 
-typedef std::unordered_map<unsigned int, Block*> BlockMap
-typedef std::unordered_map<unsigned int, BlockMap> BlockHeightMap
+typedef std::unordered_map<unsigned int, Block*> BlockMap;
+typedef std::unordered_map<unsigned int, BlockMap> BlockHeightMap;
 
 class Chain
 {

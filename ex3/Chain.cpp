@@ -527,12 +527,14 @@ void *Chain::closeChainLogic(void *pChain)
 	// Print out what's in pending list - and delete 'em
 	while (chain->_pending.size())
 	{
-		char* unusedHash = getInstance()->hash(chain->_pending.front());
-		std::cout << unusedHash << std::endl;
+		Request *req = chain->_pending.front();
 		chain->_pending.pop_front();
+
+		char* unusedHash = getInstance()->hash(req);
+		std::cout << unusedHash << std::endl;
+		delete req;
 	}
 
-	// TODO as it is now map of maps, do we need to erase every inner map?
 	chain->_tails.clear();
 
 	//Delete from attached map - and destroy blocks

@@ -4,12 +4,11 @@
 
 /**
  * @brief Block Constructor
- * @details [long description]
  * 
- * @param id [description]
- * @param hash [description]
- * @param height [description]
- * @param father [description]
+ * @param id - New block unique number
+ * @param hash - Hashed data to shore
+ * @param height - Block level in the Chain
+ * @param father - Pointer to parent block
  */
 Block::Block(int id, char* hash, int height, Block* father)
 {
@@ -17,24 +16,27 @@ Block::Block(int id, char* hash, int height, Block* father)
 	_blockId = id;
 	_height = height;
 	_prevBlock = father;
+
 	if (hash != NULL)
 	{
-		_hash = (char*)malloc(sizeof(char) * strlen(hash));
-		strcpy(_hash, hash);
+		_hash = hash;
 	}
 }
 
+/**
+ * @brief Block Destructor
+ */
 Block::~Block()
 {
 	if (_hash != NULL)
 	{
-		free((void*)_hash);
+		free(_hash);
 	}
 	_prevBlock = NULL;
 }
 
 /**
- * @return the block's Id
+ * @return block's Id
  */
 int Block::getId()
 {
@@ -42,7 +44,7 @@ int Block::getId()
 }
 
 /**
- * @return the block's height
+ * @return block's height
  */
 int Block::getHeight()
 {
@@ -50,7 +52,7 @@ int Block::getHeight()
 }
 
 /**
- * @return true if the block needs to be pruned
+ * @return true if the block was marked to be pruned
  */
 bool Block::getPruneFlag()
 {
@@ -66,7 +68,7 @@ void Block::setPruneFlag(bool newState)
 }
 
 /**
- * @return the block's father
+ * @return pointer to block's father
  */
 Block* Block::getPrevBlock()
 {

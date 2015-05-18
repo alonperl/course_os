@@ -2,20 +2,34 @@
 #include <malloc.h>
 #include "Request.hpp"
 
+/**
+ * @brief Request Constructor
+ * 
+ * @param newData Data to hash and store
+ * @param dataLength
+ * @param blockNum Unique number of the block
+ * @param newFather Pointer to block's father
+ */
 Request::Request(const char* newData, const int dataLength, const int blockNum,
-					   Block* newFather) :
-		blockNum(blockNum), dataLength(dataLength), father(newFather) {
+				 Block* newFather) : 
+				 blockNum(blockNum), 
+				 dataLength(dataLength), 
+				 father(newFather)
+{
 	if (newData == NULL)
-	{
-		throw -1;
+	{ 
+		// Cannot create block without data
+		throw FAIL;
 	}
 	data = (char*)malloc(sizeof(char) * dataLength);
 	strcpy(data, newData);
 }
 
+/**
+ * @brief Request Destructor
+ */
 Request::~Request()
 {
-	free(data);
 	data = NULL;
 	father = NULL;
 }

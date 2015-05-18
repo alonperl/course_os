@@ -8,9 +8,18 @@ class Block
 {
 public:
 	/**
-	 * Block constructur
+	 * @brief Block Constructor
+	 * 
+	 * @param id - New block unique number
+	 * @param hash - Hashed data to shore
+	 * @param height - Block level in the Chain
+	 * @param father - Pointer to parent block
 	 */
 	Block(int id, char* hash, int height, Block* father);
+
+	/**
+	 * @brief Block Destructor
+	 */
 	~Block();
 
 	/**
@@ -34,7 +43,7 @@ public:
 	void setPruneFlag(bool newState);
 
 	/**
-	 * @return block's father
+	 * @return pointer to block's father
 	 */
 	Block* getPrevBlock();
 

@@ -704,7 +704,6 @@ void Chain::createBlock(AddRequest *req)
 			if (rehashCount > 3)
 			{
 				std::cout << "\nWhy The Endless Rehash (1) ?? \n\n";
-				printf
 			}
 			cachedFather = Chain::getInstance()->getRandomDeepest();
 			cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();

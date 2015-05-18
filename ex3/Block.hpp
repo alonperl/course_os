@@ -10,7 +10,7 @@ public:
 	/**
 	 * Block constructur
 	 */
-	Block::Block(int id, char* hash, int height, Block* father);
+	Block(int id, char* hash, int height, Block* father);
 	~Block();
 
 	/**

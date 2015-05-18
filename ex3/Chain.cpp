@@ -701,7 +701,7 @@ void Chain::createBlock(AddRequest *req)
 		{
 			rehash = true;
 			rehashCount++;
-			if (rehashCount > 3)
+			if (rehashCount > 10)
 			{
 				std::cout << "\nWhy The Endless Rehash (1) ?? \n\n";
 			}

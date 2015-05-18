@@ -13,7 +13,8 @@
 #define EMPTY 0
 #define SUCESS 0
 
-typedef std::unordered_map<unsigned int, Block*> BlockMap;
+// typedef std::unordered_map<unsigned int, Block*> BlockMap;
+typedef std::vector<Block*> BlockMap;
 typedef std::unordered_map<unsigned int, BlockMap> BlockHeightMap;
 
 class Chain
@@ -79,7 +80,7 @@ private:
 
 	std::deque<AddRequest*> _pending;
 
-	BlockMap _attached;
+	std::unordered_map<unsigned int, Block*> _attached;
 	BlockHeightMap _tails;
 	// std::vector<Block*> _deepestTails;
 	std::list<int> _usedIDList;

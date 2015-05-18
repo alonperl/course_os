@@ -79,9 +79,9 @@ int Chain::getMaxHeight(void)
 
 void Chain::pushBlock(Block* newTail)
 {
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_chainMutex);std::cout<< ": chain locked." <<std::endl;
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_tailsMutex);std::cout<< ": tails locked." <<std::endl;
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_statusMutex);std::cout<< ": status locked." <<std::endl;
+	pthread_mutex_lock(&_chainMutex);
+	pthread_mutex_lock(&_tailsMutex);
+	pthread_mutex_lock(&_statusMutex);
 	
 	int height = newTail->getHeight();
 
@@ -92,30 +92,18 @@ void Chain::pushBlock(Block* newTail)
 	}
 
 	// I am a leaf now
-	_tails[height][newTail->getId()] = newTail;
-
-	/*PRINT TAILS*/
-	int heightPos = 0;
-	for (; heightPos < _tails.size(); heightPos++)
+	// _tails[height][newTail->getId()] = newTail;
+	_tails[height].push_back(newTail);
+	
+	/*// If I am not Genesis, my father is no more a leaf
+	if (newTail->getId() != GENESIS_BLOCK_NUM)
 	{
-		std::cout << "HEIGHT " << heightPos << ": ";
-		for (BlockMap::iterator heightIterator = _tails[heightPos].begin(); heightIterator != _tails[heightPos].end();)
-		{
-			if (heightIterator->second != NULL)
-			{
-				std::cout<< heightIterator->second->getId() << ", ";
-			}
-			else
-			{
-				std::cout<< "NULL, ";
-			}
-
-			heightIterator++;
-		}
-
-		std::cout << "\n";
+		int fatherId = newTail->getPrevBlock()->getId();
+		int fatherHeight = newTail->getPrevBlock()->getHeight();
+		_tails[fatherHeight].erase(fatherId);
 	}
-	/*===========*/
+*/
+
 	/*if (height == _maxHeight)
 	{
 		_deepestTails.push_back(newTail);
@@ -129,14 +117,6 @@ void Chain::pushBlock(Block* newTail)
 		}
 	}*/
 
-	// If I am not Genesis, my father is no more a leaf
-	if (newTail->getId() != GENESIS_BLOCK_NUM)
-	{
-		int fatherId = newTail->getPrevBlock()->getId();
-		int fatherHeight = newTail->getPrevBlock()->getHeight();
-		_tails[fatherHeight].erase(fatherId);
-	}
-
 	// Attach me to chain
 	_attached[newTail->getId()] = newTail;
 
@@ -146,9 +126,9 @@ void Chain::pushBlock(Block* newTail)
 	// Virtual Size update
 	_size++;
 
-	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_statusMutex);std::cout<< ": status unlocked." <<std::endl;
-	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_tailsMutex);std::cout<< ": tails unlocked." <<std::endl;
-	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_chainMutex);std::cout<< ": chain unlocked." <<std::endl;
+	pthread_mutex_unlock(&_statusMutex);
+	pthread_mutex_unlock(&_tailsMutex);
+	pthread_mutex_unlock(&_chainMutex);
 }
 
 void Chain::deleteBlock(Block* toDelete)
@@ -173,9 +153,9 @@ int Chain::getLowestID()
 	_usedIDList.sort();
 	int smallestUsedId = _usedIDList.front(); //assuming usedID list is always sorted after adding an element there -if not change the .front())
 	
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_usedIDListMutex);std::cout<< ": usedIDList locked." <<std::endl;
+	pthread_mutex_lock(&_usedIDListMutex);
 	_usedIDList.remove(smallestUsedId); // erase from used list
-	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_usedIDListMutex);std::cout<< ": usedIDList unlocked." <<std::endl;
+	pthread_mutex_unlock(&_usedIDListMutex);
 	return smallestUsedId;
 }
 
@@ -194,12 +174,13 @@ int Chain::getLowestID()
 void *Chain::daemonRoutine(void *chain_ptr)
 {
 	(void) chain_ptr;
-	bool wokeUp = false;
+	// bool wokeUp = false;
 
-	// Lock _pendingBlocks
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_pendingMutex);std::cout<< ": pending locked." <<std::endl;
 	while (s_initiated)
 	{
+		// Lock _pendingBlocks
+		pthread_mutex_lock(&_pendingMutex);
+		
 		// No requests to process
 		if (_pending.empty())
 		{
@@ -207,23 +188,23 @@ void *Chain::daemonRoutine(void *chain_ptr)
 			std::cout<< "pending unlocked - waiting\n";
 			pthread_cond_wait(&_pendingCV, &_pendingMutex);
 			std::cout<< "pending locked from signal. Have " << _pending.size() << " items pending.\n";
-			wokeUp = true;
-		}
-		else
-		{
-			wokeUp = false;
+		// 	wokeUp = true;
+		// }
+		// else
+		// {
+		// 	wokeUp = false;
 		}
 
 		// Chain is not initiated
 		if (_isClosing)
 		{
-			std::cout<< __FUNCTION__;pthread_mutex_unlock(&_pendingMutex);std::cout<< ": pending unlocked." <<std::endl;
+			pthread_mutex_unlock(&_pendingMutex);
 			return NULL;
 		}
 
 		// if (!wokeUp)
 		// {
-		// 	std::cout<< __FUNCTION__;pthread_mutex_lock(&_pendingMutex);std::cout<< ": pending locked." <<std::endl;
+		// 	pthread_mutex_lock(&_pendingMutex);
 		// }
 
 		if (_pending.size())
@@ -231,13 +212,13 @@ void *Chain::daemonRoutine(void *chain_ptr)
 			// Process new request
 			AddRequest *newReq = _pending.front();
 			
-			std::cout<< __FUNCTION__;pthread_mutex_lock(&_statusMutex);std::cout<< ": status locked." <<std::endl;
+			pthread_mutex_lock(&_statusMutex);
 			_status[newReq->blockNum] = PROCESSING;
-			std::cout<< __FUNCTION__;pthread_mutex_unlock(&_statusMutex);std::cout<< ": status unlocked." <<std::endl;
+			pthread_mutex_unlock(&_statusMutex);
 
 			_pending.pop_front();
 			
-			std::cout<< __FUNCTION__;pthread_mutex_unlock(&_pendingMutex);std::cout<< ": pending unlocked." <<std::endl;
+			pthread_mutex_unlock(&_pendingMutex);
 
 			// Do stuff
 			createBlock(newReq);
@@ -245,9 +226,13 @@ void *Chain::daemonRoutine(void *chain_ptr)
 			// Send signal to anyone waiting for attachNow
 			pthread_cond_signal(&_attachedCV);
 		}
+		else
+		{
+			// Unlock _pendingBlocks
+			pthread_mutex_unlock(&_pendingMutex);
+		}
 	}
-	// Unlock _pendingBlocks
-	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_pendingMutex);std::cout<< ": pending unlocked." <<std::endl;
+
 	return NULL;
 }
 
@@ -256,7 +241,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
  */
 Block* Chain::getRandomDeepest()
 {
-	/*std::cout<< __FUNCTION__;pthread_mutex_lock(&_deepestTailsMutex);std::cout<< ": deepestTails locked." <<std::endl;
+	/*pthread_mutex_lock(&_deepestTailsMutex);
 	std::cout << "Deepest Tails Size Is: " << _deepestTails.size() <<std::endl;
 	if (_deepestTails.size() == 0)
 	{
@@ -264,42 +249,15 @@ Block* Chain::getRandomDeepest()
 	}
 	long index = rand() % _deepestTails.size();
 	std::cout << "(First in vector is 0), - Index is: " << index << " Vector Size is: " << _deepestTails.size() << std::endl; 
-	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_deepestTailsMutex);std::cout<< ": deepestTails unlocked." <<std::endl;
+	pthread_mutex_unlock(&_deepestTailsMutex);
 	return _deepestTails[index];*/
 
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_tailsMutex);std::cout<< ": tails locked." <<std::endl;
-std::cout << "MaxHeight Is: " << _maxHeight <<std::endl;
-std::cout << "Tails[MaxHeight] Size Is: " << _tails[_maxHeight].size() <<std::endl;
-if (_tails[_maxHeight].size() == 0)
-std::cout << "\n\nCAN'T FUCKING BE \n\n";
-	long index = rand() % _tails[_maxHeight].size();
-/*PRINT TAILS*/
-int heightPos = 0;
-for (; heightPos < _tails.size(); heightPos++)
-{
-	std::cout << "\nGRD: HEIGHT " << heightPos << ": ";
-	for (BlockMap::iterator heightIterator = _tails[heightPos].begin(); heightIterator != _tails[heightPos].end();)
-	{
-		if (heightIterator->second != NULL)
-		{
-			std::cout<< heightIterator->second->getId() << ", ";
-		}
-		else
-		{
-			std::cout<< "NULL, ";
-		}
-
-		heightIterator++;
-	}
-
-	std::cout << "\n";
-}
-/*===========*/
-for(int i=0;i<20000000;i++);
-if (_tails[_maxHeight][index] == NULL)
-std::cout << "\n\nNULL BLOCK IN TAILS\n\n";
-std::cout<< __FUNCTION__;pthread_mutex_unlock(&_tailsMutex);std::cout<< ": tails unlocked." <<std::endl;
-	return _tails[_maxHeight][index];
+	pthread_mutex_lock(&_tailsMutex);
+	long index = rand() % _tails.at(_maxHeight).size();
+	BlockMap level = _tails.at(_maxHeight);
+	Block* randomLeaf = level[index];
+	pthread_mutex_unlock(&_tailsMutex);
+	return randomLeaf;
 }
 
 /**
@@ -350,16 +308,16 @@ int Chain::addRequest(char *data, int length)
 	Block* father = getRandomDeepest();
 
 	// Add new task for daemon
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_pendingMutex);std::cout<< ": pending locked." <<std::endl;
+	pthread_mutex_lock(&_pendingMutex);
 	_pending.push_back(new AddRequest(data, length, newId, father));
 	if (father == NULL)
 		std::cout<< "\n\nCREATED REQUEST WITH NULL FATHER\n\n";
-	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_pendingMutex);std::cout<< ": pending unlocked." <<std::endl;
+	pthread_mutex_unlock(&_pendingMutex);
 
 	// Update status
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_statusMutex);std::cout<< ": status locked." <<std::endl;
+	pthread_mutex_lock(&_statusMutex);
 	_status[newId] = PENDING;
-	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_statusMutex);std::cout<< ": status unlocked." <<std::endl;
+	pthread_mutex_unlock(&_statusMutex);
 
 	// Update expected size
 	_expected_size++;
@@ -386,42 +344,42 @@ int Chain::toLongest(int blockNum)
 //std::cout<<"Enter ToLongest"<<std::endl;
 //
 //std::cout<<"Locking pending"<<std::endl;
-//	std::cout<< __FUNCTION__;pthread_mutex_lock(&_pendingMutex);std::cout<< ": pending locked." <<std::endl;
+//	pthread_mutex_lock(&_pendingMutex);
 //	for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
 //	{
 //		if ((*it)->blockNum == blockNum)
 //		{
 //			(*it)->father = getRandomDeepest();
-//			std::cout<< __FUNCTION__;pthread_mutex_unlock(&_pendingMutex);std::cout<< ": pending unlocked." <<std::endl;
+//			pthread_mutex_unlock(&_pendingMutex);
 //			return SUCESS;
 //		}
 //	}
-//	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_pendingMutex);std::cout<< ": pending unlocked." <<std::endl;
+//	pthread_mutex_unlock(&_pendingMutex);
 //std::cout<<"Locking workers"<<std::endl;
-//	std::cout<< __FUNCTION__;pthread_mutex_lock(&_workerMutex);std::cout<< ": worker locked." <<std::endl;
+//	pthread_mutex_lock(&_workerMutex);
 //	for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
 //	{
 //		if ((*it)->blockNum == blockNum) {
 //			(*it)->_toLongestFlag = true;
-//			std::cout<< __FUNCTION__;pthread_mutex_unlock(&_workerMutex);std::cout<< ": worker unlocked." <<std::endl;
+//			pthread_mutex_unlock(&_workerMutex);
 //			return SUCESS;
 //		}
 //	}
-//	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_workerMutex);std::cout<< ": worker unlocked." <<std::endl;
+//	pthread_mutex_unlock(&_workerMutex);
 //std::cout<<"Finished ToLongest"<<std::endl;
 //
 //std::cout<<"Locking status"<<std::endl;
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_statusMutex);std::cout<< ": status locked." <<std::endl;
+	pthread_mutex_lock(&_statusMutex);
 	if (_status.find(blockNum) != _status.end() && _status[blockNum] == ATTACHED)
 	{
-		std::cout<< __FUNCTION__;pthread_mutex_unlock(&_statusMutex);std::cout<< ": status unlocked." <<std::endl;
+		pthread_mutex_unlock(&_statusMutex);
 		return ATTACHED;
 	}
-	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_statusMutex);std::cout<< ": status unlocked." <<std::endl;
+	pthread_mutex_unlock(&_statusMutex);
 
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_toLongestMutex);std::cout<< ": toLongest locked." <<std::endl;
+	pthread_mutex_lock(&_toLongestMutex);
 	_toLongestFlags[blockNum] = true;
-	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_toLongestMutex);std::cout<< ": toLongest unlocked." <<std::endl;
+	pthread_mutex_unlock(&_toLongestMutex);
 
 	return NOT_FOUND;
 }
@@ -440,12 +398,12 @@ int Chain::attachNow(int blockNum)
 	4. getRandomDeepest inf loop - Problem is in Phase 2 - Size is stuck on 50 and not increasing to 59 like it should
 	*/
 
-	//std::cout<< __FUNCTION__;pthread_mutex_lock(&_statusMutex);std::cout<< ": status locked." <<std::endl;
+	//pthread_mutex_lock(&_statusMutex);
 	switch (_status[blockNum])
 	{
 		case PENDING:
 			std::cout << "Case Pending" << std::endl; 
-			std::cout<< __FUNCTION__;pthread_mutex_lock(&_pendingMutex);std::cout<< ": pending locked." <<std::endl;
+			pthread_mutex_lock(&_pendingMutex);
 			for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
 			{
 				if ((*it)->blockNum == blockNum)
@@ -457,30 +415,30 @@ int Chain::attachNow(int blockNum)
 					break;
 				}
 			}
-			std::cout<< __FUNCTION__;pthread_mutex_unlock(&_pendingMutex);std::cout<< ": pending unlocked." <<std::endl;
+			pthread_mutex_unlock(&_pendingMutex);
 
 		case PROCESSING:
 			std::cout << "Case Processing" << std::endl; 
-			std::cout<< __FUNCTION__;pthread_mutex_lock(&_attachedMutex);std::cout<< ": attached locked." <<std::endl;
+			pthread_mutex_lock(&_attachedMutex);
 
-			std::cout<< __FUNCTION__;pthread_mutex_lock(&_statusMutex);std::cout<< ": status locked." <<std::endl;
+			pthread_mutex_lock(&_statusMutex);
 			if (_status[blockNum] != ATTACHED)
 			{
 				pthread_cond_signal(&_pendingCV);std::cout<< "attachNow: signal sent." <<std::endl;
-				std::cout<< __FUNCTION__;pthread_mutex_unlock(&_statusMutex);std::cout<< ": status unlocked." <<std::endl;
+				pthread_mutex_unlock(&_statusMutex);
 				pthread_cond_wait(&_attachedCV, &_attachedMutex);
 			}
-			std::cout<< __FUNCTION__;pthread_mutex_unlock(&_statusMutex);std::cout<< ": status unlocked." <<std::endl;
+			pthread_mutex_unlock(&_statusMutex);
 			
-			std::cout<< __FUNCTION__;pthread_mutex_unlock(&_attachedMutex);std::cout<< ": attached unlocked." <<std::endl;
+			pthread_mutex_unlock(&_attachedMutex);
 			return ATTACHED;
 
 		case ATTACHED:
-			//std::cout<< __FUNCTION__;pthread_mutex_unlock(&_statusMutex);std::cout<< ": status unlocked." <<std::endl;
+			//pthread_mutex_unlock(&_statusMutex);
 			return ATTACHED;
 
 		default:
-			//std::cout<< __FUNCTION__;pthread_mutex_unlock(&_statusMutex);std::cout<< ": status unlocked." <<std::endl;
+			//pthread_mutex_unlock(&_statusMutex);
 			return NOT_FOUND;
 	}
 }
@@ -512,7 +470,7 @@ int Chain::pruneChain()
 	// Save random longest chain
 	Block* deepestBlock = getRandomDeepest();
 
-	std::cout<< __FUNCTION__;pthread_mutex_lock(&_chainMutex);std::cout<< ": chain locked." <<std::endl;
+	pthread_mutex_lock(&_chainMutex);
 	
 	// Bubble up on random longest chain and mark not to prune it
 	while (deepestBlock != NULL)
@@ -522,24 +480,27 @@ int Chain::pruneChain()
 	}
 
 	int heightPos = 0;
-	for (BlockHeightMap::iterator tailsIterator = _tails.begin(); tailsIterator != _tails.end();)
+	for (BlockHeightMap::iterator tailsIterator = _tails.begin(); tailsIterator != _tails.end(); tailsIterator++)
 	{
-		for (BlockMap::iterator heightIterator = _tails[heightPos].begin(); heightIterator != _tails[heightPos].end();)
+		for (BlockMap::iterator heightIterator = _tails.at(heightPos).begin(); heightIterator != _tails.at(heightPos).end();)
 		{
-			if (heightIterator->second != NULL && heightIterator->second->getPruneFlag())
+			if ((*heightIterator) != NULL && (*heightIterator)->getPruneFlag())
 			{
-				_tails[heightPos].erase(heightIterator);
+				std::cout << "ID IN TAILS" << (*heightIterator)->getId();
+				for (int i = 0; i < 1999; i++){std::cout << ".";}
+				heightIterator = _tails.at(heightPos).erase(heightIterator);
 			}
-
-			heightIterator++;
+			else
+			{
+				heightIterator++;
+			}
 		}
 
-		if (_tails[heightPos].empty())
+		if (_tails.at(heightPos).empty())
 		{
 			_tails.erase(tailsIterator);
 		}
 
-		tailsIterator++;
 		heightPos++;
 	}
 
@@ -572,19 +533,21 @@ int Chain::pruneChain()
 	}*/
 
 	//Delete from attached map - nad add id to list
-	for (BlockMap::iterator blockIterator = _attached.begin(); blockIterator != _attached.end();)
+	for (std::unordered_map<unsigned int, Block*>::iterator blockIterator = _attached.begin(); blockIterator != _attached.end();)
 	{
 		if (blockIterator->second != NULL && blockIterator->second->getPruneFlag())
 		{
 			_usedIDList.push_back(blockIterator->second->getId()); // Reuse later
-			_attached.erase(blockIterator);
 			delete blockIterator->second; // Finally destory the block
+			blockIterator = _attached.erase(blockIterator);
 		}
-		
-		blockIterator++;
+		else
+		{
+			blockIterator++;
+		}
 	}
 
-	std::cout<< __FUNCTION__;pthread_mutex_unlock(&_chainMutex);std::cout<< ": chain unlocked." <<std::endl;
+	pthread_mutex_unlock(&_chainMutex);
 	return SUCESS;
 }
 
@@ -613,7 +576,7 @@ void *Chain::closeChainLogic(void *pChain)
 	chain->_tails.clear();
 
 	//Delete from attached map - and destroy blocks
-	for (BlockMap::iterator it = chain->_attached.begin(); it != chain->_attached.end(); ++it)
+	for (std::unordered_map<unsigned int, Block*>::iterator it = chain->_attached.begin(); it != chain->_attached.end(); ++it)
 	{
 		if (it->second != NULL)
 		{
@@ -683,7 +646,7 @@ int Chain::getBlockStatus(int blockNum)
 
 	return _status[blockNum];
 }
-
+/*
 void Chain::printChain()
 {
 	std::cout << "SIZE " << _attached.size()-1 <<"\n";
@@ -711,7 +674,7 @@ void Chain::printChain()
 		}
 		it++;
 	}
-}
+}*/
 
 void Chain::createBlock(AddRequest *req)
 {

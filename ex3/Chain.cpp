@@ -450,8 +450,6 @@ int Chain::wasAdded(int blockNum)
 
 int Chain::chainSize()
 {
-	std::cout << "Entered Chain::chainSize()\n";
-	std::cout << "Size is: " << _size << std::endl;
 	return (isInitiated() ? _size : FAIL);
 }
 

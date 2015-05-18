@@ -2,21 +2,24 @@
 #include <unistd.h>
 #include <iostream>
 
-// TODO
 #define GENESIS_BLOCK_NUM 0
+#define CLOSE_CHAIN_NOT_CALLED -2
 
-// TODO write right numbers
+/* Statuses */
 #define NOT_FOUND -2
 #define PENDING 0
 #define ATTACHED 1
 #define PROCESSING 2
-#define CLOSE_CHAIN_NOT_CALLED -2
+
 
 // Define static members
 bool Chain::s_initiated = false;
 Chain *Chain::s_instance = NULL;
 pthread_t Chain::s_daemonThread;
 
+/**
+ * @brief Chain Constructor
+ */
 Chain::Chain()
 {	
 	pthread_mutex_init(&_usedIDListMutex, NULL);
@@ -38,14 +41,120 @@ Chain::Chain()
 	s_initiated = true;
 }
 
+/**
+ * @brief Chain Destructor
+ */
 Chain::~Chain()
 {
 	// TODO destroy mutexes and cv and maybe more thing
 }
 
+/**
+ * @brief Create chain instance, init hash library, create genesis
+ *
+ * @return -1 if already initiated, 0 otherwise
+ */
+int Chain::initChain()
+{
+	if (isInitiated())
+	{
+		return FAIL;
+	}
+
+	Chain::s_instance = new Chain();
+	Chain::s_initiated = true;
+
+	init_hash_generator();
+
+	pthread_create(&s_daemonThread, NULL, Chain::staticDaemonRoutine, NULL);	// master thread created
+	
+	// Create genesis block and insert to chain
+	Block* genesisBlock(new Block(GENESIS_BLOCK_NUM, NULL, EMPTY, NULL)); // TODO maybe height is determined from father later
+	getInstance()->pushBlock(genesisBlock);
+	getInstance()->_status[EMPTY] = ATTACHED;
+	getInstance()->_size = EMPTY;
+
+	return SUCESS;
+}
+
+/**
+ * @brief Static handler for Daemon Thread
+ * 
+ * @param pChain Pointer to the chain it is called for
+ */
 void *Chain::staticDaemonRoutine(void *ptr)
 {
 	return Chain::getInstance()->daemonRoutine(ptr);
+}
+
+/**
+ * @brief Daemon thread routine
+ * @details This function is passed as start_routine to daemon thread,
+ *          it waits for new requests to come, and when _pendingCV is fired:
+ *          	- daemon takes the request from _pending queue and hashes its data
+ *          	- when hashing finished, it adds the block to chain
+ *
+ * @param chain_ptr pointer to chain
+ * @return NULL
+ */
+void* Chain::daemonRoutine(void *pChain)
+{
+	(void) pChain;
+	int blockId;
+	_daemonWorkFlag = true;
+
+	while (s_initiated)
+	{
+		// Lock _pendingBlocks
+		pthread_mutex_lock(&_pendingMutex);
+
+		// No requests to process
+		if (_pending.empty())
+		{
+			if (_isClosing)
+			{
+				pthread_mutex_unlock(&_pendingMutex);
+				_daemonWorkFlag = false;
+				return NULL;
+			}
+			// Wait for "hey! someone pending" signal
+			pthread_cond_wait(&_pendingCV, &_pendingMutex);
+		}
+
+		if (_isClosing)
+		{
+			pthread_mutex_unlock(&_pendingMutex);
+			_daemonWorkFlag = false;
+			return NULL;
+		}
+
+		if (_pending.size())
+		{
+			// Get new request
+			Request *newReq = _pending.front();
+			_pending.pop_front();
+			// Release the queue
+			pthread_mutex_unlock(&_pendingMutex);
+
+			// Hash and attach
+			blockId = createBlock(newReq);
+
+			// Update status
+			pthread_mutex_lock(&_statusMutex);
+			_status[blockId] = ATTACHED;
+			pthread_mutex_unlock(&_statusMutex);
+
+			// Send signal to anyone waiting for attaching
+			pthread_cond_signal(&_attachedCV);
+		}
+		else // No requests to process
+		{
+			// Unlock _pending
+			pthread_mutex_unlock(&_pendingMutex);
+		}
+	}
+
+	return NULL;
 }
 
 /**
@@ -154,93 +263,6 @@ int Chain::getLowestID()
 }
 
 /**
- * @brief Daemon thread routine
- * @details This function is passed as start_routine to daemon thread,
- *          it mainly waits for two event types:
- *          	- when new block enters _pendingBlocks queue, it creates
- *          	a worker to hash its data
- *          	- when hashing finished, it adds the block to chain and 
- *          	pops it from _pending
- * 
- * @param chain_ptr pointer to chain
- * @return NULL
- */
-void *Chain::daemonRoutine(void *chain_ptr)
-{
-	(void) chain_ptr;
-	int blockId;
-	_daemonWorkFlag = true;
-
-	while (s_initiated)
-	{
-		// Lock _pendingBlocks
-		pthread_mutex_lock(&_pendingMutex);
-		
-		// No requests to process
-		if (_pending.empty())
-		{
-			if (_isClosing)
-			{
-				pthread_mutex_unlock(&_pendingMutex);
-				_daemonWorkFlag = false;
-				return NULL;
-			}
-			// Wait for "hey! someone pending" signal
-			pthread_cond_wait(&_pendingCV, &_pendingMutex);
-		// 	wokeUp = true;
-		// }
-		// else
-		// {
-		// 	wokeUp = false;
-		}
-
-		if (_isClosing)
-		{
-			pthread_mutex_unlock(&_pendingMutex);
-			_daemonWorkFlag = false;
-			return NULL;
-		}
-
-		// if (!wokeUp)
-		// {
-		// 	pthread_mutex_lock(&_pendingMutex);
-		// }
-
-		if (_pending.size())
-		{
-			// Process new request
-			Request *newReq = _pending.front();
-			
-			/*pthread_mutex_lock(&_statusMutex);
-			_status[newReq->blockNum] = PROCESSING;
-			pthread_mutex_unlock(&_statusMutex);*/
-
-			_pending.pop_front();
-			
-			pthread_mutex_unlock(&_pendingMutex);
-
-			// Do stuff
-			blockId = createBlock(newReq);
-
-			// Update status
-			pthread_mutex_lock(&_statusMutex);
-			_status[blockId] = ATTACHED;
-			pthread_mutex_unlock(&_statusMutex);
-
-			// Send signal to anyone waiting for attachNow
-			pthread_cond_signal(&_attachedCV);
-		}
-		else
-		{
-			// Unlock _pendingBlocks
-			pthread_mutex_unlock(&_pendingMutex);
-		}
-	}
-
-	return NULL;
-}
-
-/**
  * @return random longest tip
  */
 Block* Chain::getRandomDeepest()
@@ -251,34 +273,6 @@ Block* Chain::getRandomDeepest()
 	Block* randomLeaf = level[index];
 	pthread_mutex_unlock(&_tailsMutex);
 	return randomLeaf;
-}
-
-/**
- * @brief Create chain instance, init hash library, create genesis
- *
- * @return -1 if already initiated, 0 otherwise
- */
-int Chain::initChain()
-{
-	if (isInitiated())
-	{
-		return FAIL;
-	}
-
-	Chain::s_instance = new Chain();
-	Chain::s_initiated = true;
-
-	init_hash_generator();
-
-	pthread_create(&s_daemonThread, NULL, Chain::staticDaemonRoutine, NULL);	// master thread created
-	
-	// Create genesis block and insert to chain
-	Block* genesisBlock(new Block(GENESIS_BLOCK_NUM, NULL, EMPTY, NULL)); // TODO maybe height is determined from father later
-	getInstance()->pushBlock(genesisBlock);
-	getInstance()->_status[EMPTY] = ATTACHED;
-	getInstance()->_size = EMPTY;
-
-	return SUCESS;
 }
 
 /**

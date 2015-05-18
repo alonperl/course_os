@@ -182,14 +182,11 @@ void *Chain::daemonRoutine(void *chain_ptr)
 			if (_isClosing)
 			{
 				pthread_mutex_unlock(&_pendingMutex);
-				std::cout <<"KILL MYSELF 1\n";
 				_daemonWorkFlag = false;
 				return NULL;
 			}
 			// Wait for "hey! someone pending" signal
-			std::cout<< "pending unlocked - waiting\n";
 			pthread_cond_wait(&_pendingCV, &_pendingMutex);
-			std::cout << "pending locked from signal. Have " << _pending.size() << " items pending.\n";
 		// 	wokeUp = true;
 		// }
 		// else
@@ -200,7 +197,6 @@ void *Chain::daemonRoutine(void *chain_ptr)
 		if (_isClosing)
 		{
 			pthread_mutex_unlock(&_pendingMutex);
-			std::cout <<"KILL MYSELF 2\n";
 			_daemonWorkFlag = false;
 			return NULL;
 		}
@@ -221,7 +217,6 @@ void *Chain::daemonRoutine(void *chain_ptr)
 
 			_pending.pop_front();
 			
-			std::cout << "PRINTING\n";
 			pthread_mutex_unlock(&_pendingMutex);
 
 			// Do stuff
@@ -250,17 +245,6 @@ void *Chain::daemonRoutine(void *chain_ptr)
  */
 Block* Chain::getRandomDeepest()
 {
-	/*pthread_mutex_lock(&_deepestTailsMutex);
-	std::cout << "Deepest Tails Size Is: " << _deepestTails.size() <<std::endl;
-	if (_deepestTails.size() == 0)
-	{
-		std::cout << "\n\nCAN'T FUCKING BE \n\n";
-	}
-	long index = rand() % _deepestTails.size();
-	std::cout << "(First in vector is 0), - Index is: " << index << " Vector Size is: " << _deepestTails.size() << std::endl; 
-	pthread_mutex_unlock(&_deepestTailsMutex);
-	return _deepestTails[index];*/
-
 	pthread_mutex_lock(&_tailsMutex);
 	long index = rand() % _tails.at(_maxHeight).size();
 	BlockMap level = _tails.at(_maxHeight);
@@ -525,29 +509,22 @@ void *Chain::closeChainLogic(void *pChain)
 {
 	Chain* chain = (Chain*)pChain;
 
-	std::cout <<"isClosing?" << chain->_isClosing << "\n";
-	std::cout <<"CLOSE STARTED\n";
 	// Wait untill deamon closes
 	while(chain->_daemonWorkFlag)
 	{
 		pthread_cond_signal(&(chain->_pendingCV));
 	}
-	std::cout << chain->_daemonWorkFlag;
-	// for (int i = 0; i < 2000; i++) {std::cout << ".";}
+
 	pthread_join(s_daemonThread, NULL);
 	
 	s_instance = NULL;
 	s_initiated = false;
 
-	std::cout <<"CLOSE STARTED LOCKING\n";
-	std::cout <<"CLOSE LOCK 1\n";
 	pthread_mutex_lock(&(chain->_pendingMutex));
-	std::cout <<"CLOSE LOCK 2\n";
 	pthread_mutex_lock(&(chain->_chainMutex));
-	std::cout <<"CLOSE LOCK 3\n";
 	pthread_mutex_lock(&(chain->_tailsMutex));
-	std::cout <<"CLOSE LOCKED\n";
-	// print out what's in pending list - and delete 'em
+
+	// Print out what's in pending list - and delete 'em
 	while (chain->_pending.size())
 	{
 		char* unusedHash = getInstance()->hash(chain->_pending.front());
@@ -632,35 +609,6 @@ int Chain::getBlockStatus(int blockNum)
 
 	return _status[blockNum];
 }
-/*
-void Chain::printChain()
-{
-	std::cout << "SIZE " << _attached.size()-1 <<"\n";
-	std::unordered_map<unsigned int, Block*>::iterator it = _attached.begin();
-	int q = 0;
-	while (it != _attached.end())
-	{
-		if (it->second != NULL)
-		{
-			q = it->second->getHeight();
-			while(q--)
-			{
-				std::cout << " ";
-			}
-			std::cout << it->first;
-			std::cout << ": H" << it->second->getHeight() << ", P" << it->second->getPruneFlag();
-			if (it->second->getPrevBlock() != NULL)
-			{
-				std::cout << ", F" << it->second->getPrevBlock()->getId() << "\n";
-			}
-			else
-			{
-				std::cout << ", GENESIS\n";			
-			}
-		}
-		it++;
-	}
-}*/
 
 int Chain::createBlock(Request *req)
 {

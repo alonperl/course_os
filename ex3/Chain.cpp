@@ -175,11 +175,7 @@ void *Chain::daemonRoutine(void *chain_ptr)
 	while (s_initiated)
 	{
 		// Lock _pendingBlocks
-			std::cout << "IsClosing? "<<_isClosing<<"\n";
-		if (pthread_mutex_trylock(&_pendingMutex))
-		{
-			std::cout << "TRYING TO LOCK PENDING\n";
-		}
+		pthread_mutex_lock(&_pendingMutex);
 		
 		// No requests to process
 		if (_pending.empty())
@@ -351,34 +347,7 @@ int Chain::toLongest(int blockNum)
 	{
 		return FAIL;
 	}
-//std::cout<<"Enter ToLongest"<<std::endl;
-//
-//std::cout<<"Locking pending"<<std::endl;
-//	pthread_mutex_lock(&_pendingMutex);
-//	for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
-//	{
-//		if ((*it)->blockNum == blockNum)
-//		{
-//			(*it)->father = getRandomDeepest();
-//			pthread_mutex_unlock(&_pendingMutex);
-//			return SUCESS;
-//		}
-//	}
-//	pthread_mutex_unlock(&_pendingMutex);
-//std::cout<<"Locking workers"<<std::endl;
-//	pthread_mutex_lock(&_workerMutex);
-//	for (std::vector<Worker*>::iterator it = _workers.begin(); it != _workers.end(); ++it)
-//	{
-//		if ((*it)->blockNum == blockNum) {
-//			(*it)->_toLongestFlag = true;
-//			pthread_mutex_unlock(&_workerMutex);
-//			return SUCESS;
-//		}
-//	}
-//	pthread_mutex_unlock(&_workerMutex);
-//std::cout<<"Finished ToLongest"<<std::endl;
-//
-//std::cout<<"Locking status"<<std::endl;
+
 	pthread_mutex_lock(&_statusMutex);
 	if (_status.find(blockNum) != _status.end() && _status[blockNum] == ATTACHED)
 	{
@@ -432,6 +401,7 @@ int Chain::attachNow(int blockNum)
 				}
 			}
 
+			pthread_mutex_unlock(&_pendingMutex);
 			pthread_cond_wait(&_attachedCV, &_statusMutex);
 			pthread_mutex_unlock(&_statusMutex);
 			return SUCESS;

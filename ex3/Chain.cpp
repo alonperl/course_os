@@ -482,7 +482,7 @@ int Chain::pruneChain()
 
 	//Delete from tails vector
 	int tailsPos = 0;
-	for (std::unordered_map<int, vector<Block*> >::iterator tailsIt = _tails.begin(); tailsIt != _tails.end();)
+	for (std::unordered_map<int, std::vector<Block*> >::iterator tailsIt = _tails.begin(); tailsIt != _tails.end();)
 	{
 		for (std::vector<Block*>::iterator it = tailsIt.begin(); it != tailsIt.end();)
 		{

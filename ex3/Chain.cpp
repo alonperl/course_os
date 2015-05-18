@@ -275,6 +275,7 @@ std::cout << "Tails[MaxHeight] Size Is: " << _tails[_maxHeight].size() <<std::en
 if (_tails[_maxHeight].size() == 0)
 std::cout << "\n\nCAN'T FUCKING BE \n\n";
 	long index = rand() % _tails[_maxHeight].size();
+for(int i=0;i<20000000;i++);
 if (_tails[_maxHeight][index] == NULL)
 std::cout << "\n\nNULL BLOCK IN TAILS\n\n";
 std::cout<< __FUNCTION__;pthread_mutex_unlock(&_tailsMutex);std::cout<< ": tails unlocked." <<std::endl;

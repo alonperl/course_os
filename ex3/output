@@ -1,0 +1,247 @@
+********* start test **********
+finish initialing 
+
+Phase 1:
+
+
+Adding level 1:
+
+add 1: 1
+add 2: 2
+add 3: 3
+add 4: 4
+add 5: 5
+add 6: 6
+add 7: 7
+add 8: 8
+add 9: 9
+add 10: 10
+Block num 10 should not be added yet:  0
+Now it does:  1
+
+Adding level 2:
+
+add 1: 11
+add 2: 12
+add 3: 13
+add 4: 14
+add 5: 15
+add 6: 16
+add 7: 17
+add 8: 18
+add 9: 19
+add 10: 20
+Block num 20 should not be added yet:  0
+Now it does:  1
+
+Adding level 3:
+
+add 1: 21
+add 2: 22
+add 3: 23
+add 4: 24
+add 5: 25
+add 6: 26
+add 7: 27
+add 8: 28
+add 9: 29
+add 10: 30
+Block num 30 should not be added yet:  0
+Now it does:  1
+
+Adding level 4:
+
+add 1: 31
+add 2: 32
+add 3: 33
+add 4: 34
+add 5: 35
+add 6: 36
+add 7: 37
+add 8: 38
+add 9: 39
+add 10: 40
+Block num 40 should not be added yet:  0
+Now it does:  1
+
+Adding level 5:
+
+add 1: 41
+add 2: 42
+add 3: 43
+add 4: 44
+add 5: 45
+add 6: 46
+add 7: 47
+add 8: 48
+add 9: 49
+add 10: 50
+Block num 50 should not be added yet:  0
+Now it does:  1
+Expected chain size: 50. actual: 50
+
+
+
+Phase 2:
+
+
+
+
+add 1: 1
+add 2: 3
+add 3: 4
+add 4: 5
+add 5: 6
+add 6: 7
+add 7: 8
+add 8: 9
+add 9: 10
+Expected chain size: 59. actual: 59
+
+
+
+
+Phase 3:
+
+
+
+
+add 1: 1
+add 2: 3
+add 3: 4
+add 4: 6
+add 5: 7
+closing
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+be8dea65014c5deaf4c987738242ef5c
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+3d1e57f319ce41c83755b05ce696efe8
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+44abc506107a52cddc737ad8ac2e17d2
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+this should print while wainting to be closed
+ffbf834bd798e30e3ad6c5389e0806f2
+closed
+initate new chain:
+new chain size sholud be 0: 0
+add 1: 1
+ Calling to_longest...
+to_longest finished
+add 2: 2
+ Calling to_longest...
+to_longest finished
+add 3: 3
+ Calling to_longest...
+to_longest finished
+add 4: 4
+ Calling to_longest...
+to_longest finished
+add 5: 5
+ Calling to_longest...
+to_longest finished
+add 6: 6
+ Calling to_longest...
+to_longest finished
+add 7: 7
+ Calling to_longest...
+to_longest finished
+add 8: 8
+ Calling to_longest...
+to_longest finished
+add 9: 9
+ Calling to_longest...
+to_longest finished
+add 10: 10
+ Calling to_longest...
+to_longest finished
+attach 10: 0
+attach 9: 0
+attach 8: 0
+attach 7: 0
+attach 6: 0
+attach 5: 0
+attach 4: 0
+attach 3: 0
+attach 2: 0
+attach 1: 0
+closing
+********* test end **********

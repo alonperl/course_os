@@ -512,7 +512,7 @@ int Chain::pruneChain()
 
 		tailsPos++;
 	}*/
-	_tails.erase();
+	_tails.clear();
 
 	/*//Delete from deepest tails vector
 	for (std::vector<Block* >::iterator it = _deepestTails.begin(); it != _deepestTails.end();)

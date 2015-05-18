@@ -102,7 +102,7 @@ private:
 	pthread_mutex_t _toLongestMutex;
 	std::unordered_map<int, bool>_toLongestFlags;
 
-	void createBlock(AddRequest *req);
+	int createBlock(AddRequest *req);
 	char* hash(AddRequest *req);
 
 };

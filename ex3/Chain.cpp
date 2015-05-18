@@ -81,7 +81,6 @@ void Chain::pushBlock(Block* newTail)
 {
 	pthread_mutex_lock(&_chainMutex);
 	pthread_mutex_lock(&_tailsMutex);
-	pthread_mutex_lock(&_statusMutex);
 	
 	int height = newTail->getHeight();
 
@@ -120,13 +119,9 @@ void Chain::pushBlock(Block* newTail)
 	// Attach me to chain
 	_attached[newTail->getId()] = newTail;
 
-	// Update status
-	_status[newTail->getId()] = ATTACHED;
-
 	// Virtual Size update
 	_size++;
 
-	pthread_mutex_unlock(&_statusMutex);
 	pthread_mutex_unlock(&_tailsMutex);
 	pthread_mutex_unlock(&_chainMutex);
 }
@@ -174,7 +169,7 @@ int Chain::getLowestID()
 void *Chain::daemonRoutine(void *chain_ptr)
 {
 	(void) chain_ptr;
-	// bool wokeUp = false;
+	int blockId;
 
 	while (s_initiated)
 	{
@@ -212,16 +207,21 @@ void *Chain::daemonRoutine(void *chain_ptr)
 			// Process new request
 			AddRequest *newReq = _pending.front();
 			
-			pthread_mutex_lock(&_statusMutex);
+			/*pthread_mutex_lock(&_statusMutex);
 			_status[newReq->blockNum] = PROCESSING;
-			pthread_mutex_unlock(&_statusMutex);
+			pthread_mutex_unlock(&_statusMutex);*/
 
 			_pending.pop_front();
 			
 			pthread_mutex_unlock(&_pendingMutex);
 
 			// Do stuff
-			createBlock(newReq);
+			blockId = createBlock(newReq);
+
+			// Update status
+			pthread_mutex_lock(&_statusMutex);
+			_status[blockId] = ATTACHED;
+			pthread_mutex_unlock(&_statusMutex);
 
 			// Send signal to anyone waiting for attachNow
 			pthread_cond_signal(&_attachedCV);
@@ -298,7 +298,6 @@ int Chain::initChain()
  */
 int Chain::addRequest(char *data, int length)
 {
-	std::cout<<"ENTER AddRequest"<<std::endl;
 	if (!isInitiated() || _isClosing)
 	{
 		return FAIL;
@@ -310,8 +309,6 @@ int Chain::addRequest(char *data, int length)
 	// Add new task for daemon
 	pthread_mutex_lock(&_pendingMutex);
 	_pending.push_back(new AddRequest(data, length, newId, father));
-	if (father == NULL)
-		std::cout<< "\n\nCREATED REQUEST WITH NULL FATHER\n\n";
 	pthread_mutex_unlock(&_pendingMutex);
 
 	// Update status
@@ -324,7 +321,6 @@ int Chain::addRequest(char *data, int length)
 
 	// Signal daemon that it has more work
 	pthread_cond_signal(&_pendingCV);
-	std::cout<<"EXIT AddRequest"<<std::endl;
 	return newId;
 }
 
@@ -398,47 +394,42 @@ int Chain::attachNow(int blockNum)
 	4. getRandomDeepest inf loop - Problem is in Phase 2 - Size is stuck on 50 and not increasing to 59 like it should
 	*/
 
-	//pthread_mutex_lock(&_statusMutex);
-	switch (_status[blockNum])
+	pthread_mutex_lock(&_statusMutex);
+	int blockStatus = _status[blockNum];
+	std::cout << "STATUS " << blockStatus;
+	for (int i = 0; i < 2000; i++){std::cout << " ";}
+	switch (blockStatus)
 	{
 		case PENDING:
-			std::cout << "Case Pending" << std::endl; 
 			pthread_mutex_lock(&_pendingMutex);
 			for (std::deque<AddRequest*>::iterator it = _pending.begin(); it != _pending.end(); ++it)
 			{
 				if ((*it)->blockNum == blockNum)
 				{
-					std::cout << "Pending has " << _pending.size() << std::endl; 
+					/*_pending.push_front((*it));*/
+					int blockId = createBlock(*it);
+
+					// Update status
+					_status[blockId] = ATTACHED;
+
 					_pending.erase(it);
-					_pending.push_front((*it));
-					std::cout << "Pending updated to " << _pending.size() << std::endl; 
-					break;
+
+					pthread_mutex_unlock(&_pendingMutex);
+					pthread_mutex_unlock(&_statusMutex);
+					return ATTACHED;
 				}
 			}
-			pthread_mutex_unlock(&_pendingMutex);
 
-		case PROCESSING:
-			std::cout << "Case Processing" << std::endl; 
-			pthread_mutex_lock(&_attachedMutex);
-
-			pthread_mutex_lock(&_statusMutex);
-			if (_status[blockNum] != ATTACHED)
-			{
-				pthread_cond_signal(&_pendingCV);std::cout<< "attachNow: signal sent." <<std::endl;
-				pthread_mutex_unlock(&_statusMutex);
-				pthread_cond_wait(&_attachedCV, &_attachedMutex);
-			}
+			pthread_cond_wait(&_attachedCV, &_statusMutex);
 			pthread_mutex_unlock(&_statusMutex);
-			
-			pthread_mutex_unlock(&_attachedMutex);
 			return ATTACHED;
 
 		case ATTACHED:
-			//pthread_mutex_unlock(&_statusMutex);
+			pthread_mutex_unlock(&_statusMutex);
 			return ATTACHED;
 
 		default:
-			//pthread_mutex_unlock(&_statusMutex);
+			pthread_mutex_unlock(&_statusMutex);
 			return NOT_FOUND;
 	}
 }
@@ -486,8 +477,6 @@ int Chain::pruneChain()
 		{
 			if ((*heightIterator) != NULL && (*heightIterator)->getPruneFlag())
 			{
-				std::cout << "ID IN TAILS" << (*heightIterator)->getId();
-				for (int i = 0; i < 1999; i++){std::cout << ".";}
 				heightIterator = _tails.at(heightPos).erase(heightIterator);
 			}
 			else
@@ -676,11 +665,10 @@ void Chain::printChain()
 	}
 }*/
 
-void Chain::createBlock(AddRequest *req)
+int Chain::createBlock(AddRequest *req)
 {
 	Block* cachedFather = req->father;
-	if (cachedFather == NULL)
-		std::cout<< "\n\nPROCESSING REQUEST WITH NULL FATHER\n\n";
+
 	// Save if current father is longest or not
 	bool cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();
 	bool rehash = false;
@@ -694,10 +682,7 @@ void Chain::createBlock(AddRequest *req)
 		{
 			rehash = true;
 			rehashCount++;
-			if (rehashCount > 10)
-			{
-				std::cout << "\nWhy The Endless Rehash (1) ?? \n\n";
-			}
+
 			cachedFather = Chain::getInstance()->getRandomDeepest();
 			cachedLongest = cachedFather->getHeight() == Chain::getInstance()->getMaxHeight();
 		}
@@ -714,6 +699,8 @@ void Chain::createBlock(AddRequest *req)
 
 	// Attach block to chain
 	Chain::getInstance()->pushBlock(newBlock);
+
+	return newBlock->getId();
 }
 
 char* Chain::hash(AddRequest *req)

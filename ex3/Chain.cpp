@@ -530,7 +530,7 @@ int Chain::pruneChain()
 		{
 			_usedIDList.push_back(blockIterator->second->getId()); // Reuse later
 			_attached.erase(blockIterator);
-			delete it->second; // Finally destory the block
+			delete blockIterator->second; // Finally destory the block
 		}
 		
 		blockIterator++;

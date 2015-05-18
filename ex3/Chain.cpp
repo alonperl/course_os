@@ -478,7 +478,7 @@ int Chain::pruneChain()
 	{
 		for (BlockMap::iterator heightIterator = _tails[heightPos].begin(); heightIterator = _tails[heightPos].end();)
 		{
-			if (*heightIterator != NULL && (*heightIterator)->getPruneFlag())
+			if (heightIterator->second != NULL && heightIterator->second->getPruneFlag())
 			{
 				_tails[heightPos].erase(heightIterator);
 			}

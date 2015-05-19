@@ -30,7 +30,7 @@ Block::~Block()
 {
 	if (_hash != NULL)
 	{
-		free(_hash);
+		// free(_hash);
 	}
 	_prevBlock = NULL;
 }

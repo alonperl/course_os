@@ -597,6 +597,7 @@ int Chain::createBlock(Request *req)
 	int rehashCount = 0;
 	do
 	{
+		// TODO MEMORY LEAK _ IF REHASH FIRST MUST FREE
 		blockHash = hash(req);
 
 		if ((_toLongestFlags[req->blockNum] && !cachedLongest) || cachedFather == NULL)

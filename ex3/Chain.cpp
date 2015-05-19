@@ -633,7 +633,7 @@ int Chain::createBlock(Request *req)
 char* Chain::hash(Request *req)
 {
 	int nonce = generate_nonce(req->blockNum, req->father->getId());
-	// return generate_hash(req->data, (size_t)req->dataLength, nonce);
-	char* ab = (char*)malloc(sizeof(char));
-	return ab;
+	return generate_hash(req->data, (size_t)req->dataLength, nonce);
+	// char* ab = (char*)malloc(sizeof(char));
+	// return ab;
 }

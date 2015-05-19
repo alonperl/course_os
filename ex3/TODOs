@@ -1,0 +1,7 @@
+valgrind --leak-check=full --show-possibly-lost=yes --show-reachable=yes –undef-valueerrors=yes RUNME
+
+VALIDATE ID
+CHAIN MUTEX IS NOT NEEDED
+CACHED_FATHER is not needed?
+_status and _tolongest can be in block, this will cut two mutexts in chain but add one in (every) block
+Check every pthread call for errors

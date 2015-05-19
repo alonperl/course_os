@@ -305,6 +305,7 @@ int Chain::getLowestID()
 
 	if (_recycledIds.empty())
 	{
+		pthread_mutex_unlock(&_recycledIdsMutex);
 		return _expected_size+1;
 	}
 
@@ -326,7 +327,7 @@ Block* Chain::getRandomDeepest()
 
 	long index = rand() % _tails.at(_maxHeight).size();
 
-	BlockMap highestLevel = _tails.at(_maxHeight);
+	BlockVector highestLevel = _tails.at(_maxHeight);
 	Block* randomLeaf = highestLevel[index];
 
 	pthread_mutex_unlock(&_tailsMutex);

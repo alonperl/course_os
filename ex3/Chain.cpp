@@ -326,7 +326,7 @@ Block* Chain::getRandomDeepest()
 
 	long index = rand() % _tails.at(_maxHeight).size();
 
-	BlockVector highestLevel = _tails.at(_maxHeight);
+	BlockMap highestLevel = _tails.at(_maxHeight);
 	Block* randomLeaf = highestLevel[index];
 
 	pthread_mutex_unlock(&_tailsMutex);

@@ -1,3 +1,19 @@
+/**
+ * @file Chain.cpp
+ * @author  griffonn ednussi
+ * @version 1.0
+ * @date 18 May 2015
+ * 
+ * @brief Definition of blockchain data structure.
+ *
+ * @section LICENSE
+ * This program is a free software. You can freely redistribute it.
+ *
+ * @section DESCRIPTION
+ * Blockchain is a data structure that stores hashed data in a form of 
+ * backlinked tree. Implemented as a singleton, this is the requirements
+ * for exercise library.
+ */
 #ifndef _CHAIN_H
 #define _CHAIN_H
 
@@ -18,6 +34,11 @@ typedef std::unordered_map<unsigned int, Block*> BlockMap;
 typedef std::vector<Block*> BlockVector;
 typedef std::unordered_map<unsigned int, BlockVector> BlockHeightMap;
 
+/**
+ * @brief Blockchain is a data structure that stores hashed data in a form of 
+ * backlinked tree. Implemented as a singleton, this is the requirements
+ * for exercise library.
+ */
 class Chain
 {
 public:
@@ -221,12 +242,17 @@ private:
 	 *
 	 * @return new block id
 	 */
-	int createBlock(Request *req);
+	int _createBlock(Request *req);
 
 	/**
 	 * @return Hash for given request
 	 */
-	char* hash(Request *req);
+	char* _hash(Request *req);
+
+	/**
+	 * @return true iff block number is valid
+	 */
+	bool _isValidId(int blockNum);
 
 };
 

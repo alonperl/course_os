@@ -1,10 +1,10 @@
 import subprocess
 
-a = 5000
+a = 1
 i = 0
 
 for x in range(a):
-	return_code = subprocess.call("./RUNME", shell=True)
+	return_code = subprocess.call("./RUNME", stdout=subprocess.PIPE)
 	if return_code is not 0:
 		i = i + 1
 

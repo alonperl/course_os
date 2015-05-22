@@ -1,3 +1,17 @@
+/**
+ * @file Block.cpp
+ * @author  griffonn ednussi
+ * @version 1.0
+ * @date 18 May 2015
+ * 
+ * @brief A single chain Block class
+ *
+ * @section LICENSE
+ * This program is a free software. You can freely redistribute it.
+ *
+ * @section DESCRIPTION
+ * Implementation of chain Block data structure
+ */
 #include <string.h>
 #include <malloc.h>
 #include "Block.hpp"
@@ -16,6 +30,7 @@ Block::Block(int id, char* hash, int height, Block* father)
 	_blockId = id;
 	_height = height;
 	_prevBlock = father;
+	_hash = NULL;
 
 	if (hash != NULL)
 	{
@@ -30,7 +45,7 @@ Block::~Block()
 {
 	if (_hash != NULL)
 	{
-		// free(_hash);
+		free(_hash);
 	}
 	_prevBlock = NULL;
 }

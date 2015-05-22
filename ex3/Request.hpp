@@ -1,9 +1,29 @@
+/**
+ * @file Request.hpp
+ * @author  griffonn ednussi
+ * @version 1.0
+ * @date 18 May 2015
+ * 
+ * @brief Description of Request class.
+ *
+ * @section LICENSE
+ * This program is a free software. You can freely redistribute it.
+ *
+ * @section DESCRIPTION
+ * Request stores data of single new block that should be attached
+ * to blockchain.
+ */
 #ifndef _ADD_REQUEST_H
 #define _ADD_REQUEST_H
 
 #include <memory>
 #include "Block.hpp"
 
+/**
+ * @brief Request class represents a new addition request to the chain,
+ * holding data to store into the chain, in which block, and to which block
+ * to attach it.
+ */
 class Request
 {
 public:
@@ -16,7 +36,7 @@ public:
 	 * @param newFather Pointer to block's father
 	 */
 	Request(const char* newData, const int dataLength, const int blockNum,
-			   Block* father);
+			Block* father);
 	
 	/**
 	 * @brief Request Destructor

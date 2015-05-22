@@ -1,9 +1,27 @@
+/**
+ * @file Block.hpp
+ * @author  griffonn ednussi
+ * @version 1.0
+ * @date 18 May 2015
+ * 
+ * @brief A chain Block class definition
+ *
+ * @section LICENSE
+ * This program is a free software. You can freely redistribute it.
+ *
+ * @section DESCRIPTION
+ * Description of chain Block data structure
+ */
 #ifndef _BLOCK_H
 #define _BLOCK_H
 
 #include <memory>
 #include <pthread.h>
 
+/**
+ * @brief Block class represents single node in the blockchain, consisting
+ * data hash, unique id and some inner fields for chain use.
+ */
 class Block
 {
 public:

@@ -11,6 +11,7 @@
 #define MOUNT_DIR 2
 #define BLOCKS_NUMBER 3
 #define BLOCK_SIZE 4
+#define USAGE_ERROR "usage: CachingFileSystem rootdir mountdir numberOfBlocks blockSize\n"
 
 #include <fuse.h>
 #include <iostream>
@@ -339,11 +340,12 @@ int main(int argc, char* argv[])
 	// Checking the reveived parameters
 	if(!checkArgs(argc, argv))
 	{
-		cout << "usage: CachingFileSystem rootdir mountdir numberOfBlocks blockSize\n";
+		cout << USAGE_ERROR;
 		exit(1);
 	}
 
-	CacheData cacheData = new CacheData(argv[ROOT_DIR], argv[MOUNT_DIR], atoi(argv[BLOCK_SIZE]), atoi(argv[BLOCKS_NUMBER]));
+	cacheData = new CacheData(argv[ROOT_DIR], argv[MOUNT_DIR], atoi(argv[BLOCK_SIZE]), atoi(argv[BLOCKS_NUMBER]));
+	
 	init_caching_oper();
 	argv[1] = argv[2];
 	for (int i = 2; i< (argc - 1); i++){

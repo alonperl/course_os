@@ -5,7 +5,7 @@
  * Created on 24 May 2015, 22:45
  */
 
-#include "DataBlock.h"
+#include "DataBlock.hpp"
 
 DataBlock::DataBlock () { }
 

@@ -6,29 +6,34 @@
  */
 
 #define FUSE_USE_VERSION 26
+#define RIGHT_PARAM_AMOUNT 5
+#define ROOT_DIR 1
+#define MOUNT_DIR 2
+#define BLOCKS_NUMBER 3
+#define BLOCK_SIZE 4
 
 #include <fuse.h>
 #include <iostream>
 #include <set>
 #include <unordered_map>
 #include <string>
-#include "DataBlock.h"
-#include "FileNode.h"
+
+#include <boost/filesystem.hpp>
+
+#include "DataBlock.hpp"
+#include "FileNode.hpp"
+#include "CacheData.hpp"
 
 using namespace std;
 
 struct fuse_operations caching_oper;
 
 static set<DataBlock*, DataBlockComparator> cache;
-
 static unordered_map<size_t, FileNode*> files;
-
 static hash<string> hash_fn;
 
-//char *normailze_path(char *path)
-//{
-//  
-//}
+static CacheData cacheData;
+
 
 /**
  * 
@@ -265,7 +270,6 @@ int caching_ioctl (const char *, int cmd, void *arg,
 // You are not supposed to change this function.
 void init_caching_oper()
 {
-
 	caching_oper.getattr = caching_getattr;
 	caching_oper.access = caching_access;
 	caching_oper.open = caching_open;
@@ -280,7 +284,6 @@ void init_caching_oper()
 	caching_oper.destroy = caching_destroy;
 	caching_oper.ioctl = caching_ioctl;
 	caching_oper.fgetattr = caching_fgetattr;
-
 
 	caching_oper.readlink = NULL;
 	caching_oper.getdir = NULL;
@@ -306,9 +309,41 @@ void init_caching_oper()
 	caching_oper.ftruncate = NULL;
 }
 
-//basic main. You need to complete it.
+
+bool checkArgs(int argc, char* argv[])
+{
+	// Check correct param amount
+	if (argc != RIGHT_PARAM_AMOUNT)
+	{
+		return false;
+	}
+
+	// check if paths exists
+	if (!boost::filesystem::exists(argv[ROOT_DIR]) || !boost::filesystem::exists(argv[MOUNT_DIR]))
+	{
+		return false;
+	}
+
+	//check if blockSize & numberOfBlocks are positive int
+	if (argv[BLOCKS_NUMBER] <= 0 || argv[BLOCK_SIZE] <= 0)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+
 int main(int argc, char* argv[])
 { 
+	// Checking the reveived parameters
+	if(!checkArgs(argc, argv))
+	{
+		cout << "usage: CachingFileSystem rootdir mountdir numberOfBlocks blockSize\n";
+		exit(1);
+	}
+
+	CacheData cacheData = new CacheData(argv[ROOT_DIR], argv[MOUNT_DIR], atoi(argv[BLOCK_SIZE]), atoi(argv[BLOCKS_NUMBER]));
 	init_caching_oper();
 	argv[1] = argv[2];
 	for (int i = 2; i< (argc - 1); i++){

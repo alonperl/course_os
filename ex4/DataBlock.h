@@ -13,23 +13,22 @@ using namespace std;
 class DataBlock {
 public:
     DataBlock();
-    DataBlock(const DataBlock& orig);
     virtual ~DataBlock();
     
     char *getData();
     unsigned int getOffset();
     unsigned int getUseCount();
     
-    bool operator<(DataBlock other);
 private:
     char *_data;
     unsigned int _offset;
     unsigned int _useCount;
 };
 
-struct DataBlockComparator
+class DataBlockComparator
 {
-    bool operator()(const DataBlock *lhs, const DataBlock *rhs);
+public:
+    bool operator()(DataBlock *lhs, DataBlock *rhs);
 };
 
 #endif	/* DATABLOCK_H */

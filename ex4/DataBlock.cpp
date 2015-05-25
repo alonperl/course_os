@@ -9,15 +9,16 @@
 
 DataBlock::DataBlock () { }
 
-DataBlock::DataBlock (const DataBlock& orig) { }
-
 DataBlock::~DataBlock () { }
 
-struct DataBlockComparator
+unsigned int DataBlock::getUseCount()
 {
-    bool operator()(const DataBlock *lhs, const DataBlock *rhs)
-    {
-      return lhs->getUseCount() < rhs->getUseCount();
-    }
-};
+  return 0;
+}
+
+
+bool DataBlockComparator::operator()(DataBlock *lhs, DataBlock *rhs)
+{
+  return lhs->getUseCount() < rhs->getUseCount();
+}
 

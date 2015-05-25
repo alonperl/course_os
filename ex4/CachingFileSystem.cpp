@@ -14,16 +14,21 @@
 #include <string>
 #include "DataBlock.h"
 #include "FileNode.h"
-#include "TestClass.h"
 
 using namespace std;
 
 struct fuse_operations caching_oper;
 
 static set<DataBlock*, DataBlockComparator> cache;
+
 static unordered_map<size_t, FileNode*> files;
 
 static hash<string> hash_fn;
+
+//char *normailze_path(char *path)
+//{
+//  
+//}
 
 /**
  * 
@@ -95,6 +100,7 @@ int caching_access(const char *path, int mask)
  */
 int caching_open(const char *path, struct fuse_file_info *fi)
 {
+  cout<<path<<endl;
   // what TODO when opening same file twice or more
 	return 0;
 }
@@ -303,16 +309,14 @@ void init_caching_oper()
 //basic main. You need to complete it.
 int main(int argc, char* argv[])
 { 
-  return 0;
-//
-//	init_caching_oper();
-//	argv[1] = argv[2];
-//	for (int i = 2; i< (argc - 1); i++){
-//		argv[i] = NULL;
-//	}
-//        argv[2] = (char*) "-s -f";
-//	argc = 3;
-//
-//	int fuse_stat = fuse_main(argc, argv, &caching_oper, NULL);
-//	return fuse_stat;
+	init_caching_oper();
+	argv[1] = argv[2];
+	for (int i = 2; i< (argc - 1); i++){
+		argv[i] = NULL;
+	}
+        argv[2] = (char*) "-s";
+	argc = 3;
+
+	int fuse_stat = fuse_main(argc, argv, &caching_oper, NULL);
+	return fuse_stat;
 }

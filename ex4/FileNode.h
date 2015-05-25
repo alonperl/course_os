@@ -8,6 +8,9 @@
 #ifndef FILENODE_H
 #define	FILENODE_H
 
+#include <set>
+#include "DataBlock.h"
+
 using namespace std;
 
 class FileNode {
@@ -24,7 +27,7 @@ private:
     char *_path;
     unsigned int _openCount;
     
-    set<DataBlock> _blocks;
+    set<DataBlock*, DataBlockComparator> _blocks;
 };
 
 #endif	/* FILENODE_H */

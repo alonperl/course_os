@@ -490,14 +490,50 @@ bool checkArgs(int argc, char* argv[])
 		return false;
 	}
 
-	// // check if paths exists
-	// if (!boost::filesystem::exists(argv[ROOT_DIR]) || !boost::filesystem::exists(argv[MOUNT_DIR]))
-	// {
-	// 	return false;
-	// }
+	// Check if paths exists
+	struct stat rootStatBuf;
+	struct stat mountStatBuf;
+	int isRootExists = 0, isMountExists = 0;
 
-	//check if blockSize & numberOfBlocks are positive int
-	if (argv[BLOCKS_NUMBER] <= 0 || argv[BLOCK_SIZE] <= 0)
+	char* absRootPath = realpath(argv[ROOT_DIR], NULL);
+	if (absRootPath == NULL)
+	{
+		if (errno != ENOMEM)
+		{
+			free(absRootPath);
+		}
+
+		return false;
+	}
+	else
+	{
+		isRootExists = stat(absRootPath, &rootStatBuf);
+		free(absRootPath);
+	}
+
+	char* absMountPath = realpath(argv[MOUNT_DIR], NULL);
+	if (absMountPath == NULL)
+	{
+		if (errno != ENOMEM)
+		{
+			free(absMountPath);
+		}
+
+		return false;
+	}
+	else
+	{
+		isMountExists = stat(absMountPath, &mountStatBuf);
+		free(absMountPath);
+	}
+
+	if (isRootExists != 0 || isMountExists != 0)
+	{
+		return false;
+	}
+
+	// Check if blockSize & numberOfBlocks are positive int
+	if (!(argv[BLOCKS_NUMBER] > 0 && argv[BLOCK_SIZE] > 0))
 	{
 		return false;
 	}

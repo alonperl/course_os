@@ -19,6 +19,7 @@
 
 #define CACHE_DATA ((CacheData*) fuse_get_context()->private_data)
  
+#define LOG_FILE ".filesystem.log" // TODO block all functions from access to logfile
 
 #define RIGHT_PARAM_AMOUNT 5
 #define SUCCESS 0
@@ -27,12 +28,24 @@
 #define BLOCKS_NUMBER 3
 #define BLOCK_SIZE 4
 
+// #define MAKE_LOG_UNACCESSABLE if (endsWith(path, LOG_FILE)){return -ENOENT;}
+
 #define USAGE_ERROR "usage: CachingFileSystem rootdir mountdir numberOfBlocks blockSize\n"
 
 
 using namespace std;
 
 struct fuse_operations caching_oper;
+
+
+bool endsWith (std::string const &str, std::string const &ending)
+{
+if (str.length() >= ending.length())
+{
+return 0 == str.compare (str.length() - ending.length(), ending.length(), ending);
+}
+return false;
+}
 
 /**
  * 
@@ -41,7 +54,7 @@ struct fuse_operations caching_oper;
  */
 void log(const char* action)
 {
-	ofstream logStream(CACHE_DATA->getMount(), ios_base::app);
+	ofstream logStream(CACHE_DATA->getLogPath(), ios_base::app);
 	if (logStream.good())
 	{
 		time_t unixTime = std::time(nullptr); //TODO nullptr??
@@ -83,25 +96,18 @@ void log(const char* action)
  */
 int caching_getattr(const char *path, struct stat *statbuf)
 {
-	cout<<__FUNCTION__<<endl;
+	log("getattr");
+		cout<<__FUNCTION__<<endl;
 	
 	int result = 0;
 
-	char* absPath = realpath(path, NULL);
-	if (absPath == NULL)
+	char* absPath = CACHE_DATA->getFullPath(path);
+cout<<absPath<<endl;
+	result = lstat(absPath, statbuf);
+	if (result < 0)
 	{
-		if (errno != ENOMEM)
-		{
-			free(absPath);
-		}
-
+		cout<<"error "<<errno<<endl;
 		result = -errno;
-	}
-	else
-	{
-		result = lstat(absPath, statbuf);
-
-		free(absPath);
 	}
 
 	return result;
@@ -121,7 +127,8 @@ int caching_getattr(const char *path, struct stat *statbuf)
  */
 int caching_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *fi)
 {
-	cout<<__FUNCTION__<<endl;
+	log("fgetattr");
+		cout<<__FUNCTION__<<endl;
 
 	int result = fstat(fi->fh, statbuf);
 
@@ -141,7 +148,8 @@ int caching_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_in
  */
 int caching_access(const char *path, int mask)
 {
-	char* absPath = realpath(path, NULL);
+	log("access");
+		char* absPath = CACHE_DATA->getFullPath(path);
 	int accessStats = access(absPath, mask);
 	if (accessStats != 0)
 	{
@@ -167,35 +175,23 @@ int caching_access(const char *path, int mask)
  */
 int caching_open(const char *path, struct fuse_file_info *fi)
 {
-	cout<<__FUNCTION__<<endl;
+	log("open");
+		cout<<__FUNCTION__<<endl;
 	// what TODO when opening same file twice or more
 
 	int result = 0;
 
-	char* absPath = realpath(path, NULL);
-	if (absPath == NULL)
-	{
-		if (errno != ENOMEM)
-		{
-			free(absPath);
-		}
+	char* absPath = CACHE_DATA->getFullPath(path);
+	
+	int fd = open(absPath, fi->flags);
 
+	if (fd < 0)
+	{
 		result = -errno;
 	}
 	else
 	{
-		int fd = open(absPath, fi->flags);
-
-		if (fd < 0)
-		{
-			result = -errno;
-		}
-		else
-		{
-			fi->fh = fd;
-		}
-
-		free(absPath);
+		fi->fh = fd;
 	}
 
 	return result;
@@ -213,7 +209,8 @@ int caching_open(const char *path, struct fuse_file_info *fi)
 int caching_read(const char *path, char *buf, size_t size, off_t offset,
 		struct fuse_file_info *fi)
 {
-	cout<<__FUNCTION__<<endl;
+	log("read");
+		cout<<__FUNCTION__<<endl;
 
 	int result = pread(fi->fh, buf, size, offset);
 	if (result < 0)
@@ -249,8 +246,8 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
  */
 int caching_flush(const char *path, struct fuse_file_info *fi)
 {
-	cout<<__FUNCTION__<<endl;
 	log("flush");
+		cout<<__FUNCTION__<<endl;
     return SUCCESS;
 }
 
@@ -271,8 +268,8 @@ int caching_flush(const char *path, struct fuse_file_info *fi)
 int caching_release(const char *path, struct fuse_file_info *fi)
 {
 	log("release");
-	int result = close(fi->fh);
-	return result;
+		cout<<__FUNCTION__<<endl;
+	return close(fi->fh);
 }
 
 /** Open directory
@@ -284,33 +281,25 @@ int caching_release(const char *path, struct fuse_file_info *fi)
  */
 int caching_opendir(const char *path, struct fuse_file_info *fi)
 {
-	cout<<__FUNCTION__<<endl;
+	log("opendir");
+		cout<<__FUNCTION__<<endl;
 
 	int result = 0;
 
-	char* absPath = realpath(path, NULL);
-	if (absPath == NULL)
-	{
-		if (errno != ENOMEM)
-		{
-			free(absPath);
-		}
+	char* absPath = CACHE_DATA->getFullPath(path);
+	cout<<"open "<<absPath<<endl;
+	
+	DIR *dirPointer = opendir(absPath);
+	
 
+	if (dirPointer == NULL)
+	{
 		result = -errno;
 	}
-	else
-	{
-		DIR *dirPointer = opendir(absPath);
 
-		if (dirPointer == NULL)
-		{
-			result = -errno;
-		}
+	fi->fh = (intptr_t)dirPointer;
 
-		fi->fh = (intptr_t)dirPointer;
-
-		free(absPath);
-	}
+	
 
 	return result;
 }
@@ -331,7 +320,8 @@ int caching_opendir(const char *path, struct fuse_file_info *fi)
 int caching_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset,
 		struct fuse_file_info *fi)
 {
-  // TODO why do we need fi? this is a directory.
+	log("readdir");
+	  // TODO why do we need fi? this is a directory.
 	cout<<__FUNCTION__<<endl;
 
 	int result = 0;
@@ -348,6 +338,7 @@ int caching_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t o
 	{
 	    do 
 	    {
+
 			if (filler(buf, dirEntry->d_name, NULL, 0) != 0)
 			{
 			    result = -errno; // TODO does filler update errno? if not - return -ENOMEM
@@ -365,7 +356,8 @@ int caching_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t o
  */
 int caching_releasedir(const char *path, struct fuse_file_info *fi)
 {
-	cout<<__FUNCTION__<<endl;
+	log("releasedir");
+		cout<<__FUNCTION__<<endl;
 
     closedir((DIR *)(uintptr_t)fi->fh);
 
@@ -375,7 +367,8 @@ int caching_releasedir(const char *path, struct fuse_file_info *fi)
 /** Rename a file */
 int caching_rename(const char *path, const char *newpath)
 {
-	cout<<__FUNCTION__<<endl;
+	log("rename");
+		cout<<__FUNCTION__<<endl;
 	return 0;
 }
 
@@ -391,7 +384,8 @@ int caching_rename(const char *path, const char *newpath)
  */
 void *caching_init(struct fuse_conn_info *conn)
 {
-	cout<<__FUNCTION__<<endl;
+	log("init");
+		cout<<__FUNCTION__<<endl;
 	return CACHE_DATA;
 }
 
@@ -405,7 +399,8 @@ void *caching_init(struct fuse_conn_info *conn)
  */
 void caching_destroy(void *userdata)
 {
-	cout<<__FUNCTION__<<endl;
+	log("destroy");
+		cout<<__FUNCTION__<<endl;
 }
 
 
@@ -425,14 +420,14 @@ void caching_destroy(void *userdata)
 int caching_ioctl (const char *, int cmd, void *arg,
 		struct fuse_file_info *, unsigned int flags, void *data)
 {
-	//print to log:
+	log("ioctl");
+		//print to log:
 	//log()
 	//1 2 3
 	//1 name of file relative to mountdir
 	//2 number of the block in the enumartion itself
 	//3 number of time it was accessed
 
-	log("ioctl");
 	return 0;
 	//TODO iterates through all fileNodes and blocks
 }
@@ -502,7 +497,7 @@ bool checkArgs(int argc, char* argv[])
 		{
 			free(absRootPath);
 		}
-
+cout<<"1";
 		return false;
 	}
 	else
@@ -518,7 +513,7 @@ bool checkArgs(int argc, char* argv[])
 		{
 			free(absMountPath);
 		}
-
+cout<<"2";
 		return false;
 	}
 	else
@@ -529,6 +524,7 @@ bool checkArgs(int argc, char* argv[])
 
 	if (isRootExists != 0 || isMountExists != 0)
 	{
+		cout<<"3";
 		return false;
 	}
 
@@ -551,7 +547,7 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	CacheData *cacheData = new CacheData(argv[ROOT_DIR], argv[MOUNT_DIR], atoi(argv[BLOCK_SIZE]), atoi(argv[BLOCKS_NUMBER]));
+	CacheData *cacheData = new CacheData(argv[ROOT_DIR], argv[MOUNT_DIR], LOG_FILE, atoi(argv[BLOCK_SIZE]), atoi(argv[BLOCKS_NUMBER]));
 	
 	init_caching_oper();
 	argv[1] = argv[2];

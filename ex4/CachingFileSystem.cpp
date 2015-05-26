@@ -19,7 +19,8 @@
 
 #define CACHE_DATA ((CacheData*) fuse_get_context()->private_data)
  
-#define LOG_FILE ".filesystem.log" // TODO block all functions from access to logfile
+#define LOG_FILENAME ".filesystem.log" // TODO block all functions from access to logfile
+#define LOG_FILENAME_LEN 15
 
 #define RIGHT_PARAM_AMOUNT 5
 #define SUCCESS 0
@@ -28,7 +29,11 @@
 #define BLOCKS_NUMBER 3
 #define BLOCK_SIZE 4
 
-// #define MAKE_LOG_UNACCESSABLE if (endsWith(path, LOG_FILE)){return -ENOENT;}
+#define NO_LOG_ACCESS(path) if (strncmp(path + strlen(path) - LOG_FILENAME_LEN,\
+                                LOG_FILENAME, LOG_FILENAME_LEN) == 0)\
+                            {\
+                                return -ENOENT;\
+                            }
 
 #define USAGE_ERROR "usage: CachingFileSystem rootdir mountdir numberOfBlocks blockSize\n"
 
@@ -97,7 +102,9 @@ void log(const char* action)
 int caching_getattr(const char *path, struct stat *statbuf)
 {
 	log("getattr");
-		cout<<__FUNCTION__<<endl;
+    cout<<__FUNCTION__<<endl;
+    
+    NO_LOG_ACCESS(path)
 	
 	int result = 0;
 
@@ -547,7 +554,7 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	CacheData *cacheData = new CacheData(argv[ROOT_DIR], argv[MOUNT_DIR], LOG_FILE, atoi(argv[BLOCK_SIZE]), atoi(argv[BLOCKS_NUMBER]));
+	CacheData *cacheData = new CacheData(argv[ROOT_DIR], argv[MOUNT_DIR], LOG_FILENAME, atoi(argv[BLOCK_SIZE]), atoi(argv[BLOCKS_NUMBER]));
 	
 	init_caching_oper();
 	argv[1] = argv[2];

@@ -6,22 +6,29 @@
  */
 
 #define FUSE_USE_VERSION 26
-#define RIGHT_PARAM_AMOUNT 5
-#define ROOT_DIR 1
-#define MOUNT_DIR 2
-#define BLOCKS_NUMBER 3
-#define BLOCK_SIZE 4
-#define USAGE_ERROR "usage: CachingFileSystem rootdir mountdir numberOfBlocks blockSize\n"
 
 #include <fuse.h>
 #include <errno.h>
 #include <iostream>
 #include <unistd.h>
 #include <dirent.h>
+#include <ctime>
+#include <fstream>
 
 #include "CacheData.hpp"
 
-#define CACHE_DATA (CacheData*) fuse_get_context()->private_data
+#define CACHE_DATA ((CacheData*) fuse_get_context()->private_data)
+ 
+
+#define RIGHT_PARAM_AMOUNT 5
+#define SUCCESS 0
+#define ROOT_DIR 1
+#define MOUNT_DIR 2
+#define BLOCKS_NUMBER 3
+#define BLOCK_SIZE 4
+
+#define USAGE_ERROR "usage: CachingFileSystem rootdir mountdir numberOfBlocks blockSize\n"
+
 
 using namespace std;
 
@@ -32,9 +39,19 @@ struct fuse_operations caching_oper;
  * @param message
  * @return 
  */
-int log(char* message)
+void log(const char* action)
 {
-  return 0;
+	ofstream logStream(CACHE_DATA->getMount(), ios_base::app);
+	if (logStream.good())
+	{
+		time_t unixTime = std::time(nullptr); //TODO nullptr??
+		logStream << unixTime << " " << action << endl;
+		logStream.close();
+	}
+	else
+	{
+		//TODO error?>
+	}
 }
 
 // /**
@@ -124,9 +141,15 @@ int caching_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_in
  */
 int caching_access(const char *path, int mask)
 {
-	cout<<__FUNCTION__<<endl;
-    return 0;
+	char* absPath = realpath(path, NULL);
+	int accessStats = access(absPath, mask);
+	if (accessStats != 0)
+	{
+		return -errno;
+	}
+	return accessStats;
 }
+
 
 
 /** File open operation
@@ -227,7 +250,8 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 int caching_flush(const char *path, struct fuse_file_info *fi)
 {
 	cout<<__FUNCTION__<<endl;
-    return 0;
+	log("flush");
+    return SUCCESS;
 }
 
 /** Release an open file
@@ -246,8 +270,9 @@ int caching_flush(const char *path, struct fuse_file_info *fi)
  */
 int caching_release(const char *path, struct fuse_file_info *fi)
 {
-	cout<<__FUNCTION__<<endl;
-	return 0;
+	log("release");
+	int result = close(fi->fh);
+	return result;
 }
 
 /** Open directory
@@ -400,7 +425,16 @@ void caching_destroy(void *userdata)
 int caching_ioctl (const char *, int cmd, void *arg,
 		struct fuse_file_info *, unsigned int flags, void *data)
 {
+	//print to log:
+	//log()
+	//1 2 3
+	//1 name of file relative to mountdir
+	//2 number of the block in the enumartion itself
+	//3 number of time it was accessed
+
+	log("ioctl");
 	return 0;
+	//TODO iterates through all fileNodes and blocks
 }
 
 
@@ -474,7 +508,7 @@ bool checkArgs(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 { 
-	// Checking the reveived parameters
+	// Checking the received parameters
 	if(!checkArgs(argc, argv))
 	{
 		cout << USAGE_ERROR;

@@ -14,7 +14,10 @@
 #define USAGE_ERROR "usage: CachingFileSystem rootdir mountdir numberOfBlocks blockSize\n"
 
 #include <fuse.h>
+#include <errno.h>
 #include <iostream>
+#include <unistd.h>
+#include <dirent.h>
 
 #include "CacheData.hpp"
 
@@ -34,6 +37,27 @@ int log(char* message)
   return 0;
 }
 
+// /**
+//  * Get absolute path for given relative path from mountdir.
+//  *
+//  * @param absolutePath - container to put new the result into
+//  * @param path - relative path.
+//  * @return -errno if the absolute path exceeds PATH_MAX, 0 otherwise
+//  */
+// int absolutePath(char[PATH_MAX] absolutePath, char* path)
+// {
+// 	strcpy(absolutePath, CACHE_DATA->getMount());
+
+// 	if (strlen(absolutePath) + strlen(path) > PATH_MAX)
+// 	{
+// 		return -ENAMETOOLONG;
+// 	}
+	
+// 	strncat(absolutePath, path, PATH_MAX);
+
+// 	return 0;
+// }
+
 /** Get file attributes.
  *
  * Similar to stat().  The 'st_dev' and 'st_blksize' fields are
@@ -43,8 +67,27 @@ int log(char* message)
 int caching_getattr(const char *path, struct stat *statbuf)
 {
 	cout<<__FUNCTION__<<endl;
-	cout<< path <<endl;
-	return 0;
+	
+	int result = 0;
+
+	char* absPath = realpath(path, NULL);
+	if (absPath == NULL)
+	{
+		if (errno != ENOMEM)
+		{
+			free(absPath);
+		}
+
+		result = -errno;
+	}
+	else
+	{
+		result = lstat(absPath, statbuf);
+
+		free(absPath);
+	}
+
+	return result;
 }
 
 /**
@@ -62,7 +105,10 @@ int caching_getattr(const char *path, struct stat *statbuf)
 int caching_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *fi)
 {
 	cout<<__FUNCTION__<<endl;
-    return 0;
+
+	int result = fstat(fi->fh, statbuf);
+
+	return result;
 }
 
 /**
@@ -98,9 +144,38 @@ int caching_access(const char *path, int mask)
  */
 int caching_open(const char *path, struct fuse_file_info *fi)
 {
-  cout<<__FUNCTION__<<endl;
-  // what TODO when opening same file twice or more
-	return 0;
+	cout<<__FUNCTION__<<endl;
+	// what TODO when opening same file twice or more
+
+	int result = 0;
+
+	char* absPath = realpath(path, NULL);
+	if (absPath == NULL)
+	{
+		if (errno != ENOMEM)
+		{
+			free(absPath);
+		}
+
+		result = -errno;
+	}
+	else
+	{
+		int fd = open(absPath, fi->flags);
+
+		if (fd < 0)
+		{
+			result = -errno;
+		}
+		else
+		{
+			fi->fh = fd;
+		}
+
+		free(absPath);
+	}
+
+	return result;
 }
 
 
@@ -116,7 +191,14 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 		struct fuse_file_info *fi)
 {
 	cout<<__FUNCTION__<<endl;
-	return 0;
+
+	int result = pread(fi->fh, buf, size, offset);
+	if (result < 0)
+	{
+		result = -errno;
+	}
+
+	return result;
 }
 
 /** Possibly flush cached data
@@ -178,7 +260,34 @@ int caching_release(const char *path, struct fuse_file_info *fi)
 int caching_opendir(const char *path, struct fuse_file_info *fi)
 {
 	cout<<__FUNCTION__<<endl;
-	return 0;
+
+	int result = 0;
+
+	char* absPath = realpath(path, NULL);
+	if (absPath == NULL)
+	{
+		if (errno != ENOMEM)
+		{
+			free(absPath);
+		}
+
+		result = -errno;
+	}
+	else
+	{
+		DIR *dirPointer = opendir(absPath);
+
+		if (dirPointer == NULL)
+		{
+			result = -errno;
+		}
+
+		fi->fh = (intptr_t)dirPointer;
+
+		free(absPath);
+	}
+
+	return result;
 }
 
 /** Read directory
@@ -199,7 +308,30 @@ int caching_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t o
 {
   // TODO why do we need fi? this is a directory.
 	cout<<__FUNCTION__<<endl;
-	return 0;
+
+	int result = 0;
+
+	DIR *dirPointer = (DIR*)(uintptr_t)fi->fh;
+	struct dirent *dirEntry;
+	dirEntry = readdir(dirPointer);
+
+	if (dirEntry == NULL)
+	{
+		result = -errno;
+	}
+	else
+	{
+	    do 
+	    {
+			if (filler(buf, dirEntry->d_name, NULL, 0) != 0)
+			{
+			    result = -errno; // TODO does filler update errno? if not - return -ENOMEM
+			    break;
+			}
+	    } while ((dirEntry = readdir(dirPointer)) != NULL);
+	}
+
+	return result;
 }
 
 /** Release directory
@@ -209,6 +341,9 @@ int caching_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t o
 int caching_releasedir(const char *path, struct fuse_file_info *fi)
 {
 	cout<<__FUNCTION__<<endl;
+
+    closedir((DIR *)(uintptr_t)fi->fh);
+
 	return 0;
 }
 

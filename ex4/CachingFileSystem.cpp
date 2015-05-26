@@ -42,16 +42,6 @@ using namespace std;
 
 struct fuse_operations caching_oper;
 
-
-bool endsWith (std::string const &str, std::string const &ending)
-{
-if (str.length() >= ending.length())
-{
-return 0 == str.compare (str.length() - ending.length(), ending.length(), ending);
-}
-return false;
-}
-
 /**
  * 
  * @param message
@@ -137,6 +127,8 @@ int caching_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_in
 	log("fgetattr");
 		cout<<__FUNCTION__<<endl;
 
+    NO_LOG_ACCESS(path)
+    
 	int result = fstat(fi->fh, statbuf);
 
 	return result;
@@ -156,7 +148,10 @@ int caching_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_in
 int caching_access(const char *path, int mask)
 {
 	log("access");
-		char* absPath = CACHE_DATA->getFullPath(path);
+    
+    NO_LOG_ACCESS(path)
+	
+    char* absPath = CACHE_DATA->getFullPath(path);
 	int accessStats = access(absPath, mask);
 	if (accessStats != 0)
 	{
@@ -184,8 +179,9 @@ int caching_open(const char *path, struct fuse_file_info *fi)
 {
 	log("open");
 		cout<<__FUNCTION__<<endl;
-	// what TODO when opening same file twice or more
 
+    NO_LOG_ACCESS(path)
+    
 	int result = 0;
 
 	char* absPath = CACHE_DATA->getFullPath(path);
@@ -217,7 +213,9 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 		struct fuse_file_info *fi)
 {
 	log("read");
-		cout<<__FUNCTION__<<endl;
+    cout<<__FUNCTION__<<endl;
+    
+    NO_LOG_ACCESS(path)
 
 	int result = pread(fi->fh, buf, size, offset);
 	if (result < 0)
@@ -254,7 +252,10 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 int caching_flush(const char *path, struct fuse_file_info *fi)
 {
 	log("flush");
-		cout<<__FUNCTION__<<endl;
+	cout<<__FUNCTION__<<endl;
+    
+    NO_LOG_ACCESS(path) // TODO redundant here?
+    
     return SUCCESS;
 }
 
@@ -275,7 +276,10 @@ int caching_flush(const char *path, struct fuse_file_info *fi)
 int caching_release(const char *path, struct fuse_file_info *fi)
 {
 	log("release");
-		cout<<__FUNCTION__<<endl;
+	cout<<__FUNCTION__<<endl;
+    
+    NO_LOG_ACCESS(path)
+    
 	return close(fi->fh);
 }
 
@@ -289,7 +293,9 @@ int caching_release(const char *path, struct fuse_file_info *fi)
 int caching_opendir(const char *path, struct fuse_file_info *fi)
 {
 	log("opendir");
-		cout<<__FUNCTION__<<endl;
+    cout<<__FUNCTION__<<endl;
+    
+    NO_LOG_ACCESS(path)
 
 	int result = 0;
 
@@ -328,8 +334,9 @@ int caching_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t o
 		struct fuse_file_info *fi)
 {
 	log("readdir");
-	  // TODO why do we need fi? this is a directory.
 	cout<<__FUNCTION__<<endl;
+    
+    NO_LOG_ACCESS(path)
 
 	int result = 0;
 
@@ -364,7 +371,9 @@ int caching_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t o
 int caching_releasedir(const char *path, struct fuse_file_info *fi)
 {
 	log("releasedir");
-		cout<<__FUNCTION__<<endl;
+	cout<<__FUNCTION__<<endl;
+    
+    NO_LOG_ACCESS(path)
 
     closedir((DIR *)(uintptr_t)fi->fh);
 
@@ -375,7 +384,9 @@ int caching_releasedir(const char *path, struct fuse_file_info *fi)
 int caching_rename(const char *path, const char *newpath)
 {
 	log("rename");
-		cout<<__FUNCTION__<<endl;
+	cout<<__FUNCTION__<<endl;
+        
+    NO_LOG_ACCESS(path)
 	return 0;
 }
 
@@ -392,7 +403,8 @@ int caching_rename(const char *path, const char *newpath)
 void *caching_init(struct fuse_conn_info *conn)
 {
 	log("init");
-		cout<<__FUNCTION__<<endl;
+	cout<<__FUNCTION__<<endl;
+    
 	return CACHE_DATA;
 }
 
@@ -407,7 +419,9 @@ void *caching_init(struct fuse_conn_info *conn)
 void caching_destroy(void *userdata)
 {
 	log("destroy");
-		cout<<__FUNCTION__<<endl;
+	cout<<__FUNCTION__<<endl;
+    
+    // TODO clear things
 }
 
 
@@ -428,7 +442,10 @@ int caching_ioctl (const char *, int cmd, void *arg,
 		struct fuse_file_info *, unsigned int flags, void *data)
 {
 	log("ioctl");
-		//print to log:
+    
+    NO_LOG_ACCESS(path)
+	
+    //print to log:
 	//log()
 	//1 2 3
 	//1 name of file relative to mountdir

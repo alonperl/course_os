@@ -5,15 +5,21 @@
  * Created on 25 May 2015, 22:40
  */
 
-#ifndef FILENODE_H
-#define	FILENODE_H
+#ifndef CACHE_DATA_H
+#define	CACHE_DATA_H
 
 #include <limits.h>
 #include <stdlib.h>
+#include <string>
+#include <set>
+#include <unordered_map>
+#include "DataBlock.hpp"
+#include "FileNode.hpp"
 
 using namespace std;
 
-class CacheData {
+class CacheData
+{
 public:
     CacheData(char* root, char* mount, unsigned int size, unsigned int blocksNum);
     ~CacheData();
@@ -27,7 +33,12 @@ private:
 	char* mountDir;
 	unsigned int blockSize;
 	unsigned int numOfBlocks;
+
+    set<DataBlock*, DataBlockComparator> cache;
+    unordered_map<size_t, FileNode*> files;
+    hash<string> hash_fn;
+
 };
 
-#endif	/* FILENODE_H */
+#endif	/* CACHE_DATA_H */
 

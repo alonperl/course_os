@@ -15,26 +15,14 @@
 
 #include <fuse.h>
 #include <iostream>
-#include <set>
-#include <unordered_map>
-#include <string>
 
-#include <boost/filesystem.hpp>
-
-#include "DataBlock.hpp"
-#include "FileNode.hpp"
 #include "CacheData.hpp"
+
+#define CACHE_DATA (CacheData*) fuse_get_context()->private_data
 
 using namespace std;
 
 struct fuse_operations caching_oper;
-
-static set<DataBlock*, DataBlockComparator> cache;
-static unordered_map<size_t, FileNode*> files;
-static hash<string> hash_fn;
-
-static CacheData cacheData;
-
 
 /**
  * 
@@ -54,6 +42,8 @@ int log(char* message)
  */
 int caching_getattr(const char *path, struct stat *statbuf)
 {
+	cout<<__FUNCTION__<<endl;
+	cout<< path <<endl;
 	return 0;
 }
 
@@ -71,6 +61,7 @@ int caching_getattr(const char *path, struct stat *statbuf)
  */
 int caching_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *fi)
 {
+	cout<<__FUNCTION__<<endl;
     return 0;
 }
 
@@ -87,6 +78,7 @@ int caching_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_in
  */
 int caching_access(const char *path, int mask)
 {
+	cout<<__FUNCTION__<<endl;
     return 0;
 }
 
@@ -106,7 +98,7 @@ int caching_access(const char *path, int mask)
  */
 int caching_open(const char *path, struct fuse_file_info *fi)
 {
-  cout<<path<<endl;
+  cout<<__FUNCTION__<<endl;
   // what TODO when opening same file twice or more
 	return 0;
 }
@@ -123,6 +115,7 @@ int caching_open(const char *path, struct fuse_file_info *fi)
 int caching_read(const char *path, char *buf, size_t size, off_t offset,
 		struct fuse_file_info *fi)
 {
+	cout<<__FUNCTION__<<endl;
 	return 0;
 }
 
@@ -151,6 +144,7 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
  */
 int caching_flush(const char *path, struct fuse_file_info *fi)
 {
+	cout<<__FUNCTION__<<endl;
     return 0;
 }
 
@@ -170,6 +164,7 @@ int caching_flush(const char *path, struct fuse_file_info *fi)
  */
 int caching_release(const char *path, struct fuse_file_info *fi)
 {
+	cout<<__FUNCTION__<<endl;
 	return 0;
 }
 
@@ -182,6 +177,7 @@ int caching_release(const char *path, struct fuse_file_info *fi)
  */
 int caching_opendir(const char *path, struct fuse_file_info *fi)
 {
+	cout<<__FUNCTION__<<endl;
 	return 0;
 }
 
@@ -202,6 +198,7 @@ int caching_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t o
 		struct fuse_file_info *fi)
 {
   // TODO why do we need fi? this is a directory.
+	cout<<__FUNCTION__<<endl;
 	return 0;
 }
 
@@ -209,13 +206,16 @@ int caching_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t o
  *
  * Introduced in version 2.3
  */
-int caching_releasedir(const char *path, struct fuse_file_info *fi){
+int caching_releasedir(const char *path, struct fuse_file_info *fi)
+{
+	cout<<__FUNCTION__<<endl;
 	return 0;
 }
 
 /** Rename a file */
 int caching_rename(const char *path, const char *newpath)
 {
+	cout<<__FUNCTION__<<endl;
 	return 0;
 }
 
@@ -231,7 +231,8 @@ int caching_rename(const char *path, const char *newpath)
  */
 void *caching_init(struct fuse_conn_info *conn)
 {
-	return NULL;
+	cout<<__FUNCTION__<<endl;
+	return CACHE_DATA;
 }
 
 
@@ -244,6 +245,7 @@ void *caching_init(struct fuse_conn_info *conn)
  */
 void caching_destroy(void *userdata)
 {
+	cout<<__FUNCTION__<<endl;
 }
 
 
@@ -319,11 +321,11 @@ bool checkArgs(int argc, char* argv[])
 		return false;
 	}
 
-	// check if paths exists
-	if (!boost::filesystem::exists(argv[ROOT_DIR]) || !boost::filesystem::exists(argv[MOUNT_DIR]))
-	{
-		return false;
-	}
+	// // check if paths exists
+	// if (!boost::filesystem::exists(argv[ROOT_DIR]) || !boost::filesystem::exists(argv[MOUNT_DIR]))
+	// {
+	// 	return false;
+	// }
 
 	//check if blockSize & numberOfBlocks are positive int
 	if (argv[BLOCKS_NUMBER] <= 0 || argv[BLOCK_SIZE] <= 0)
@@ -344,7 +346,7 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	cacheData = new CacheData(argv[ROOT_DIR], argv[MOUNT_DIR], atoi(argv[BLOCK_SIZE]), atoi(argv[BLOCKS_NUMBER]));
+	CacheData *cacheData = new CacheData(argv[ROOT_DIR], argv[MOUNT_DIR], atoi(argv[BLOCK_SIZE]), atoi(argv[BLOCKS_NUMBER]));
 	
 	init_caching_oper();
 	argv[1] = argv[2];
@@ -352,8 +354,9 @@ int main(int argc, char* argv[])
 		argv[i] = NULL;
 	}
         argv[2] = (char*) "-s";
-	argc = 3;
+        argv[3] = (char*) "-f";
+	argc = 4;
 
-	int fuse_stat = fuse_main(argc, argv, &caching_oper, NULL);
+	int fuse_stat = fuse_main(argc, argv, &caching_oper, cacheData);
 	return fuse_stat;
 }

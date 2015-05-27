@@ -58,3 +58,8 @@ char* CacheData::getFullPath(const char* path)
 	strcpy(result, _rootDir);
 	return strncat(result, path, PATH_MAX);
 }
+
+bool CacheData::operator()(BlockMap *lhs, BlockMap *rhs)
+{
+	lhs->begin()->second->getUseCount() < rhs->begin()->second->getUseCount();
+}

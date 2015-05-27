@@ -14,7 +14,6 @@
 #include <dirent.h>
 #include <ctime>
 #include <fstream>
-
 #include "CacheData.hpp"
 
 #define CACHE_DATA ((CacheData*) fuse_get_context()->private_data)
@@ -229,17 +228,21 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 		return -ENOENT;
 	}
 
+	// Calculate path hash
 	size_t hashedPath = CACHE_DATA->hash_fn(absFilePath);
 
-	CacheMap::iterator blockMap = CACHE_DATA->fileMaps.find(hashedPath);
-	if (blockMap == CACHE_DATA->fileMaps.end())
+	CacheMap cacheMap = CACHE_DATA->fileMaps;
+	BlockMap *blockMap;
+
+	if (cacheMap.find(hashedPath) == cacheMap.end())
 	{
 		// Map for this path not found in Cache
-		fileMaps[hashedPath] = BlockMap();
-		blockMap = fileMaps[hashedPath];
+		cacheMap.insert(pair<size_t, BlockMap*>(hashedPath, new BlockMap()));
 	}
 
-	unsigned int blockSize = CACHE_DATA->getBlockSize();
+	blockMap = cacheMap.find(hashedPath);
+
+	size_t blockSize = CACHE_DATA->getBlockSize();
 	
 	long startBlockNum = offset / blockSize;
 	long startBlockOffset = offset % blockSize;
@@ -248,44 +251,17 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 	long endBlockOffset = (offset + size) % blockSize;
 
 	BlockMap::iterator blockIter;
-	DataBlock block;
+	DataBlock *block;
 	int result;
-	int blockCounter = 0;
 
 	for (int blockNum = startBlockNum; blockNum <= endBlockNum; blockNum++)
 	{
-		blockIter = blockMap.find(blockNum);
-		if (blockIter != blockMap.end())
-		{
-			// Block exists
-			if (startBlockNum == endBlockNum)
-			{
-				// Reading from one block only
-				strncpy(buf, (blockIter->second->getData()) + startBlockOffset, size);
-				break;
-			}
-
-			// Reading from multiple blocks
-			if (blockNum == startBlockNum)
-			{
-				// First block
-				strncpy(buf, blockIter->second->getData() + startBlockOffset, blockSize - startBlockOffset);
-			}
-			else if (blockNum == endBlockNum)
-			{
-				// Last block
-				strncpy(buf, blockIter->second->getData(), endBlockOffset);
-			}
-			else
-			{
-				// Middle blocks
-				strncpy(buf, blockIter->second->getData(), blockSize);
-			}
-		}
-		else
+		blockIter = blockMap->find(blockNum);
+		if (blockIter == blockMap->end())
 		{
 			// Get block from disk
-			char* blockData = malloc(sizeof(char) * blockSize);
+			char* blockData = (char*)malloc(sizeof(char) * blockSize);
+
 			result = pread(fi->fh, blockData, blockSize, blockNum * blockSize);
 			
 			if (result < 0)
@@ -299,15 +275,43 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 				return result;
 			}
 
+			// Check if there is more place in cache
+
 			block = new DataBlock(blockData, blockNum);
-			strcpy(buf + (blockNum * blockSize), blockData);
+			blockMap->at(blockNum) = block;
 
 			free(blockData);
 			blockData = NULL;
-
+		}
+		else
+		{
+			block = blockIter->second;
 		}
 
-		blockCounter++;
+		// Block exists
+		if (startBlockNum == endBlockNum)
+		{
+			// Reading from one block only
+			strncpy(buf, (block->getData()) + startBlockOffset, size);
+			break;
+		}
+
+		// Reading from multiple blocks
+		if (blockNum == startBlockNum)
+		{
+			// First block
+			strncpy(buf, block->getData() + startBlockOffset, blockSize - startBlockOffset);
+		}
+		else if (blockNum == endBlockNum)
+		{
+			// Last block
+			strncpy(buf, block->getData(), endBlockOffset);
+		}
+		else
+		{
+			// Middle blocks
+			strncpy(buf, block->getData(), blockSize);
+		}
 	}
 
 	return size;

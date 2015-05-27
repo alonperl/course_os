@@ -11,15 +11,20 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
-#include <set>
-#include <unordered_map>
+#include <map>
 #include "DataBlock.hpp"
 
-typedef map<int, DataBlock*, DataBlockComparator> BlockMap;
-typedef map<size_t, BlockMap*, BlockMapComparator> CacheMap;
-
-
 using namespace std;
+
+typedef map<int, DataBlock*, DataBlockComparator> BlockMap;
+
+class BlockMapComparator
+{
+public:
+    bool operator()(BlockMap *lhs, BlockMap *rhs);
+};
+
+typedef map<size_t, BlockMap*, BlockMapComparator> CacheMap;
 
 class CacheData
 {
@@ -40,7 +45,7 @@ private:
     char* _rootDir;
     char* _mountDir;
     char* _logPath;
-    unsigned int _blockSize; // TODO make const
+    size_t _blockSize; // TODO make const
     unsigned int _numOfBlocks;
 
 };

@@ -26,6 +26,7 @@ FileNode::~FileNode ()
 {
 	// TODO destroy blocks
 	free(_path);
+	_path = NULL;
 }
 
 char *FileNode::getPath()

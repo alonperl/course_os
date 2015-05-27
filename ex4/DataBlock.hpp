@@ -12,7 +12,7 @@ using namespace std;
 
 class DataBlock {
 public:
-    DataBlock();
+	DataBlock(char* data, unsigned int offset);
     virtual ~DataBlock();
     
     char *getData();

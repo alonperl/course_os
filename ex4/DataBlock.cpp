@@ -6,8 +6,9 @@
  */
 
 #include "DataBlock.hpp"
+#include <malloc.h>
 
-DataBlock::DataBlock(char* data, unsigned int _offset)
+DataBlock::DataBlock(char* data, unsigned int offset)
 {
 	_data = data;
 	_offset = offset;

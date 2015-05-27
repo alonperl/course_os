@@ -62,6 +62,12 @@ void log(const char* action)
 	}
 }
 
+int isFileExists(char* path)
+{
+	struct stat fileStatBuf;
+	return stat(path, &fileStatBuf);
+}
+
 // /**
 //  * Get absolute path for given relative path from mountdir.
 //  *
@@ -215,6 +221,13 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
     cout<<__FUNCTION__<<endl;
     
     NO_LOG_ACCESS(path)
+
+    char* absFilePath = CACHE_DATA->getFullPath(path);
+
+    if (isFileExists(absFilePath) != 0)
+	{
+		return -ENOENT;
+	}
 
 	int result = pread(fi->fh, buf, size, offset);
 	if (result < 0)
@@ -509,47 +522,16 @@ bool checkArgs(int argc, char* argv[])
 	}
 
 	// Check if paths exists
-	struct stat rootStatBuf;
-	struct stat mountStatBuf;
-	int isRootExists = 0, isMountExists = 0;
+	char* absRootPath = CACHE_DATA->getFullPath(argv[ROOT_DIR]);
+	char* absMountPath = CACHE_DATA->getFullPath(argv[MOUNT_DIR]);
 
-	char* absRootPath = realpath(argv[ROOT_DIR], NULL);
-	if (absRootPath == NULL)
+	if (isFileExists(absRootPath) != 0 || isFileExists(absMountPath) != 0)
 	{
-		if (errno != ENOMEM)
-		{
-			free(absRootPath);
-		}
-cout<<"1";
 		return false;
 	}
-	else
-	{
-		isRootExists = stat(absRootPath, &rootStatBuf);
-		free(absRootPath);
-	}
 
-	char* absMountPath = realpath(argv[MOUNT_DIR], NULL);
-	if (absMountPath == NULL)
-	{
-		if (errno != ENOMEM)
-		{
-			free(absMountPath);
-		}
-cout<<"2";
-		return false;
-	}
-	else
-	{
-		isMountExists = stat(absMountPath, &mountStatBuf);
-		free(absMountPath);
-	}
-
-	if (isRootExists != 0 || isMountExists != 0)
-	{
-		cout<<"3";
-		return false;
-	}
+	free(absMountPath);
+	free(absRootPath);
 
 	// Check if blockSize & numberOfBlocks are positive int
 	if (!(argv[BLOCKS_NUMBER] > 0 && argv[BLOCK_SIZE] > 0))

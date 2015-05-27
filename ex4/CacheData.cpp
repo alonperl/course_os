@@ -11,9 +11,9 @@ CacheData::CacheData(char* root, char* mount, string logfile, unsigned int size,
 {
 	_rootDir = realpath(root, NULL);
 	_mountDir = realpath(mount, NULL);
-	char rootDirCopy[PATH_MAX];
-	strcpy(rootDirCopy, _rootDir);
-	strncat(strncat(rootDirCopy, string("/").c_str(), PATH_MAX), logfile.c_str(), PATH_MAX); // TODO check that not exceeding PATH_MAX
+	char _logPath[PATH_MAX];
+	strcpy(_logPath, _rootDir);
+	strncat(strncat(_logPath, string("/").c_str(), PATH_MAX), logfile.c_str(), PATH_MAX); // TODO check that not exceeding PATH_MAX
 	_blockSize = size;
 	_numOfBlocks = blocksNum;
 }
@@ -59,7 +59,7 @@ char* CacheData::getFullPath(const char* path)
 	return strncat(result, path, PATH_MAX);
 }
 
-bool CacheData::operator()(BlockMap *lhs, BlockMap *rhs)
+bool DataBlockMapComparator::operator()(int lhs, int rhs)
 {
-	lhs->begin()->second->getUseCount() < rhs->begin()->second->getUseCount();
+	return CACHE_DATA->find(lhs)->second->getUseCount() < CACHE_DATA->find(rhs);
 }

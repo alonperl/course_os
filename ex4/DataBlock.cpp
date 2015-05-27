@@ -7,6 +7,7 @@
 
 #include "DataBlock.hpp"
 #include <malloc.h>
+#include <cstring>
 
 DataBlock::DataBlock(char* data, long blockNum)
 {

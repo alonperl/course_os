@@ -232,12 +232,13 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 	size_t hashedPath = CACHE_DATA->hash_fn(absFilePath);
 
 	CacheMap cacheMap = CACHE_DATA->fileMaps;
-	BlockMap *blockMap;
+	DataBlockMap blockMap;
 
 	if (cacheMap.find(hashedPath) == cacheMap.end())
 	{
 		// Map for this path not found in Cache
-		cacheMap.insert(pair<size_t, BlockMap*>(hashedPath, new BlockMap()));
+		DataBlockMap blockMap;
+		cacheMap.emplace(hashedPath, blockMap);
 	}
 
 	blockMap = cacheMap.find(hashedPath)->second;
@@ -250,14 +251,14 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 	long endBlockNum = (offset + size) / blockSize;
 	long endBlockOffset = (offset + size) % blockSize;
 
-	BlockMap::iterator blockIter;
+	DataBlockMap::iterator blockIter;
 	DataBlock *block;
 	int result;
 
 	for (int blockNum = startBlockNum; blockNum <= endBlockNum; blockNum++)
 	{
-		blockIter = blockMap->find(blockNum);
-		if (blockIter == blockMap->end())
+		blockIter = blockMap.find(blockNum);
+		if (blockIter == blockMap.end())
 		{
 			// Get block from disk
 			char* blockData = (char*)malloc(sizeof(char) * blockSize);
@@ -278,7 +279,7 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 			// Check if there is more place in cache
 
 			block = new DataBlock(blockData, blockNum);
-			blockMap->insert(pair<int, DataBlock*>(blockNum, block));
+			blockMap.insert(pair<int, DataBlock*>(blockNum, block));
 
 			free(blockData);
 			blockData = NULL;

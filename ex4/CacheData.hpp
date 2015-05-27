@@ -16,15 +16,20 @@
 
 using namespace std;
 
-typedef map<int, DataBlock*, DataBlockComparator> BlockMap;
+// typedef map<int, DataBlock*, DataBlockMapComparator> DataBlockMap;
+typedef map<int, DataBlock*> DataBlockMap;
 
-class BlockMapComparator
+
+class CacheMapComparator
 {
 public:
-    bool operator()(BlockMap *lhs, BlockMap *rhs);
+    bool operator()(size_t lhs, size_t rhs);
 };
 
-typedef map<size_t, BlockMap*, BlockMapComparator> CacheMap;
+typedef map<size_t, BlockMap, CacheMapComparator> CacheMap;
+// typedef map<size_t, DataBlockMap> CacheMap;
+
+
 
 class CacheData
 {
@@ -39,6 +44,7 @@ public:
     char* getFullPath(const char* path);
 
     hash<string> hash_fn;
+    //map<size_t, map<int, DataBlock*, DataBlockComparator>, BlockMapComparator> fileMaps;
     CacheMap fileMaps;
    
 private:

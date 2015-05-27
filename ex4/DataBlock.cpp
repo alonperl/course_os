@@ -7,15 +7,33 @@
 
 #include "DataBlock.hpp"
 
-DataBlock::DataBlock () { }
+DataBlock::DataBlock(char* data, unsigned int _offset)
+{
+	_data = data;
+	_offset = offset;
+	_useCount = 0;
+}
 
-DataBlock::~DataBlock () { }
+DataBlock::~DataBlock()
+{
+	free(_data);
+	_data = NULL;
+}
+
+char* DataBlock::getData()
+{
+  return _data;
+}
+
+unsigned int DataBlock::getOffset()
+{
+  return _offset;
+}
 
 unsigned int DataBlock::getUseCount()
 {
-  return 0;
+  return _useCount;
 }
-
 
 bool DataBlockComparator::operator()(DataBlock *lhs, DataBlock *rhs)
 {

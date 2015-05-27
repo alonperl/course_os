@@ -9,6 +9,7 @@
 
 #include <fuse.h>
 #include <errno.h>
+#include <cstring>
 #include <iostream>
 #include <unistd.h>
 #include <dirent.h>
@@ -41,15 +42,6 @@ using namespace std;
 
 struct fuse_operations caching_oper;
 
-
-
-bool CacheMapComparator::operator()(size_t lhs, size_t rhs)
-{
-	return CACHE_DATA->fileMaps.find(lhs)->second.begin()->second->getUseCount() 
-		   < CACHE_DATA->fileMaps.find(rhs)->second.begin()->second->getUseCount();
-}
-
-
 /**
  * 
  * @param message
@@ -57,7 +49,7 @@ bool CacheMapComparator::operator()(size_t lhs, size_t rhs)
  */
 void log(const char* action)
 {
-	ofstream logStream(CACHE_DATA->getLogPath(), ios_base::app);
+	ofstream logStream(CACHE_DATA->logPath, ios_base::app);
 	if (logStream.good())
 	{
 		time_t unixTime = std::time(nullptr); //TODO nullptr??
@@ -213,10 +205,18 @@ int caching_open(const char *path, struct fuse_file_info *fi)
 	return result;
 }
 
-
-void deleteLFUblock()
+void deleteLFUblock() 
 {
-	
+	CachedBlocks::iterator cachedBlocksIter = CACHE_DATA->filesByLFU.begin();
+
+	DataBlock* block = *cachedBlocksIter;
+
+	CACHE_DATA->filesByHash.erase(block->hash);
+	CACHE_DATA->filesByLFU.erase(cachedBlocksIter);
+
+	delete block;
+
+	CACHE_DATA->totalCachedBlocks--;
 }
 
 /** Read data from an open file
@@ -242,38 +242,49 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 		return -ENOENT;
 	}
 
+	// Get real file size
+	struct stat statBuf;
+	caching_fgetattr(path, &statBuf, fi);
+	size = statBuf.st_size;
+
 	// Calculate path hash
-	size_t hashedPath = CACHE_DATA->hash_fn(absFilePath);
+	size_t hashedPath = CACHE_DATA->hash_fn(absFilePath); // TODO get right path (e.g. with number of block)
 
-	CacheMap cacheMap = CACHE_DATA->fileMaps;
-	DataBlockMap blockMap;
+	CachedByPath filesByPath = CACHE_DATA->filesByHash;
 
-	if (cacheMap.find(hashedPath) == cacheMap.end())
-	{
-		// Map for this path not found in Cache
-		DataBlockMap blockMap;
-		cacheMap.emplace(hashedPath, blockMap);
-	}
+	// if (filesByPath.find(hashedPath) == filesByPath.end())
+	// {
+	// 	// Map for this path not found in Cache
+	// 	blockMap = CACHE_DATA->addDataBlockMap(hashedPath);
+	// }
+	// else
+	// {
+	// 	blockMap = filesByPath.find(hashedPath)->second;
+	// }
 
-	blockMap = cacheMap.find(hashedPath)->second;
-
-	size_t blockSize = CACHE_DATA->getBlockSize();
+	size_t blockSize = CACHE_DATA->blockSize;
 	
 	long startBlockNum = offset / blockSize;
 	long startBlockOffset = offset % blockSize;
 
 	long endBlockNum = (offset + size) / blockSize;
 	long endBlockOffset = (offset + size) % blockSize;
+cout<<"size: "<<size<<", sbn: "<<startBlockNum<<", ebn: "<<endBlockNum<<endl;
+cout<<"sbo: "<<startBlockOffset<<", ebo: "<<endBlockOffset<<endl;
 
-	DataBlockMap::iterator blockIter;
 	DataBlock *block;
+	CachedByPath::iterator blockIter;
+
 	int result;
 
 	for (int blockNum = startBlockNum; blockNum <= endBlockNum; blockNum++)
 	{
-		blockIter = blockMap.find(blockNum);
-		if (blockIter == blockMap.end())
+		cout<<"block: "<<blockNum<<endl;
+		blockIter = filesByPath.find(hashedPath);
+
+		if (blockIter == filesByPath.end())
 		{
+			cout<<"Not Found, going to disk."<<endl;
 			// Get block from disk
 			char* blockData = (char*)malloc(sizeof(char) * blockSize);
 
@@ -291,24 +302,28 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 			}
 
 			// Check if there is more place in cache
-			if (CACHE_DATA->_totalCachedBlocks <= CACHE_DATA->getNumOfBlocks())
+			if (CACHE_DATA->totalCachedBlocks >= CACHE_DATA->maxBlocksNum)
 			{
 				deleteLFUblock();
 				//TODO remove LFU decrease totalcachedblocks and only than continue to add the new one
 			}
 
-			block = new DataBlock(blockData, blockNum);
-			blockMap.insert(pair<int, DataBlock*>(blockNum, block));
-			CACHE_DATA->_totalCachedBlocks++; // adds to keep tracking on how many are stored right now
-
+			// block = new DataBlock(blockData, blockNum);
 			free(blockData);
 			blockData = NULL;
+			
+			CACHE_DATA->addDataBlock(hashedPath, block);
+
+			CACHE_DATA->totalCachedBlocks++; // adds to keep tracking on how many are stored right now
+
 		}
 		else
 		{
+			cout<<"Found, using."<<endl;
 			block = blockIter->second;
 		}
 
+		cout<<"Found block, count: "<<block->getUseCount()<<endl;
 		// Block exists
 		if (startBlockNum == endBlockNum)
 		{
@@ -525,7 +540,7 @@ void *caching_init(struct fuse_conn_info *conn)
 {
 	log("init");
 	cout<<__FUNCTION__<<endl;
-    
+
 	return CACHE_DATA;
 }
 
@@ -638,7 +653,7 @@ bool checkArgs(int argc, char* argv[])
 		{
 			free(absRootPath);
 		}
-
+cout<<"1";
 		return false;
 	}
 
@@ -649,7 +664,7 @@ bool checkArgs(int argc, char* argv[])
 		{
 			free(absMountPath);
 		}
-
+cout<<"2";
 		return false;
 	}
 
@@ -664,6 +679,7 @@ bool checkArgs(int argc, char* argv[])
 	// Check if blockSize & numberOfBlocks are positive int
 	if (!(argv[BLOCKS_NUMBER] > 0 && argv[BLOCK_SIZE] > 0))
 	{
+		cout<<"3";
 		return false;
 	}
 
@@ -681,6 +697,8 @@ int main(int argc, char* argv[])
 	}
 
 	CacheData *cacheData = new CacheData(argv[ROOT_DIR], argv[MOUNT_DIR], LOG_FILENAME, atoi(argv[BLOCK_SIZE]), atoi(argv[BLOCKS_NUMBER]));
+	
+	DataBlock::setBlockSize(cacheData->blockSize);
 	
 	init_caching_oper();
 	argv[1] = argv[2];

@@ -8,28 +8,36 @@
 #ifndef DATABLOCK_H
 #define	DATABLOCK_H
 
+#include <cstring>
+
 using namespace std;
 
 class DataBlock {
 public:
-	DataBlock(char* data, long blockNum);
+	DataBlock(char* data, size_t newHash);
     virtual ~DataBlock();
     
+    size_t hash;
+
     char *getData();
     unsigned int getBlockNum();
     unsigned int getUseCount();
     void increaseUseCount();
+
+    static int blockSize;
+    static void setBlockSize(int size);
     
 private:
-    char *_data;
-    long _blockNum;
+    char* _data;
     unsigned int _useCount;
+
+
 };
 
-// struct DataBlockMapComparator
-// {
-//     bool operator()(int lhs, int rhs);
-// };
+struct DataBlockCompare
+{
+    bool operator()(DataBlock* lhs, DataBlock* rhs);
+};
 
 #endif	/* DATABLOCK_H */
 

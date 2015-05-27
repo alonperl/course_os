@@ -7,55 +7,38 @@
 
 #include "CacheData.hpp"
 
+#define INIT_LFU 0
+
 CacheData::CacheData(char* root, char* mount, string logfile, unsigned int size, unsigned int blocksNum)
 {
-	_rootDir = realpath(root, NULL);
-	_mountDir = realpath(mount, NULL);
-	char _logPath[PATH_MAX];
-	strcpy(_logPath, _rootDir);
-	strncat(strncat(_logPath, string("/").c_str(), PATH_MAX), logfile.c_str(), PATH_MAX); // TODO check that not exceeding PATH_MAX
-	_blockSize = size;
-	_numOfBlocks = blocksNum;
-	_totalCachedBlocks = 0;
+	rootDir = realpath(root, NULL);
+	mountDir = realpath(mount, NULL);
+	char logPath[PATH_MAX];
+	strcpy(logPath, rootDir);
+	strncat(strncat(logPath, string("/").c_str(), PATH_MAX), logfile.c_str(), PATH_MAX); // TODO check that not exceeding PATH_MAX
+	blockSize = size;
+	maxBlocksNum = blocksNum;
+	totalCachedBlocks = 0;
 }
 
 CacheData::~CacheData()
 {
-	free(_rootDir);
-	free(_mountDir);
-	free(_logPath);
-}
-
-char* CacheData::getRoot()
-{
-	return _rootDir;
-}
-
-char* CacheData::getMount()
-{
-	return _mountDir;
-}
-
-
-char* CacheData::getLogPath()
-{
-	return _logPath;
-}
-
-unsigned int CacheData::getBlockSize()
-{
-	return _blockSize;
-}
-
-unsigned int CacheData::getNumOfBlocks()
-{
-	return _numOfBlocks;
+	free(rootDir);
+	free(mountDir);
+	free(logPath);
 }
 
 char* CacheData::getFullPath(const char* path)
 {
 	// TODO validate that length does not exceed PATH_MAX
 	char result[PATH_MAX];
-	strcpy(result, _rootDir);
+	strcpy(result, rootDir);
 	return strncat(result, path, PATH_MAX);
 }
+
+void CacheData::addDataBlock(size_t hash, DataBlock* block)
+{
+	filesByHash.insert(pair<size_t, DataBlock*>(hash, block));
+	filesByLFU.insert(block);
+}
+

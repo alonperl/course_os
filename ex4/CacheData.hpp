@@ -11,51 +11,38 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
-#include <map>
+#include <set>
+#include <unordered_map>
 #include "DataBlock.hpp"
 
 using namespace std;
 
-// typedef map<int, DataBlock*, DataBlockMapComparator> DataBlockMap;
-typedef map<int, DataBlock*> DataBlockMap;
-
-
-class CacheMapComparator
-{
-public:
-    bool operator()(size_t lhs, size_t rhs);
-};
-
-typedef map<size_t, DataBlockMap, CacheMapComparator> CacheMap;
-// typedef map<size_t, DataBlockMap> CacheMap;
-
-
+typedef unordered_map<size_t, DataBlock*> CachedByPath;
+typedef set<DataBlock*, DataBlockCompare> CachedBlocks;
 
 class CacheData
 {
 public:
     CacheData(char* root, char* mount, string logfile, unsigned int size, unsigned int blocksNum);
     ~CacheData();
-    char* getRoot();
-    char* getMount();
-    char* getLogPath();
-    unsigned int getBlockSize();
-    unsigned int getNumOfBlocks();
+    
     char* getFullPath(const char* path);
-    unsigned int _totalCachedBlocks;
 
+    void addDataBlock(size_t hash, DataBlock* block);
+
+    unsigned int totalCachedBlocks;
+
+    CachedByPath filesByHash;
+    CachedBlocks filesByLFU;
+   
+    char* rootDir; // TODO make const
+    char* mountDir; // TODO make const
+    char* logPath; // TODO make const
+
+    size_t blockSize; // TODO make const
+    unsigned int maxBlocksNum; // TODO make const
 
     hash<string> hash_fn;
-    //map<size_t, map<int, DataBlock*, DataBlockComparator>, BlockMapComparator> fileMaps;
-    CacheMap fileMaps;
-   
-private:
-    char* _rootDir;
-    char* _mountDir;
-    char* _logPath;
-    size_t _blockSize; // TODO make const
-    unsigned int _numOfBlocks;
-
 };
 
 #endif	/* CACHE_DATA_H */

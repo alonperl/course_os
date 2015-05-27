@@ -10,23 +10,14 @@
 #include <errno.h>
 #include <malloc.h>
 
-FileNode::FileNode (char* path)
+FileNode::FileNode ()
 {
-	int pathLength = strlen(path);
-	if (pathLength == 0)
-	{
-		throw -ENOENT;
-	}
-
-	_path = (char*)malloc(sizeof(char) * pathLength);
-	strcpy(_path, path);
+	
 }
 
 FileNode::~FileNode ()
 {
 	// TODO destroy blocks
-	free(_path);
-	_path = NULL;
 }
 
 char *FileNode::getPath()
@@ -41,10 +32,5 @@ unsigned int FileNode::getOpenCount()
 
 unsigned int FileNode::getLowestFrequency()
 {
-	return (*_blocks.begin())->getUseCount();
-}
-
-set<DataBlock*, DataBlockComparator>::iterator FileNode::getBlocksIterator()
-{
-	return _blocks.begin();
+	return (*_blocks.begin())->second->getUseCount();
 }

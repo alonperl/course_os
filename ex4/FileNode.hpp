@@ -10,24 +10,17 @@
 
 #include <set>
 #include "DataBlock.hpp"
+typedef map<int, DataBlock*, DataBlockComparator> BlockMap;
 
 using namespace std;
 
 class FileNode {
 public:
-    FileNode(char* path);
+    FileNode();
     virtual ~FileNode();
     
-    char *getPath();
-    unsigned int getOpenCount();
     unsigned int getLowestFrequency();
-    set<DataBlock*, DataBlockComparator>::iterator getBlocksIterator();
-    
-private:
-    char *_path;
-    unsigned int _openCount;
-    
-    set<DataBlock*, DataBlockComparator> _blocks;
+    BlockMap blocks;
 };
 
 #endif	/* FILENODE_H */

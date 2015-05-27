@@ -12,16 +12,16 @@ using namespace std;
 
 class DataBlock {
 public:
-	DataBlock(char* data, unsigned int offset);
+	DataBlock(char* data, long blockNum);
     virtual ~DataBlock();
     
     char *getData();
-    unsigned int getOffset();
+    unsigned int getBlockNum();
     unsigned int getUseCount();
     
 private:
     char *_data;
-    unsigned int _offset;
+    long _blockNum;
     unsigned int _useCount;
 };
 

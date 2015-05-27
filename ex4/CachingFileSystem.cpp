@@ -222,21 +222,95 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
     
     NO_LOG_ACCESS(path)
 
-    absFilePath = CACHE_DATA->getFullPath(path);
+    char* absFilePath = CACHE_DATA->getFullPath(path);
 
     if (isFileExists(absFilePath) != 0)
 	{
 		return -ENOENT;
 	}
 
+	size_t hashedPath = CACHE_DATA->hash_fn(absFilePath);
 
-	int result = pread(fi->fh, buf, size, offset);
-	if (result < 0)
+	CacheMap::iterator blockMap = CACHE_DATA->fileMaps.find(hashedPath);
+	if (blockMap == CACHE_DATA->fileMaps.end())
 	{
-		result = -errno;
+		// Map for this path not found in Cache
+		fileMaps[hashedPath] = BlockMap();
+		blockMap = fileMaps[hashedPath];
 	}
 
-	return result;
+	unsigned int blockSize = CACHE_DATA->getBlockSize();
+	
+	long startBlockNum = offset / blockSize;
+	long startBlockOffset = offset % blockSize;
+
+	long endBlockNum = (offset + size) / blockSize;
+	long endBlockOffset = (offset + size) % blockSize;
+
+	BlockMap::iterator blockIter;
+	DataBlock block;
+	int result;
+	int blockCounter = 0;
+
+	for (int blockNum = startBlockNum; blockNum <= endBlockNum; blockNum++)
+	{
+		blockIter = blockMap.find(blockNum);
+		if (blockIter != blockMap.end())
+		{
+			// Block exists
+			if (startBlockNum == endBlockNum)
+			{
+				// Reading from one block only
+				strncpy(buf, (blockIter->second->getData()) + startBlockOffset, size);
+				break;
+			}
+
+			// Reading from multiple blocks
+			if (blockNum == startBlockNum)
+			{
+				// First block
+				strncpy(buf, blockIter->second->getData() + startBlockOffset, blockSize - startBlockOffset);
+			}
+			else if (blockNum == endBlockNum)
+			{
+				// Last block
+				strncpy(buf, blockIter->second->getData(), endBlockOffset);
+			}
+			else
+			{
+				// Middle blocks
+				strncpy(buf, blockIter->second->getData(), blockSize);
+			}
+		}
+		else
+		{
+			// Get block from disk
+			char* blockData = malloc(sizeof(char) * blockSize);
+			result = pread(fi->fh, blockData, blockSize, blockNum * blockSize);
+			
+			if (result < 0)
+			{
+				// Could not read
+				result = -errno;
+				
+				free(blockData);
+				blockData = NULL;
+				
+				return result;
+			}
+
+			block = new DataBlock(blockData, blockNum);
+			strcpy(buf + (blockNum * blockSize), blockData);
+
+			free(blockData);
+			blockData = NULL;
+
+		}
+
+		blockCounter++;
+	}
+
+	return size;
 }
 
 /** Possibly flush cached data
@@ -466,7 +540,7 @@ int caching_ioctl (const char *, int cmd, void *arg,
 	//3 number of time it was accessed
 
 	return 0;
-	//TODO iterates through all fileNodes and blocks
+	//TODO iterates through all blockMaps and blocks
 }
 
 
@@ -523,9 +597,6 @@ bool checkArgs(int argc, char* argv[])
 	}
 
 	// Check if paths exists
-	struct stat rootStatBuf;
-	struct stat mountStatBuf;
-
 	char* absRootPath = realpath(argv[ROOT_DIR], NULL);
 	if (absRootPath == NULL)
 	{

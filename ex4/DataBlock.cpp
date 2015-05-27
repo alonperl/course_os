@@ -8,10 +8,16 @@
 #include "DataBlock.hpp"
 #include <malloc.h>
 
-DataBlock::DataBlock(char* data, unsigned int offset)
+DataBlock::DataBlock(char* data, long blockNum)
 {
-	_data = data;
-	_offset = offset;
+	if (data == NULL)
+	{
+		throw -1;
+	}
+
+	strcpy(_data, data);
+
+	_blockNum = blockNum;
 	_useCount = 0;
 }
 
@@ -26,9 +32,9 @@ char* DataBlock::getData()
   return _data;
 }
 
-unsigned int DataBlock::getOffset()
+unsigned int DataBlock::getBlockNum()
 {
-  return _offset;
+  return _blockNum;
 }
 
 unsigned int DataBlock::getUseCount()

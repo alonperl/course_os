@@ -14,7 +14,10 @@
 #include <set>
 #include <unordered_map>
 #include "DataBlock.hpp"
-#include "FileNode.hpp"
+
+typedef map<int, DataBlock*, DataBlockComparator> BlockMap;
+typedef map<size_t, BlockMap*, BlockMapComparator> CacheMap;
+
 
 using namespace std;
 
@@ -29,16 +32,16 @@ public:
     unsigned int getBlockSize();
     unsigned int getNumOfBlocks();
     char* getFullPath(const char* path);
+
+    hash<string> hash_fn;
+    CacheMap fileMaps;
    
 private:
-	char* _rootDir;
+    char* _rootDir;
     char* _mountDir;
-	char* _logPath;
-	unsigned int _blockSize;
-	unsigned int _numOfBlocks;
-
-    unordered_map<size_t, FileNode*> _fileNodes;
-    hash<string> _hash_fn;
+    char* _logPath;
+    unsigned int _blockSize; // TODO make const
+    unsigned int _numOfBlocks;
 
 };
 

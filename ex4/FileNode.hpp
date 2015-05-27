@@ -15,7 +15,7 @@ using namespace std;
 
 class FileNode {
 public:
-    FileNode();
+    FileNode(char* path);
     virtual ~FileNode();
     
     char *getPath();

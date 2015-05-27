@@ -243,9 +243,9 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 	}
 
 	// Get real file size
-	struct stat statBuf;
-	caching_fgetattr(path, &statBuf, fi);
-	size = statBuf.st_size;
+//	struct stat statBuf;
+//	caching_fgetattr(path, &statBuf, fi);
+//	size = statBuf.st_size;
 
 	// Calculate path hash
 	size_t hashedPath = CACHE_DATA->hash_fn(absFilePath); // TODO get right path (e.g. with number of block)
@@ -308,7 +308,7 @@ cout<<"sbo: "<<startBlockOffset<<", ebo: "<<endBlockOffset<<endl;
 				//TODO remove LFU decrease totalcachedblocks and only than continue to add the new one
 			}
 
-			// block = new DataBlock(blockData, blockNum);
+			block = new DataBlock(blockData, blockNum);
 			free(blockData);
 			blockData = NULL;
 			
@@ -359,7 +359,7 @@ cout<<"sbo: "<<startBlockOffset<<", ebo: "<<endBlockOffset<<endl;
 		block->increaseUseCount(); 
 	}
 
-	return size;
+	return 1;
 }
 
 /** Possibly flush cached data
@@ -650,7 +650,7 @@ bool checkArgs(int argc, char* argv[])
 	if (absRootPath == NULL)
 	{
 		if (errno != ENOMEM)
-		{
+		{cout<<absRootPath<<endl;
 			free(absRootPath);
 		}
 cout<<"1";

@@ -8,9 +8,9 @@
 #ifndef CACHE_DATA_H
 #define	CACHE_DATA_H
 
-#include <limits.h>
-#include <stdlib.h>
-#include <string.h>
+#include <climits>
+#include <cstdlib>
+#include <string>
 #include <set>
 #include <unordered_map>
 #include "DataBlock.hpp"

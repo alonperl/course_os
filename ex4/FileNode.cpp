@@ -10,3 +10,9 @@
 FileNode::FileNode () { }
 
 FileNode::~FileNode () { }
+
+
+char *getPath();
+unsigned int getOpenCount();
+unsigned int getLowestFrequency();
+unsigned int getBlocksIterator();

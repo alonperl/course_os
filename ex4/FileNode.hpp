@@ -18,12 +18,12 @@ public:
     FileNode();
     virtual ~FileNode();
     
-    struct fuse_file_info *getFileInfo();
     char *getPath();
     unsigned int getOpenCount();
+    unsigned int getLowestFrequency();
+    unsigned int getBlocksIterator();
     
 private:
-    struct fuse_file_info *_fi;
     char *_path;
     unsigned int _openCount;
     

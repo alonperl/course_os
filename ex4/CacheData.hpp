@@ -37,8 +37,7 @@ private:
 	unsigned int _blockSize;
 	unsigned int _numOfBlocks;
 
-    set<DataBlock*, DataBlockComparator> _cache;
-    unordered_map<size_t, FileNode*> _files;
+    unordered_map<size_t, FileNode*> _fileNodes;
     hash<string> _hash_fn;
 
 };

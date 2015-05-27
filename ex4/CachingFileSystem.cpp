@@ -99,12 +99,11 @@ int caching_getattr(const char *path, struct stat *statbuf)
 	int result = 0;
 
 	char* absPath = CACHE_DATA->getFullPath(path);
-cout<<absPath<<endl;
+
 	result = lstat(absPath, statbuf);
 	if (result < 0)
 	{
-		cout<<"error "<<errno<<endl;
-		result = -errno;
+			result = -errno;
 	}
 
 	return result;
@@ -443,7 +442,7 @@ int caching_ioctl (const char *, int cmd, void *arg,
 {
 	log("ioctl");
     
-    NO_LOG_ACCESS(path)
+    // NO_LOG_ACCESS(path) // TODO Do we need to make this here?
 	
     //print to log:
 	//log()

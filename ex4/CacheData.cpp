@@ -58,8 +58,3 @@ char* CacheData::getFullPath(const char* path)
 	strcpy(result, _rootDir);
 	return strncat(result, path, PATH_MAX);
 }
-
-bool DataBlockMapComparator::operator()(int lhs, int rhs)
-{
-	return CACHE_DATA->find(lhs)->second->getUseCount() < CACHE_DATA->find(rhs);
-}

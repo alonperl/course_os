@@ -41,6 +41,15 @@ using namespace std;
 
 struct fuse_operations caching_oper;
 
+
+
+bool CacheMapComparator::operator()(size_t lhs, size_t rhs)
+{
+	return CACHE_DATA->fileMaps.find(lhs)->second.begin()->second->getUseCount() 
+		   < CACHE_DATA->fileMaps.find(rhs)->second.begin()->second->getUseCount();
+}
+
+
 /**
  * 
  * @param message
@@ -277,7 +286,6 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 			}
 
 			// Check if there is more place in cache
-
 			block = new DataBlock(blockData, blockNum);
 			blockMap.insert(pair<int, DataBlock*>(blockNum, block));
 
@@ -306,6 +314,11 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 		else if (blockNum == endBlockNum)
 		{
 			// Last block
+			if (endBlockOffset == 0)
+			{
+				// in case needs to read exactly untill end of block
+				endBlockOffset = blockSize;
+			}
 			strncpy(buf, block->getData(), endBlockOffset);
 		}
 		else
@@ -313,6 +326,7 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 			// Middle blocks
 			strncpy(buf, block->getData(), blockSize);
 		}
+		//TODO where the counter increase for blocks??
 	}
 
 	return size;

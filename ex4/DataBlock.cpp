@@ -43,8 +43,8 @@ unsigned int DataBlock::getUseCount()
   return _useCount;
 }
 
-bool DataBlockComparator::operator()(DataBlock *lhs, DataBlock *rhs)
-{
-  return lhs->getUseCount() < rhs->getUseCount();
-}
+// bool DataBlockMapComparator::operator()(int lhs, int rhs)
+// {
+//   return lhs < rhs;
+// }
 

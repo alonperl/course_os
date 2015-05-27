@@ -26,7 +26,7 @@ public:
     bool operator()(size_t lhs, size_t rhs);
 };
 
-typedef map<size_t, BlockMap, CacheMapComparator> CacheMap;
+typedef map<size_t, DataBlockMap, CacheMapComparator> CacheMap;
 // typedef map<size_t, DataBlockMap> CacheMap;
 
 

@@ -25,13 +25,10 @@ private:
     unsigned int _useCount;
 };
 
-struct DataBlockComparator
-{
-    bool operator()(DataBlock* lhs, DataBlock* rhs)
-    {
-    	return lhs->getUseCount() < rhs->getUseCount();
-    }
-};
+// struct DataBlockMapComparator
+// {
+//     bool operator()(int lhs, int rhs);
+// };
 
 #endif	/* DATABLOCK_H */
 

@@ -222,12 +222,13 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
     
     NO_LOG_ACCESS(path)
 
-    char* absFilePath = CACHE_DATA->getFullPath(path);
+    absFilePath = CACHE_DATA->getFullPath(path);
 
     if (isFileExists(absFilePath) != 0)
 	{
 		return -ENOENT;
 	}
+
 
 	int result = pread(fi->fh, buf, size, offset);
 	if (result < 0)
@@ -522,8 +523,30 @@ bool checkArgs(int argc, char* argv[])
 	}
 
 	// Check if paths exists
-	char* absRootPath = CACHE_DATA->getFullPath(argv[ROOT_DIR]);
-	char* absMountPath = CACHE_DATA->getFullPath(argv[MOUNT_DIR]);
+	struct stat rootStatBuf;
+	struct stat mountStatBuf;
+
+	char* absRootPath = realpath(argv[ROOT_DIR], NULL);
+	if (absRootPath == NULL)
+	{
+		if (errno != ENOMEM)
+		{
+			free(absRootPath);
+		}
+
+		return false;
+	}
+
+	char* absMountPath = realpath(argv[MOUNT_DIR], NULL);
+	if (absMountPath == NULL)
+	{
+		if (errno != ENOMEM)
+		{
+			free(absMountPath);
+		}
+
+		return false;
+	}
 
 	if (isFileExists(absRootPath) != 0 || isFileExists(absMountPath) != 0)
 	{

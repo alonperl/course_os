@@ -240,7 +240,7 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 		cacheMap.insert(pair<size_t, BlockMap*>(hashedPath, new BlockMap()));
 	}
 
-	blockMap = cacheMap.find(hashedPath);
+	blockMap = cacheMap.find(hashedPath)->second;
 
 	size_t blockSize = CACHE_DATA->getBlockSize();
 	
@@ -278,7 +278,7 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 			// Check if there is more place in cache
 
 			block = new DataBlock(blockData, blockNum);
-			blockMap->at(blockNum) = block;
+			blockMap->insert(pair<int, DataBlock*>(blockNum, block));
 
 			free(blockData);
 			blockData = NULL;

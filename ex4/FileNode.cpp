@@ -6,6 +6,9 @@
  */
 
 #include "FileNode.hpp"
+#include <cstring>
+#include <errno.h>
+#include <malloc.h>
 
 FileNode::FileNode (char* path)
 {
@@ -15,7 +18,7 @@ FileNode::FileNode (char* path)
 		throw -ENOENT;
 	}
 
-	_path = malloc(sizeof(char) * pathLength);
+	_path = (char*)malloc(sizeof(char) * pathLength);
 	strcpy(_path, path);
 }
 
@@ -32,15 +35,15 @@ char *FileNode::getPath()
 
 unsigned int FileNode::getOpenCount()
 {
-	return _openCount
+	return _openCount;
 }
 
 unsigned int FileNode::getLowestFrequency()
 {
-	return _blocks.begin()->second->getUseCount();
+	return (*_blocks.begin())->getUseCount();
 }
 
-unsigned int FileNode::getBlocksIterator()
+set<DataBlock*, DataBlockComparator>::iterator FileNode::getBlocksIterator()
 {
 	return _blocks.begin();
 }

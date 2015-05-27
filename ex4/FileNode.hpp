@@ -21,7 +21,7 @@ public:
     char *getPath();
     unsigned int getOpenCount();
     unsigned int getLowestFrequency();
-    unsigned int getBlocksIterator();
+    set<DataBlock*, DataBlockComparator>::iterator getBlocksIterator();
     
 private:
     char *_path;

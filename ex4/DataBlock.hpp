@@ -18,6 +18,7 @@ public:
     char *getData();
     unsigned int getBlockNum();
     unsigned int getUseCount();
+    void increaseUseCount();
     
 private:
     char *_data;

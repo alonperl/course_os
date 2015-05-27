@@ -16,6 +16,7 @@ CacheData::CacheData(char* root, char* mount, string logfile, unsigned int size,
 	strncat(strncat(_logPath, string("/").c_str(), PATH_MAX), logfile.c_str(), PATH_MAX); // TODO check that not exceeding PATH_MAX
 	_blockSize = size;
 	_numOfBlocks = blocksNum;
+	_totalCachedBlocks = 0;
 }
 
 CacheData::~CacheData()

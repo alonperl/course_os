@@ -42,6 +42,10 @@ unsigned int DataBlock::getUseCount()
 {
   return _useCount;
 }
+void DataBlock::increaseUseCount()
+{
+	_useCount++;
+}
 
 // bool DataBlockMapComparator::operator()(int lhs, int rhs)
 // {

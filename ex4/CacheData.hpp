@@ -42,6 +42,8 @@ public:
     unsigned int getBlockSize();
     unsigned int getNumOfBlocks();
     char* getFullPath(const char* path);
+    unsigned int _totalCachedBlocks;
+
 
     hash<string> hash_fn;
     //map<size_t, map<int, DataBlock*, DataBlockComparator>, BlockMapComparator> fileMaps;

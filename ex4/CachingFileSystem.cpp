@@ -214,6 +214,11 @@ int caching_open(const char *path, struct fuse_file_info *fi)
 }
 
 
+void deleteLFUblock()
+{
+	
+}
+
 /** Read data from an open file
  *
  * Read should return exactly the number of bytes requested except
@@ -286,8 +291,15 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 			}
 
 			// Check if there is more place in cache
+			if (CACHE_DATA->_totalCachedBlocks <= CACHE_DATA->getNumOfBlocks())
+			{
+				deleteLFUblock();
+				//TODO remove LFU decrease totalcachedblocks and only than continue to add the new one
+			}
+
 			block = new DataBlock(blockData, blockNum);
 			blockMap.insert(pair<int, DataBlock*>(blockNum, block));
+			CACHE_DATA->_totalCachedBlocks++; // adds to keep tracking on how many are stored right now
 
 			free(blockData);
 			blockData = NULL;
@@ -302,6 +314,7 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 		{
 			// Reading from one block only
 			strncpy(buf, (block->getData()) + startBlockOffset, size);
+			block->increaseUseCount();
 			break;
 		}
 
@@ -325,8 +338,10 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 		{
 			// Middle blocks
 			strncpy(buf, block->getData(), blockSize);
+
 		}
-		//TODO where the counter increase for blocks??
+		// in any case increase the usecount of the block
+		block->increaseUseCount(); 
 	}
 
 	return size;

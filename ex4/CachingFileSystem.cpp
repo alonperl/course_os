@@ -528,8 +528,38 @@ int caching_rename(const char *path, const char *newpath)
         
     NO_LOG_ACCESS(path)
 
-    
-    
+    char* absFilePath = CACHE_DATA->getFullPath(path);
+    char* absFileNewPath = CACHE_DATA->getFullPath(newpath);
+
+    // Get file size
+    struct stat statBuf;
+	caching_fgetattr(path, &statBuf, fi);
+	size_t size = statBuf.st_size;
+
+	// Get number of blocks in file
+	long blockCount = size / CACHE_DATA->blockSize;
+
+	// Check if any of file's blocks are currently hashed
+	CachedByPath::iterator blockIter;
+	size_t hashedPath;
+	// TODO switch to iteration
+	for (int blockNum = 0; blockNum <= blockCount; blockNum++)
+	{
+		hashedPath = CACHE_DATA->hashd(absFilePath, blockNum);
+		
+		blockIter = filesByPath.find(hashedPath);
+
+		if (blockIter != filesByPath.end())
+		{
+			// Found block of the file to be renamed
+			// Get new path hash
+			hashedNewPath = CACHE_DATA->hashd(absFileNewPath, blockNum);
+
+			// 
+		}
+
+
+
 	return 0;
 }
 

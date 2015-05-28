@@ -11,13 +11,4 @@ all:
 	$(CC) $(CFLAGS) $(FUSE_FLAGS) -o $(EXEC) $(SOURCES) $(LIBS)
 	
 run: all
-	mkdir /tmp/td
-	mkdir /tmp/mp
-	touch /tmp/td/1
-	touch /tmp/td/2
-	echo "test text" > /tmp/td/2
-	./$(EXEC) /tmp/td /tmp/mp 1024 1024
-
-clean:
-	rm -rf /tmp/td
-	rm -rf /tmp/mp
+	./$(EXEC) /tmp/td /tmp/mp 10 1024

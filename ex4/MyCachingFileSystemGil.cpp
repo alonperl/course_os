@@ -306,9 +306,7 @@ int getRelevantPartOfBlock(off_t offset, size_t size, int current, int first, in
  * gets path of file and it fuse_file_info struct
  */
 int getRealSizeOfFile(const char *path, struct fuse_file_info *fi) {
-	struct stat statBuf;
-	caching_fgetattr(path, &statBuf, fi);
-	return statBuf.st_size;
+	
 }
 
 /** Read data from an open file

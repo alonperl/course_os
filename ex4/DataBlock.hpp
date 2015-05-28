@@ -20,7 +20,6 @@ public:
     size_t hash;
 
     char *getData();
-    unsigned int getBlockNum();
     unsigned int getUseCount();
     void increaseUseCount();
 
@@ -30,8 +29,6 @@ public:
 private:
     char* _data;
     unsigned int _useCount;
-
-
 };
 
 struct DataBlockCompare

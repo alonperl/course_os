@@ -242,33 +242,36 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 		return -ENOENT;
 	}
 
-	// Get real file size
-//	struct stat statBuf;
-//	caching_fgetattr(path, &statBuf, fi);
-//	size = statBuf.st_size;
+	// Check if the file is smaller than size
+	struct stat statBuf;
+	caching_fgetattr(path, &statBuf, fi);
+	size = (size < (size_t)statBuf.st_size - (size_t)offset) ? size : (size_t)statBuf.st_size - (size_t)offset;
+	if (size == 0)
+	{
+		// Nothing to read.
+		return 0;
+	}
 
-	// Calculate path hash
-	size_t hashedPath = CACHE_DATA->hash_fn(absFilePath); // TODO get right path (e.g. with number of block)
+	size_t hashedPath;
 
 	CachedByPath filesByPath = CACHE_DATA->filesByHash;
 
-	// if (filesByPath.find(hashedPath) == filesByPath.end())
-	// {
-	// 	// Map for this path not found in Cache
-	// 	blockMap = CACHE_DATA->addDataBlockMap(hashedPath);
-	// }
-	// else
-	// {
-	// 	blockMap = filesByPath.find(hashedPath)->second;
-	// }
-
 	size_t blockSize = CACHE_DATA->blockSize;
-	
-	long startBlockNum = offset / blockSize;
-	long startBlockOffset = offset % blockSize;
 
-	long endBlockNum = (offset + size) / blockSize;
+	long startBlockOffset = offset % blockSize;
+	long startBlockNum = offset / blockSize;
+
 	long endBlockOffset = (offset + size) % blockSize;
+	long endBlockNum = (offset + size) / blockSize;
+	
+	if (endBlockOffset == 0)
+	{
+		// Wrap on the block end
+		endBlockNum--;
+		endBlockOffset = blockSize;
+	}
+
+cout<<"offset: "<<offset<<endl;
 cout<<"size: "<<size<<", sbn: "<<startBlockNum<<", ebn: "<<endBlockNum<<endl;
 cout<<"sbo: "<<startBlockOffset<<", ebo: "<<endBlockOffset<<endl;
 
@@ -276,15 +279,18 @@ cout<<"sbo: "<<startBlockOffset<<", ebo: "<<endBlockOffset<<endl;
 	CachedByPath::iterator blockIter;
 
 	int result;
+	int read = 0;
+	string strBlockNum;
+	char* absFilePathCopy;
 
 	for (int blockNum = startBlockNum; blockNum <= endBlockNum; blockNum++)
 	{
-		cout<<"block: "<<blockNum<<endl;
-		blockIter = filesByPath.find(hashedPath);
+		strcpy(absFilePathCopy, absFilePath);
+		blockIter = filesByPath.find(CACHE_DATA->hash_fn(strcat(absFilePathCopy, to_string(blockNum).c_str())));
 
 		if (blockIter == filesByPath.end())
 		{
-			cout<<"Not Found, going to disk."<<endl;
+			// cout<<"Not Found, going to disk.";
 			// Get block from disk
 			char* blockData = (char*)malloc(sizeof(char) * blockSize);
 
@@ -315,21 +321,24 @@ cout<<"sbo: "<<startBlockOffset<<", ebo: "<<endBlockOffset<<endl;
 			CACHE_DATA->addDataBlock(hashedPath, block);
 
 			CACHE_DATA->totalCachedBlocks++; // adds to keep tracking on how many are stored right now
+			cout<<"Not found, created new block at "<<block<<endl;
 
 		}
 		else
 		{
-			cout<<"Found, using."<<endl;
+			cout<<"Found, using "<<block<<endl;
 			block = blockIter->second;
 		}
 
-		cout<<"Found block, count: "<<block->getUseCount()<<endl;
+		cout<<" Count: "<<block->getUseCount()<<endl;
 		// Block exists
+		// cout<<"Need to read "<<size<<" bytes."<<endl;
 		if (startBlockNum == endBlockNum)
 		{
 			// Reading from one block only
-			strncpy(buf, (block->getData()) + startBlockOffset, size);
+			strncpy(buf + read, (block->getData()) + startBlockOffset, size);
 			block->increaseUseCount();
+			read = size;
 			break;
 		}
 
@@ -337,29 +346,31 @@ cout<<"sbo: "<<startBlockOffset<<", ebo: "<<endBlockOffset<<endl;
 		if (blockNum == startBlockNum)
 		{
 			// First block
-			strncpy(buf, block->getData() + startBlockOffset, blockSize - startBlockOffset);
+			strncpy(buf + read, block->getData() + startBlockOffset, blockSize - startBlockOffset);
+			read += blockSize - startBlockOffset;
 		}
 		else if (blockNum == endBlockNum)
 		{
 			// Last block
-			if (endBlockOffset == 0)
-			{
-				// in case needs to read exactly untill end of block
-				endBlockOffset = blockSize;
-			}
-			strncpy(buf, block->getData(), endBlockOffset);
+			strncpy(buf + read, block->getData(), endBlockOffset);
+			read += endBlockOffset;
 		}
 		else
 		{
 			// Middle blocks
-			strncpy(buf, block->getData(), blockSize);
-
+			strncpy(buf + read, block->getData(), blockSize);
+			read += blockSize;
 		}
 		// in any case increase the usecount of the block
 		block->increaseUseCount(); 
+		cout<<"Loop over, block "<<block;
+		cout<<", use count "<<block->getUseCount()<<endl;
+
 	}
 
-	return 1;
+	cout<<"Finished read: "<<read<<endl;
+
+	return read;
 }
 
 /** Possibly flush cached data

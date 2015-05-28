@@ -315,7 +315,7 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 				//TODO remove LFU decrease totalcachedblocks and only than continue to add the new one
 			}
 
-			block = new DataBlock(blockData, hashedPath);
+			block = new DataBlock(blockData, hashedPath, path);
 			free(blockData);
 			blockData = NULL;
 			

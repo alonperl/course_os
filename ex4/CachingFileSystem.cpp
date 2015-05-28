@@ -191,6 +191,11 @@ int caching_open(const char *path, struct fuse_file_info *fi)
 
 	char* absPath = CACHE_DATA->getFullPath(path);
 	
+	if ((fi->flags & 3) != O_RDONLY)
+	{
+		return -EACCES;
+	}
+
 	int fd = open(absPath, fi->flags);
 
 	if (fd < 0)
@@ -210,11 +215,9 @@ void deleteLFUblock()
 	CachedBlocks::iterator cachedBlocksIter = CACHE_DATA->filesByLFU.begin();
 
 	DataBlock* block = *cachedBlocksIter;
-cout<<"deleting block "<<block<<endl;
-cout<<"map size "<<CACHE_DATA->filesByHash.size()<<"\tset size "<<CACHE_DATA->filesByLFU.size()<<endl;
+
 	CACHE_DATA->filesByHash.erase(CACHE_DATA->filesByHash.find(block->hash));
 	CACHE_DATA->filesByLFU.erase(cachedBlocksIter);
-cout<<"map size "<<CACHE_DATA->filesByHash.size()<<"\tset size "<<CACHE_DATA->filesByLFU.size()<<endl;
 
 	delete block;
 
@@ -273,10 +276,6 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 		endBlockOffset = blockSize;
 	}
 
-cout<<"offset: "<<offset<<endl;
-cout<<"size: "<<size<<", sbn: "<<startBlockNum<<", ebn: "<<endBlockNum<<endl;
-cout<<"sbo: "<<startBlockOffset<<", ebo: "<<endBlockOffset<<endl;
-
 	DataBlock *block;
 	CachedByPath::iterator blockIter;
 
@@ -312,7 +311,6 @@ cout<<"sbo: "<<startBlockOffset<<", ebo: "<<endBlockOffset<<endl;
 			// Check if there is more place in cache
 			if (CACHE_DATA->totalCachedBlocks >= CACHE_DATA->maxBlocksNum)
 			{
-				cout<<"deleting"<<endl;
 				deleteLFUblock();
 				//TODO remove LFU decrease totalcachedblocks and only than continue to add the new one
 			}
@@ -324,18 +322,14 @@ cout<<"sbo: "<<startBlockOffset<<", ebo: "<<endBlockOffset<<endl;
 			CACHE_DATA->addDataBlock(hashedPath, block);
 
 			CACHE_DATA->totalCachedBlocks++; // adds to keep tracking on how many are stored right now
-			cout<<"Not found, created new block at "<<block<<endl;
 
 		}
 		else
 		{
-			cout<<"Found, using "<<block<<endl;
 			block = blockIter->second;
 		}
 
-		cout<<" Count: "<<block->getUseCount()<<endl;
 		// Block exists
-		// cout<<"Need to read "<<size<<" bytes."<<endl;
 		if (startBlockNum == endBlockNum)
 		{
 			// Reading from one block only
@@ -366,12 +360,8 @@ cout<<"sbo: "<<startBlockOffset<<", ebo: "<<endBlockOffset<<endl;
 		}
 		// in any case increase the usecount of the block
 		block->increaseUseCount(); 
-		cout<<"Loop over, block "<<block;
-		cout<<", use count "<<block->getUseCount()<<endl;
 
 	}
-
-	cout<<"Finished read: "<<read<<endl;
 
 	return read;
 }
@@ -537,6 +527,9 @@ int caching_rename(const char *path, const char *newpath)
 	cout<<__FUNCTION__<<endl;
         
     NO_LOG_ACCESS(path)
+
+    
+    
 	return 0;
 }
 
@@ -664,10 +657,9 @@ bool checkArgs(int argc, char* argv[])
 	if (absRootPath == NULL)
 	{
 		if (errno != ENOMEM)
-		{cout<<absRootPath<<endl;
+		{
 			free(absRootPath);
 		}
-cout<<"1";
 		return false;
 	}
 
@@ -678,7 +670,6 @@ cout<<"1";
 		{
 			free(absMountPath);
 		}
-cout<<"2";
 		return false;
 	}
 
@@ -693,7 +684,6 @@ cout<<"2";
 	// Check if blockSize & numberOfBlocks are positive int
 	if (!(argv[BLOCKS_NUMBER] > 0 && argv[BLOCK_SIZE] > 0))
 	{
-		cout<<"3";
 		return false;
 	}
 

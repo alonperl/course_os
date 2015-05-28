@@ -42,3 +42,9 @@ void CacheData::addDataBlock(size_t hash, DataBlock* block)
 	filesByLFU.insert(block);
 }
 
+size_t CacheData::hashd(char* absFilePath, int blockNum)
+{
+	char absFilePathCopy[PATH_MAX];
+	strcpy(absFilePathCopy, absFilePath);
+	return hash_fn(strcat(absFilePathCopy, to_string(blockNum).c_str()));
+}

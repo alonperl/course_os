@@ -210,9 +210,11 @@ void deleteLFUblock()
 	CachedBlocks::iterator cachedBlocksIter = CACHE_DATA->filesByLFU.begin();
 
 	DataBlock* block = *cachedBlocksIter;
-
-	CACHE_DATA->filesByHash.erase(block->hash);
+cout<<"deleting block "<<block<<endl;
+cout<<"map size "<<CACHE_DATA->filesByHash.size()<<"\tset size "<<CACHE_DATA->filesByLFU.size()<<endl;
+	CACHE_DATA->filesByHash.erase(CACHE_DATA->filesByHash.find(block->hash));
 	CACHE_DATA->filesByLFU.erase(cachedBlocksIter);
+cout<<"map size "<<CACHE_DATA->filesByHash.size()<<"\tset size "<<CACHE_DATA->filesByLFU.size()<<endl;
 
 	delete block;
 
@@ -281,12 +283,12 @@ cout<<"sbo: "<<startBlockOffset<<", ebo: "<<endBlockOffset<<endl;
 	int result;
 	int read = 0;
 	string strBlockNum;
-	char* absFilePathCopy;
 
 	for (int blockNum = startBlockNum; blockNum <= endBlockNum; blockNum++)
 	{
-		strcpy(absFilePathCopy, absFilePath);
-		blockIter = filesByPath.find(CACHE_DATA->hash_fn(strcat(absFilePathCopy, to_string(blockNum).c_str())));
+		hashedPath = CACHE_DATA->hashd(absFilePath, blockNum);
+		
+		blockIter = filesByPath.find(hashedPath);
 
 		if (blockIter == filesByPath.end())
 		{
@@ -310,11 +312,12 @@ cout<<"sbo: "<<startBlockOffset<<", ebo: "<<endBlockOffset<<endl;
 			// Check if there is more place in cache
 			if (CACHE_DATA->totalCachedBlocks >= CACHE_DATA->maxBlocksNum)
 			{
+				cout<<"deleting"<<endl;
 				deleteLFUblock();
 				//TODO remove LFU decrease totalcachedblocks and only than continue to add the new one
 			}
 
-			block = new DataBlock(blockData, blockNum);
+			block = new DataBlock(blockData, hashedPath);
 			free(blockData);
 			blockData = NULL;
 			

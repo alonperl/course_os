@@ -13,6 +13,13 @@
 #include <string>
 #include <set>
 #include <unordered_map>
+#include <errno.h>
+#include <cstring>
+#include <iostream>
+#include <unistd.h>
+#include <dirent.h>
+#include <ctime>
+#include <fstream>
 #include "DataBlock.hpp"
 
 using namespace std;
@@ -29,6 +36,7 @@ public:
     char* getFullPath(const char* path);
 
     void addDataBlock(size_t hash, DataBlock* block);
+    size_t hashd(char* absFilePath, int blockNum);
 
     unsigned int totalCachedBlocks;
 

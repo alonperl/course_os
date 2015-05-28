@@ -30,13 +30,13 @@ typedef set<DataBlock*, DataBlockCompare> CachedBlocks;
 class CacheData
 {
 public:
-    CacheData(char* root, char* mount, string logfile, unsigned int size, unsigned int blocksNum);
+    CacheData(char* root, char* mount, string logfile, unsigned int blocksNum);
     ~CacheData();
     
-    char* getFullPath(const char* path);
+    void getFullPath(char absPath[PATH_MAX], const char* path);
 
     void addDataBlock(size_t hash, DataBlock* block);
-    size_t hashd(char* absFilePath, int blockNum);
+    size_t hashd(string absFilePath, int blockNum);
 
     unsigned int totalCachedBlocks;
 
@@ -47,7 +47,6 @@ public:
     char* mountDir; // TODO make const
     char* logPath; // TODO make const
 
-    size_t blockSize; // TODO make const
     unsigned int maxBlocksNum; // TODO make const
 
     hash<string> hash_fn;

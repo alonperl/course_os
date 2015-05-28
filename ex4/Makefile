@@ -11,4 +11,4 @@ all:
 	$(CC) $(CFLAGS) $(FUSE_FLAGS) -o $(EXEC) $(SOURCES) $(LIBS)
 	
 run: all
-	./$(EXEC) /tmp/td /tmp/mp 10 1024
+	./$(EXEC) /tmp/td /tmp/mp 1 1024

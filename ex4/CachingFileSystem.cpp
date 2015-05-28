@@ -104,7 +104,8 @@ int caching_getattr(const char *path, struct stat *statbuf)
 	
 	int result = 0;
 
-	char* absPath = CACHE_DATA->getFullPath(path);
+	char absPath[PATH_MAX];
+	CACHE_DATA->getFullPath(absPath, path);
 
 	result = lstat(absPath, statbuf);
 	if (result < 0)
@@ -156,7 +157,9 @@ int caching_access(const char *path, int mask)
     
     NO_LOG_ACCESS(path)
 	
-    char* absPath = CACHE_DATA->getFullPath(path);
+	char absPath[PATH_MAX];
+	CACHE_DATA->getFullPath(absPath, path);
+
 	int accessStats = access(absPath, mask);
 	if (accessStats != 0)
 	{
@@ -189,8 +192,9 @@ int caching_open(const char *path, struct fuse_file_info *fi)
     
 	int result = 0;
 
-	char* absPath = CACHE_DATA->getFullPath(path);
-	
+	char absPath[PATH_MAX];
+	CACHE_DATA->getFullPath(absPath, path);
+
 	if ((fi->flags & 3) != O_RDONLY)
 	{
 		return -EACCES;
@@ -212,16 +216,38 @@ int caching_open(const char *path, struct fuse_file_info *fi)
 
 void deleteLFUblock() 
 {
+	cout<<"Map: "<<endl;
+
+	for (CachedByPath::iterator it = CACHE_DATA->filesByHash.begin(); it != CACHE_DATA->filesByHash.end(); it++)
+	{
+		cout<<it->second->blockNum<<endl;
+	}
+	cout<<endl;
+
+	cout<<"Map size "<<CACHE_DATA->filesByHash.size()<<endl;
+	cout<<"Set size "<<CACHE_DATA->filesByLFU.size()<<endl;
+	cout<<"no room for block, deleting ";
 	CachedBlocks::iterator cachedBlocksIter = CACHE_DATA->filesByLFU.begin();
 
 	DataBlock* block = *cachedBlocksIter;
+	cout<<block->blockNum<<endl;
+	size_t blockHash = CACHE_DATA->hashd(block->blockPath.c_str(), block->blockNum);
 
-	CACHE_DATA->filesByHash.erase(CACHE_DATA->filesByHash.find(block->hash));
+	CACHE_DATA->filesByHash.erase(CACHE_DATA->filesByHash.find(blockHash));
 	CACHE_DATA->filesByLFU.erase(cachedBlocksIter);
 
 	delete block;
 
 	CACHE_DATA->totalCachedBlocks--;
+	cout<<"New map size "<<CACHE_DATA->filesByHash.size()<<endl;
+	cout<<"New set size "<<CACHE_DATA->filesByLFU.size()<<endl<<endl;
+	cout<<"Map: "<<endl;
+
+	for (CachedByPath::iterator it = CACHE_DATA->filesByHash.begin(); it != CACHE_DATA->filesByHash.end(); it++)
+	{
+		cout<<it->first<<" -> "<<it->second->blockNum<<endl;
+	}
+	cout<<endl;
 }
 
 /** Read data from an open file
@@ -240,9 +266,10 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
     
     NO_LOG_ACCESS(path)
 
-    char* absFilePath = CACHE_DATA->getFullPath(path);
+	char absPath[PATH_MAX];
+	CACHE_DATA->getFullPath(absPath, path);
 
-    if (isFileExists(absFilePath) != 0)
+    if (isFileExists(absPath) != 0)
 	{
 		return -ENOENT;
 	}
@@ -261,7 +288,7 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 
 	CachedByPath filesByPath = CACHE_DATA->filesByHash;
 
-	size_t blockSize = CACHE_DATA->blockSize;
+	size_t blockSize = DataBlock::s_blockSize;
 
 	long startBlockOffset = offset % blockSize;
 	long startBlockNum = offset / blockSize;
@@ -283,14 +310,28 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 	int read = 0;
 	string strBlockNum;
 
-	for (int blockNum = startBlockNum; blockNum <= endBlockNum; blockNum++)
+cout<<"size: "<<size<<", sbn: "<<startBlockNum<<", ebn: "<<endBlockNum<<endl;
+cout<<"sbo: "<<startBlockOffset<<", ebo: "<<endBlockOffset<<endl;
+	for (unsigned int blockNum = startBlockNum; blockNum <= endBlockNum; blockNum++)
 	{
-		hashedPath = CACHE_DATA->hashd(absFilePath, blockNum);
+cout<<endl<<endl<<endl<<blockNum<<endl<<endl<<endl;
+		hashedPath = CACHE_DATA->hashd(absPath, blockNum);
 		
-		blockIter = filesByPath.find(hashedPath);
+		// blockIter = filesByPath.find(hashedPath);
+		for (blockIter = CACHE_DATA->filesByHash.begin(); blockIter != CACHE_DATA->filesByHash.end(); blockIter++)
+		{
+			if (blockIter->second->blockNum == blockNum)
+			{
+				break;
+			}
+		}
 
 		if (blockIter == filesByPath.end())
 		{
+if (blockNum == 14)
+{
+cout<<"block 14 not found"<<endl;
+}
 			// cout<<"Not Found, going to disk.";
 			// Get block from disk
 			char* blockData = (char*)malloc(sizeof(char) * blockSize);
@@ -311,21 +352,32 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 			// Check if there is more place in cache
 			if (CACHE_DATA->totalCachedBlocks >= CACHE_DATA->maxBlocksNum)
 			{
+cout<<"Want to add "<<blockNum<<endl;
 				deleteLFUblock();
 				//TODO remove LFU decrease totalcachedblocks and only than continue to add the new one
 			}
 
-			block = new DataBlock(blockData, hashedPath, path);
+			block = new DataBlock(blockData, blockNum, absPath);
 			free(blockData);
 			blockData = NULL;
 			
 			CACHE_DATA->addDataBlock(hashedPath, block);
+cout<<"Map after adding: "<<endl;
 
+	for (CachedByPath::iterator it = CACHE_DATA->filesByHash.begin(); it != CACHE_DATA->filesByHash.end(); it++)
+	{
+		cout<<it->first<<" -> "<<it->second->blockNum<<endl;
+	}
+	cout<<endl;
 			CACHE_DATA->totalCachedBlocks++; // adds to keep tracking on how many are stored right now
 
 		}
 		else
 		{
+if (blockNum == 14)
+{
+cout<<"block 14 found: "<<hashedPath<<endl;
+}
 			block = blockIter->second;
 		}
 
@@ -355,6 +407,12 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 		else
 		{
 			// Middle blocks
+if (blockNum == 14)
+{
+cout<<"gotHere"<<endl;
+// cout<<"Middle block data: "<<block->getData()<<endl<<endl;
+cout<<"got there"<<endl;
+}
 			strncpy(buf + read, block->getData(), blockSize);
 			read += blockSize;
 		}
@@ -439,7 +497,9 @@ int caching_opendir(const char *path, struct fuse_file_info *fi)
 
 	int result = 0;
 
-	char* absPath = CACHE_DATA->getFullPath(path);
+	char absPath[PATH_MAX];
+	CACHE_DATA->getFullPath(absPath, path);
+
 	cout<<"open "<<absPath<<endl;
 	
 	DIR *dirPointer = opendir(absPath);
@@ -528,39 +588,81 @@ int caching_rename(const char *path, const char *newpath)
         
     NO_LOG_ACCESS(path)
 
-    char* absFilePath = CACHE_DATA->getFullPath(path);
-    char* absFileNewPath = CACHE_DATA->getFullPath(newpath);
+    char absFilePath[PATH_MAX];
+    CACHE_DATA->getFullPath(absFilePath, path);
+
+    char absFileNewPath[PATH_MAX];
+    CACHE_DATA->getFullPath(absFileNewPath, newpath);
 
     // Get file size
     struct stat statBuf;
-	caching_fgetattr(path, &statBuf, fi);
-	size_t size = statBuf.st_size;
-
-	// Get number of blocks in file
-	long blockCount = size / CACHE_DATA->blockSize;
-
-	// Check if any of file's blocks are currently hashed
-	CachedByPath::iterator blockIter;
-	size_t hashedPath;
-	// TODO switch to iteration
-	for (int blockNum = 0; blockNum <= blockCount; blockNum++)
+	if (caching_getattr(path, &statBuf))
 	{
-		hashedPath = CACHE_DATA->hashd(absFilePath, blockNum);
-		
-		blockIter = filesByPath.find(hashedPath);
+		return -ENOENT;
+	}
 
-		if (blockIter != filesByPath.end())
+	int result = rename(absFilePath, absFileNewPath);
+	if (result < 0)
+	{
+		return -errno;
+	}
+
+	DataBlock* block;
+
+	if (isDirectory(path))
+	{
+		for(CachedByPath::iterator blockIter = CACHE_DATA->filesByLFU.begin();
+			blockIter != CACHE_DATA->filesByLFU.end(); blockIter++)
 		{
-			// Found block of the file to be renamed
-			// Get new path hash
-			hashedNewPath = CACHE_DATA->hashd(absFileNewPath, blockNum);
+			block = *blockIter;
 
-			// 
+			if (block != NULL && strncmp(block->blockPath.c_str(), path, strlen(path)))
+			{
+				// Found block in the folder to be renamed
+				// Get new path hash
+				size_t hashedNewPath = CACHE_DATA->hashd(absFileNewPath, blockNum);
+
+				// Update in map
+				CACHE_DATA->filesByHash.erase(blockIter);
+				CACHE_DATA->filesByHash.insert(pair<size_t, DataBlock*>(hashedNewPath, block));
+			}
 		}
+	}
+	else
+	{
+		size_t size = statBuf.st_size;
 
+		// Get number of blocks in file
+		long blockCount = size / DataBlock::s_blockSize;
 
+		// Check if any of file's blocks are currently hashed
+		CachedByPath::iterator blockIter;
+		size_t hashedPath;
 
-	return 0;
+		// TODO switch to iteration
+		for (int blockNum = 0; blockNum <= blockCount; blockNum++)
+		{
+			hashedPath = CACHE_DATA->hashd(absFilePath, blockNum);
+			
+			blockIter = CACHE_DATA->filesByHash.find(hashedPath);
+
+			if (blockIter != CACHE_DATA->filesByHash.end())
+			{
+				block = blockIter->second;
+				// Found block of the file to be renamed
+				// Get new path hash
+				size_t hashedNewPath = CACHE_DATA->hashd(absFileNewPath, blockNum);
+
+				// Update in map
+				CACHE_DATA->filesByHash.erase(blockIter);
+				CACHE_DATA->filesByHash.insert(pair<size_t, DataBlock*>(hashedNewPath, block));
+			}
+		}
+	}
+
+	block = NULL;
+
+	return result;
 }
 
 /**
@@ -593,10 +695,21 @@ void caching_destroy(void *userdata)
 {
 	log("destroy");
 	cout<<__FUNCTION__<<endl;
-    
-    // TODO clear things
-}
 
+	for(CachedBlocks::iterator cachedBlockIter = CACHE_DATA->filesByLFU.begin(); 
+		cachedBlockIter != CACHE_DATA->filesByLFU.end(); cachedBlockIter++)
+	{
+		//destroy all blocks
+		delete *cachedBlockIter; 
+	}
+
+	//clears set and map
+	CACHE_DATA->filesByLFU.clear();
+	CACHE_DATA->filesByHash.clear();
+
+	//kill the CacheData
+	delete CACHE_DATA;
+}
 
 /**
  * Ioctl from the FUSE sepc:
@@ -612,21 +725,38 @@ void caching_destroy(void *userdata)
  * Introduced in version 2.8
  */
 int caching_ioctl (const char *, int cmd, void *arg,
-		struct fuse_file_info *, unsigned int flags, void *data)
+struct fuse_file_info *, unsigned int flags, void *data)
 {
-	log("ioctl");
-    
-    // NO_LOG_ACCESS(path) // TODO Do we need to make this here?
-	
     //print to log:
 	//log()
 	//1 2 3
 	//1 name of file relative to mountdir
 	//2 number of the block in the enumartion itself
-	//3 number of time it was accessed
+	//3 number of times it was accessed
+	log("ioctl");
 
-	return 0;
-	//TODO iterates through all blockMaps and blocks
+    ofstream logStream(CACHE_DATA->logPath, ios_base::app);
+
+	if (logStream.good())
+	{
+		for(CachedBlocks::iterator cachedBlockIter = CACHE_DATA->filesByLFU.begin();
+			cachedBlockIter != CACHE_DATA->filesByLFU.end(); cachedBlockIter++)
+		{
+			logStream 
+			<< (*cachedBlockIter)->blockPath 
+			<< " " << (*cachedBlockIter)->blockNum 
+			<< " " << (*cachedBlockIter)->getUseCount() 
+			<< endl;
+		} 
+	
+		logStream.close();
+	}
+	else
+	{
+	//TODO error?>
+	}
+	
+	return 0; //TODO what to return?
 }
 
 
@@ -730,10 +860,10 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	CacheData *cacheData = new CacheData(argv[ROOT_DIR], argv[MOUNT_DIR], LOG_FILENAME, atoi(argv[BLOCK_SIZE]), atoi(argv[BLOCKS_NUMBER]));
-	
-	DataBlock::setBlockSize(cacheData->blockSize);
-	
+	CacheData *cacheData = new CacheData(argv[ROOT_DIR], argv[MOUNT_DIR], LOG_FILENAME, atoi(argv[BLOCKS_NUMBER]));
+
+	DataBlock::s_blockSize = atoi(argv[BLOCK_SIZE]);
+		
 	init_caching_oper();
 	argv[1] = argv[2];
 	for (int i = 2; i< (argc - 1); i++){
@@ -742,6 +872,7 @@ int main(int argc, char* argv[])
         argv[2] = (char*) "-s";
         argv[3] = (char*) "-f";
 	argc = 4;
+	// argc = 3;
 
 	int fuse_stat = fuse_main(argc, argv, &caching_oper, cacheData);
 	return fuse_stat;

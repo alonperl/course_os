@@ -9,14 +9,13 @@
 
 #define INIT_LFU 0
 
-CacheData::CacheData(char* root, char* mount, string logfile, unsigned int size, unsigned int blocksNum)
+CacheData::CacheData(char* root, char* mount, string logfile, unsigned int blocksNum)
 {
 	rootDir = realpath(root, NULL);
 	mountDir = realpath(mount, NULL);
 	char logPath[PATH_MAX];
 	strcpy(logPath, rootDir);
 	strncat(strncat(logPath, string("/").c_str(), PATH_MAX), logfile.c_str(), PATH_MAX); // TODO check that not exceeding PATH_MAX
-	blockSize = size;
 	maxBlocksNum = blocksNum;
 	totalCachedBlocks = 0;
 }
@@ -28,12 +27,11 @@ CacheData::~CacheData()
 	free(logPath);
 }
 
-char* CacheData::getFullPath(const char* path)
+void CacheData::getFullPath(char absPath[PATH_MAX], const char* path)
 {
 	// TODO validate that length does not exceed PATH_MAX
-	char result[PATH_MAX];
-	strcpy(result, rootDir);
-	return strncat(result, path, PATH_MAX);
+	strcpy(absPath, rootDir);
+	strncat(absPath, path, PATH_MAX);
 }
 
 void CacheData::addDataBlock(size_t hash, DataBlock* block)
@@ -42,9 +40,7 @@ void CacheData::addDataBlock(size_t hash, DataBlock* block)
 	filesByLFU.insert(block);
 }
 
-size_t CacheData::hashd(char* absFilePath, int blockNum)
+size_t CacheData::hashd(string absFilePath, int blockNum)
 {
-	char absFilePathCopy[PATH_MAX];
-	strcpy(absFilePathCopy, absFilePath);
-	return hash_fn(strcat(absFilePathCopy, to_string(blockNum).c_str()));
+	return hash_fn(absFilePath + to_string(blockNum));
 }

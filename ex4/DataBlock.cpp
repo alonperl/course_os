@@ -7,19 +7,23 @@
 
 #include "DataBlock.hpp"
 #include <malloc.h>
-#include <cstring>
 
-DataBlock::DataBlock(char* data, long blockNum, char* path)
+unsigned int DataBlock::s_blockSize;
+
+
+DataBlock::DataBlock(char* data, unsigned long num, string path) 
+	: blockNum((const unsigned long)num)
+	, blockPath((const string)path)
 {
-	if (data == NULL)
+	_data = (char*)malloc(sizeof(char) * s_blockSize);
+
+	if (data == NULL || _data == NULL)
 	{
 		throw -1; //TODO - no one catches this
 	}
 
 	strcpy(_data, data);
-	strcpy(_path, path);
 
-	_blockNum = blockNum;
 	_useCount = 0;
 }
 
@@ -31,29 +35,21 @@ DataBlock::~DataBlock()
 
 char* DataBlock::getData()
 {
-  return _data;
-}
-
-char* DataBlock::getPath()
-{
-  return _path;
-}
-
-unsigned int DataBlock::getBlockNum()
-{
-  return _blockNum;
+	return _data;
 }
 
 unsigned int DataBlock::getUseCount()
 {
-  return _useCount;
+	return _useCount;
 }
+
 void DataBlock::increaseUseCount()
 {
 	_useCount++;
 }
 
-// bool DataBlockMapComparator::operator()(int lhs, int rhs)
-// {
-//   return lhs < rhs;
-// }
+bool DataBlockCompare::operator()(DataBlock* lhs, DataBlock* rhs)
+{
+  return lhs->getUseCount() < rhs->getUseCount();
+}
+

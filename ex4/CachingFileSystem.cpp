@@ -108,7 +108,7 @@ int caching_getattr(const char *path, struct stat *statbuf)
 {
 	CACHE_DATA->log(__FUNCTION__);
     
-    NO_LOG_ACCESS(path)
+	NO_LOG_ACCESS(path)
 	
 	int result = SUCCESS;
 
@@ -145,7 +145,7 @@ int caching_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_in
 {
 	CACHE_DATA->log(__FUNCTION__);
 
-    NO_LOG_ACCESS(path)
+	NO_LOG_ACCESS(path)
     
 	int result = fstat(fi->fh, statbuf);
 
@@ -171,7 +171,7 @@ int caching_access(const char *path, int mask)
 {
 	CACHE_DATA->log(__FUNCTION__);
     
-    NO_LOG_ACCESS(path)
+	NO_LOG_ACCESS(path)
 	
 	string absolutePath = CACHE_DATA->absolutePath(path);
 	ASSERT_PATH_LENGTH(absolutePath)
@@ -207,7 +207,7 @@ int caching_open(const char *path, struct fuse_file_info *fi)
 {
 	CACHE_DATA->log(__FUNCTION__);
 
-    NO_LOG_ACCESS(path)
+	NO_LOG_ACCESS(path)
     
 	int result = 0;
 
@@ -249,16 +249,16 @@ int caching_open(const char *path, struct fuse_file_info *fi)
  * @return 0 if succeed, -errno otherwise
  */
 int caching_read(const char *path, char *buf, size_t size, off_t offset,
-		struct fuse_file_info *fi)
+				 struct fuse_file_info *fi)
 {
 	CACHE_DATA->log(__FUNCTION__);
     
-    NO_LOG_ACCESS(path)
+	NO_LOG_ACCESS(path)
 
 	string absolutePath = CACHE_DATA->absolutePath(path);
 	ASSERT_PATH_LENGTH(absolutePath)
 
-    ASSERT_EXISTING(absolutePath)
+	ASSERT_EXISTING(absolutePath)
 
 	// Check if the file is smaller than fuse-provided size
 	struct stat statBuf;
@@ -301,7 +301,7 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 		if (blockIter == cache.end()) // Not found in cache
 		{
 			// Get data from disk
-            block = CACHE_DATA->readBlockFromDisk(fi->fh, absolutePath, blockNum);
+			block = CACHE_DATA->readBlockFromDisk(fi->fh, absolutePath, blockNum);
 			if (block == NULL)
 			{
 				return -errno;
@@ -376,10 +376,10 @@ int caching_flush(const char *path, struct fuse_file_info *fi)
 {
 	CACHE_DATA->log(__FUNCTION__);
 	
-    NO_LOG_ACCESS(path)
+	NO_LOG_ACCESS(path)
 	(void)fi;
     
-    return SUCCESS;
+	return SUCCESS;
 }
 
 /** Release an open file
@@ -404,7 +404,7 @@ int caching_release(const char *path, struct fuse_file_info *fi)
 {
 	CACHE_DATA->log(__FUNCTION__);
     
-    NO_LOG_ACCESS(path)
+	NO_LOG_ACCESS(path)
     
 	return close(fi->fh);
 }
@@ -424,7 +424,7 @@ int caching_opendir(const char *path, struct fuse_file_info *fi)
 {
 	CACHE_DATA->log(__FUNCTION__);
     
-    NO_LOG_ACCESS(path)
+	NO_LOG_ACCESS(path)
 
 	int result = 0;
 
@@ -466,11 +466,11 @@ int caching_opendir(const char *path, struct fuse_file_info *fi)
  * @return 0 if succeed, -errno otherwise
  */
 int caching_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset,
-		struct fuse_file_info *fi)
+					struct fuse_file_info *fi)
 {
 	CACHE_DATA->log(__FUNCTION__);
 	
-    NO_LOG_ACCESS(path)
+	NO_LOG_ACCESS(path)
 
 	(void)offset;
 		
@@ -512,9 +512,9 @@ int caching_releasedir(const char *path, struct fuse_file_info *fi)
 {
 	CACHE_DATA->log(__FUNCTION__);
     
-    NO_LOG_ACCESS(path)
+	NO_LOG_ACCESS(path)
 
-    closedir((DIR *)(uintptr_t)fi->fh);
+	closedir((DIR *)(uintptr_t)fi->fh);
 
 	return 0;
 }
@@ -528,16 +528,15 @@ int caching_releasedir(const char *path, struct fuse_file_info *fi)
 int caching_rename(const char *path, const char *newpath)
 {
 	CACHE_DATA->log(__FUNCTION__);
-        
-    NO_LOG_ACCESS(path)
+    
+	NO_LOG_ACCESS(path)
 
-    string oldAbsolutePath = CACHE_DATA->absolutePath(path);
+	string oldAbsolutePath = CACHE_DATA->absolutePath(path);
 	string newAbsolutePath = CACHE_DATA->absolutePath(newpath);
 	ASSERT_PATH_LENGTH(oldAbsolutePath)
 	ASSERT_PATH_LENGTH(newAbsolutePath)
 	
-    // Get file size
-    ASSERT_EXISTING(oldAbsolutePath)
+	ASSERT_EXISTING(oldAbsolutePath)
 
 	int result = rename(oldAbsolutePath.c_str(), newAbsolutePath.c_str());
 	if (result < 0)
@@ -622,7 +621,7 @@ int caching_ioctl (const char *, int cmd, void *arg,
 	(void)flags;
 	(void)data;
 	
-    ofstream logStream(CACHE_DATA->logFile, ios_base::app);
+	ofstream logStream(CACHE_DATA->logFile, ios_base::app);
 
 	if (logStream.good())
 	{
@@ -772,30 +771,33 @@ int main(int argc, char* argv[])
 	}
 	catch (int e)
 	{
-		cout<<"System Error: cannot create private data."<<endl;
+		cout << "System Error: cannot create private data." << endl;
 		exit(1);
 	}
 	
 	if (cacheData == NULL)
 	{
-		cout<<"System Error: cannot create private data."<<endl;
+		cout << "System Error: cannot create private data." << endl;
 		exit(1);
 	}
 	
 	ofstream logStream(cacheData->logFile, ios_base::app);
 	if (!logStream.good())
 	{
-		cout<<"System Error: cannot open logfile."<<endl;
+		cout << "System Error: cannot open logfile." << endl;
 		exit(1);
 	}
 	logStream.close();
 		
 	init_caching_oper();
 	argv[1] = argv[2];
-	for (int i = 2; i< (argc - 1); i++){
+	
+	for (int i = 2; i< (argc - 1); i++)
+	{
 		argv[i] = NULL;
 	}
-        argv[2] = (char*) "-s";
+    
+	argv[2] = (char*) "-s";
 	argc = 3;
 
 	int fuse_stat = fuse_main(argc, argv, &caching_oper, cacheData);

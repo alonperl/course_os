@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++0x -g -Wall -Wvla
+CFLAGS = -std=c++0x -g -Wall -Wextra -Wvla
 
 EXEC = CachingFileSystem
 LIBS = -lfuse

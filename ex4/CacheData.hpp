@@ -14,7 +14,6 @@
 #include <set>
 #include <unordered_map>
 #include <errno.h>
-#include <cstring>
 #include <iostream>
 #include <unistd.h>
 #include <dirent.h>
@@ -24,32 +23,34 @@
 
 using namespace std;
 
-typedef unordered_map<size_t, DataBlock*> CachedByPath;
-typedef set<DataBlock*, DataBlockCompare> CachedBlocks;
+typedef unordered_map<string, DataBlock*> CachedPathBlocksMap;
+typedef set<DataBlock*, DataBlockCompare> CachedBlocksSet;
 
 class CacheData
 {
 public:
-    CacheData(char* root, char* mount, string logfile, unsigned int blocksNum);
-    ~CacheData();
+    CacheData(const string rootDir, const string mountDir, const string logFile, 
+              const unsigned long maxBlocksCount, const unsigned int blockSize);
     
-    void getFullPath(char absPath[PATH_MAX], const char* path);
+    string absolutePath(const char* path);
+    void pushDataBlock(DataBlock* block);
+    DataBlock* readBlockFromDisk(uint64_t  fh, const string path, unsigned long blockNum);
+    void deleteLeastUsedBlock();
+    void renameCachedBlocks(const string oldPath, const string newPath);
+    void log(string action);
 
-    void addDataBlock(size_t hash, DataBlock* block);
-    size_t hashd(string absFilePath, int blockNum);
-
-    unsigned int totalCachedBlocks;
-
-    CachedByPath filesByHash;
-    CachedBlocks filesByLFU;
+    CachedPathBlocksMap cachePathMap;
+    CachedBlocksSet cacheFreqSet;
    
-    char* rootDir; // TODO make const
-    char* mountDir; // TODO make const
-    char* logPath; // TODO make const
-
-    unsigned int maxBlocksNum; // TODO make const
-
-    hash<string> hash_fn;
+    const string rootDir; // TODO make const
+    const string mountDir; // TODO make const
+    const string logFile; // TODO make const
+    const unsigned long maxBlocksCount;
+    const unsigned int blockSize;
+    
+    unsigned long cacheSize();
+private:
+    unsigned long _cacheSize;
 };
 
 #endif	/* CACHE_DATA_H */

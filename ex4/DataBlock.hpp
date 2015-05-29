@@ -9,27 +9,23 @@
 #define	DATABLOCK_H
 
 #include <string>
-#include <string.h>
 
 using namespace std;
 
 class DataBlock {
+    friend class DataBlockCompare;
 public:
-	DataBlock(char* data, unsigned long num, string path);
-    virtual ~DataBlock();
-    
-    const unsigned long blockNum;
-    const string blockPath;
+    DataBlock(const string data, const string path, const unsigned long num);
 
-    char *getData();
-    unsigned int getUseCount();
+    const string data;
+    string path;
+    const unsigned long num;
+    
+    unsigned long getUseCount();
     void increaseUseCount();
 
-    static unsigned int s_blockSize;
-
 private:
-    char *_data;
-    unsigned int _useCount;
+    unsigned long _useCount;
 };
 
 struct DataBlockCompare

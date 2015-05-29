@@ -29,9 +29,11 @@ typedef set<DataBlock*, DataBlockCompare> CachedBlocksSet;
 class CacheData
 {
 public:
-    CacheData(const string rootDir, const string mountDir, const string logFile, 
+    CacheData(const string rootDir, const string logFile, 
               const unsigned long maxBlocksCount, const unsigned int blockSize);
+    ~CacheData();
     
+    string stringRealPath(string path);
     string absolutePath(const char* path);
     void pushDataBlock(DataBlock* block);
     DataBlock* readBlockFromDisk(uint64_t  fh, const string path, unsigned long blockNum);
@@ -42,14 +44,15 @@ public:
     CachedPathBlocksMap cachePathMap;
     CachedBlocksSet cacheFreqSet;
    
-    const string rootDir; // TODO make const
-    const string mountDir; // TODO make const
-    const string logFile; // TODO make const
+    const string rootDir;
+    const string logFile;
     const unsigned long maxBlocksCount;
     const unsigned int blockSize;
     
     unsigned long cacheSize();
 private:
+    string _blockKey(DataBlock* block);
+    
     unsigned long _cacheSize;
 };
 

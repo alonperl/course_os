@@ -29,8 +29,7 @@
 #define BLOCKS_NUMBER 3
 #define BLOCK_SIZE 4
 
-#define NO_LOG_ACCESS(path) if (strncmp(path + strlen(path) - LOG_FILENAME_LEN,\
-                                LOG_FILENAME, LOG_FILENAME_LEN) == 0) { return -ENOENT; }
+#define NO_LOG_ACCESS(path) if (string(path).compare(LOG_FILENAME) == 0) { return -ENOENT; }
 #define ASSERT_EXISTING(path) if (isEntryExists(path) != 0) { return -ENOENT; }
 
 #define USAGE_ERROR "usage: CachingFileSystem rootdir mountdir numberOfBlocks blockSize\n"
@@ -50,7 +49,12 @@ int isDirectory(string path)
 {
 	struct stat fileStatBuf;
 	stat(path.c_str(), &fileStatBuf);
-	return S_ISDIR(fileStatBuf.st_mode);
+	if (fileStatBuf != NULL)
+	{
+		return S_ISDIR(fileStatBuf.st_mode);
+	}
+	
+	return -1;
 }
 
 /** Get file attributes.
@@ -227,7 +231,7 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 
 	for (unsigned long blockNum = startBlockNum; blockNum <= endBlockNum; blockNum++)
 	{
-		 blockIter = cache.find(absolutePath);
+		 blockIter = cache.find(absolutePath + ":" + to_string(blockNum));
 
 		if (blockIter == cache.end()) // Not found in cache
 		{
@@ -435,7 +439,7 @@ int caching_rename(const char *path, const char *newpath)
 
     string oldAbsolutePath = CACHE_DATA->absolutePath(path);
 	string newAbsolutePath = CACHE_DATA->absolutePath(newpath);
-
+	
     // Get file size
     ASSERT_EXISTING(oldAbsolutePath)
 
@@ -488,19 +492,7 @@ void caching_destroy(void *userdata)
 	CACHE_DATA->log(__FUNCTION__);
 	
 	(void)userdata;
-	
-	for(CachedBlocksSet::iterator cachedBlockIter = CACHE_DATA->cacheFreqSet.begin(); 
-		cachedBlockIter != CACHE_DATA->cacheFreqSet.end(); cachedBlockIter++)
-	{
-		//destroy all blocks
-		delete *cachedBlockIter; 
-	}
-
-	//clears set and map
-	CACHE_DATA->cacheFreqSet.clear();
-	CACHE_DATA->cachePathMap.clear();
-
-	//kill the CacheData
+	// Kill the CacheData
 	delete CACHE_DATA;
 }
 
@@ -631,7 +623,8 @@ bool checkArgs(int argc, char* argv[])
 		return false;
 	}
 
-	if (isEntryExists(absRootPath) != 0 || isEntryExists(absMountPath) != 0)
+	if (isEntryExists(absRootPath) != 0 || isEntryExists(absMountPath) != 0 ||
+		!isDirectory (absRootPath) || !isDirectory (absMountPath))
 	{
 		return false;
 	}
@@ -658,9 +651,32 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	CacheData *cacheData = new CacheData(string(argv[ROOT_DIR]), string(argv[MOUNT_DIR]), 
-										 string(LOG_FILENAME), atoi(argv[BLOCKS_NUMBER]), 
-										 atoi(argv[BLOCK_SIZE]));
+	CacheData *cacheData;
+	
+	try
+	{
+		cacheData = new CacheData(string(argv[ROOT_DIR]), string(LOG_FILENAME), 
+								  atoi(argv[BLOCKS_NUMBER]), atoi(argv[BLOCK_SIZE]));
+	}
+	catch (int e)
+	{
+		cout<<"System Error: cannot create private data."<<endl;
+		exit(1);
+	}
+	
+	if (cacheData == NULL)
+	{
+		cout<<"System Error: cannot create private data."<<endl;
+		exit(1);
+	}
+	
+	ofstream logStream(cacheData->logFile, ios_base::app);
+	if (!logStream.good())
+	{
+		cout<<"System Error: cannot open logfile."<<endl;
+		exit(1);
+	}
+	logStream.close();
 		
 	init_caching_oper();
 	argv[1] = argv[2];
@@ -668,7 +684,7 @@ int main(int argc, char* argv[])
 		argv[i] = NULL;
 	}
         argv[2] = (char*) "-s";
-        argv[3] = (char*) "-f";
+		argv[3] = (char*) "-f";
 	argc = 4;
 
 	int fuse_stat = fuse_main(argc, argv, &caching_oper, cacheData);

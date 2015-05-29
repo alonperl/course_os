@@ -1,10 +1,38 @@
-/*
- * CachingFileSystem.cpp
+/**
+ * @file CachingFileSystem.cpp
+ * @author  griffonn ednussi
+ * @version 1.0
+ * @date 29 May 2015
+ * 
+ * @brief An implementation of caching file system.
  *
- *  Created on: 15 April 2015
- *  Author: Netanel Zakay, HUJI, 67808  (Operating Systems 2014-2015).
+ * @section LICENSE
+ * This program is a free software. You can freely redistribute it.
+ *
+ * @section DESCRIPTION
+ * Uses FUSE (Filesystem in user space).
+ * Cache has two main parameters: block size (in bytes) and cache size (in blocks)
+ * After first read from file, the last read block and possibly some of previously
+ * read are saved in heap for future faster access. If there is no room in cache
+ * for new block, one block that was accessed least times from its insertion to
+ * cache, will be removed from cache, and new block will take its place.
+ * 
+ * Implements next functions:
+ *	getattr
+ *	access
+ *	open
+ *	read
+ *	flush
+ *	release
+ *	opendir
+ *	readdir
+ *	releasedir
+ *	rename
+ *	init
+ *	destroy
+ *	ioctl
+ *	fgetattr
  */
-
 #define FUSE_USE_VERSION 26
 
 #include <fuse.h>
@@ -13,48 +41,57 @@
 #include <iostream>
 #include <unistd.h>
 #include <dirent.h>
-#include <ctime>
-#include <fstream>
 #include "CacheData.hpp"
 
+/* Private data */
 #define CACHE_DATA ((CacheData*) fuse_get_context()->private_data)
  
+/* Log file */
 #define LOG_FILENAME ".filesystem.log"
 #define LOG_FILENAME_LEN 15
 
-#define RIGHT_PARAM_AMOUNT 5
-#define SUCCESS 0
+/* Input arguments validation */
 #define ROOT_DIR 1
 #define MOUNT_DIR 2
 #define BLOCKS_NUMBER 3
 #define BLOCK_SIZE 4
+#define EXPECTED_ARGC 5
 
+#define SUCCESS 0
+
+/* Ensure no actions are permitted with logfile */
 #define NO_LOG_ACCESS(path) if (string(path).compare(LOG_FILENAME) == 0) { return -ENOENT; }
+/* Check if given path exists (file or folder) */
 #define ASSERT_EXISTING(path) if (isEntryExists(path) != 0) { return -ENOENT; }
+#define ASSERT_PATH_LENGTH(path) if (path.empty()) { return -ENAMETOOLONG; }
 
-#define USAGE_ERROR "usage: CachingFileSystem rootdir mountdir numberOfBlocks blockSize\n"
-
+#define USAGE "usage: CachingFileSystem rootdir mountdir numberOfBlocks blockSize\n"
 
 using namespace std;
 
 struct fuse_operations caching_oper;
 
+/**
+ * Check if there exists a file or folder at given path
+ * @param path
+ * @return 0 if stat() succeed -> entry exists
+ */
 int isEntryExists(string path)
 {
 	struct stat fileStatBuf;
 	return stat(path.c_str(), &fileStatBuf);
 }
 
+/**
+ * Check if the entry at given path is a dir
+ * @param path
+ * @return >0 if it is a dir
+ */
 int isDirectory(string path)
 {
 	struct stat fileStatBuf;
 	stat(path.c_str(), &fileStatBuf);
-	if (fileStatBuf != NULL)
-	{
-		return S_ISDIR(fileStatBuf.st_mode);
-	}
-	
-	return -1;
+	return S_ISDIR(fileStatBuf.st_mode);
 }
 
 /** Get file attributes.
@@ -62,6 +99,10 @@ int isDirectory(string path)
  * Similar to stat().  The 'st_dev' and 'st_blksize' fields are
  * ignored.  The 'st_ino' field is ignored except if the 'use_ino'
  * mount option is given.
+ *
+ * @param path
+ * @param statbuf: pointer to struct where the result will be put
+ * @return 0 if succeed, -errno otherwise
  */
 int caching_getattr(const char *path, struct stat *statbuf)
 {
@@ -69,10 +110,11 @@ int caching_getattr(const char *path, struct stat *statbuf)
     
     NO_LOG_ACCESS(path)
 	
-	int result = 0;
+	int result = SUCCESS;
 
 	string absolutePath = CACHE_DATA->absolutePath(path);
-
+	ASSERT_PATH_LENGTH(absolutePath)
+	
 	result = lstat(absolutePath.c_str(), statbuf);
 	if (result < 0)
 	{
@@ -93,6 +135,11 @@ int caching_getattr(const char *path, struct stat *statbuf)
  * invocations of fstat() too.
  *
  * Introduced in version 2.5
+ *
+ * @param path
+ * @param statbuf: pointer to struct where the result will be put
+ * @param fi: (struct fuse_file_info) file data
+ * @return 0 if succeed, -errno otherwise
  */
 int caching_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *fi)
 {
@@ -115,6 +162,10 @@ int caching_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_in
  * This method is not called under Linux kernel versions 2.4.x
  *
  * Introduced in version 2.5
+ *
+ * @param path
+ * @param mask
+ * @return 0 if succeed, -errno otherwise
  */
 int caching_access(const char *path, int mask)
 {
@@ -123,13 +174,14 @@ int caching_access(const char *path, int mask)
     NO_LOG_ACCESS(path)
 	
 	string absolutePath = CACHE_DATA->absolutePath(path);
-
-	int accessStats = access(absolutePath.c_str(), mask);
-	if (accessStats != 0)
+	ASSERT_PATH_LENGTH(absolutePath)
+	
+	int result = access(absolutePath.c_str(), mask);
+	if (result != SUCCESS)
 	{
 		return -errno;
 	}
-	return accessStats;
+	return result;
 }
 
 
@@ -146,6 +198,10 @@ int caching_access(const char *path, int mask)
  * if the path is longer, return error.
 
  * Changed in version 2.2
+ *
+ * @param path
+ * @param fi: (struct fuse_file_info) file data
+ * @return 0 if succeed, -errno otherwise
  */
 int caching_open(const char *path, struct fuse_file_info *fi)
 {
@@ -156,6 +212,7 @@ int caching_open(const char *path, struct fuse_file_info *fi)
 	int result = 0;
 
 	string absolutePath = CACHE_DATA->absolutePath(path);
+	ASSERT_PATH_LENGTH(absolutePath)
 
 	if ((fi->flags & 3) != O_RDONLY)
 	{
@@ -183,6 +240,13 @@ int caching_open(const char *path, struct fuse_file_info *fi)
  * substituted with zeroes. 
  *
  * Changed in version 2.2
+ *
+ * @param path
+ * @param buf: pointer to result buffer
+ * @param size: how much bytes to read
+ * @param offset: starting from what offset to read
+ * @param fi: (struct fuse_file_info) file data
+ * @return 0 if succeed, -errno otherwise
  */
 int caching_read(const char *path, char *buf, size_t size, off_t offset,
 		struct fuse_file_info *fi)
@@ -192,6 +256,7 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
     NO_LOG_ACCESS(path)
 
 	string absolutePath = CACHE_DATA->absolutePath(path);
+	ASSERT_PATH_LENGTH(absolutePath)
 
     ASSERT_EXISTING(absolutePath)
 
@@ -302,12 +367,16 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
  * after some writes, or that if will be called at all.
  *
  * Changed in version 2.2
+ *
+ * @param path
+ * @param fi: (struct fuse_file_info) file data
+ * @return 0 if succeed, -errno otherwise
  */
 int caching_flush(const char *path, struct fuse_file_info *fi)
 {
 	CACHE_DATA->log(__FUNCTION__);
 	
-    NO_LOG_ACCESS(path) // TODO redundant here?
+    NO_LOG_ACCESS(path)
 	(void)fi;
     
     return SUCCESS;
@@ -326,6 +395,10 @@ int caching_flush(const char *path, struct fuse_file_info *fi)
  * file.  The return value of release is ignored.
  *
  * Changed in version 2.2
+ * 
+ * @param path
+ * @param fi: (struct fuse_file_info) file data
+ * @return 0 if succeed, -errno otherwise
  */
 int caching_release(const char *path, struct fuse_file_info *fi)
 {
@@ -342,6 +415,10 @@ int caching_release(const char *path, struct fuse_file_info *fi)
  * this  directory
  *
  * Introduced in version 2.3
+ *
+ * @param path
+ * @param fi: (struct fuse_file_info) file data
+ * @return 0 if succeed, -errno otherwise
  */
 int caching_opendir(const char *path, struct fuse_file_info *fi)
 {
@@ -352,6 +429,7 @@ int caching_opendir(const char *path, struct fuse_file_info *fi)
 	int result = 0;
 
 	string absolutePath = CACHE_DATA->absolutePath(path);
+	ASSERT_PATH_LENGTH(absolutePath)
 	
 	DIR *dirPointer = opendir(absolutePath.c_str());
 	
@@ -379,6 +457,13 @@ int caching_opendir(const char *path, struct fuse_file_info *fi)
  * works just like the old getdir() method.
  *
  * Introduced in version 2.3
+ *
+ * @param path
+ * @param buf: pointer to result buffer
+ * @param filler: function pointer to build resulting buffer
+ * @param offset (ignored)
+ * @param fi: (struct fuse_file_info) file data
+ * @return 0 if succeed, -errno otherwise
  */
 int caching_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset,
 		struct fuse_file_info *fi)
@@ -406,7 +491,7 @@ int caching_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t o
 
 			if (filler(buf, dirEntry->d_name, NULL, 0) != 0)
 			{
-			    result = -errno; // TODO does filler update errno? if not - return -ENOMEM
+			    result = -ENOMEM; // TODO does filler update errno? if not - return -ENOMEM
 			    break;
 			}
 	    } while ((dirEntry = readdir(dirPointer)) != NULL);
@@ -418,6 +503,10 @@ int caching_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t o
 /** Release directory
  *
  * Introduced in version 2.3
+ *
+ * @param path
+ * @param fi: (struct fuse_file_info) file data
+ * @return 0 if succeed, -errno otherwise
  */
 int caching_releasedir(const char *path, struct fuse_file_info *fi)
 {
@@ -430,7 +519,12 @@ int caching_releasedir(const char *path, struct fuse_file_info *fi)
 	return 0;
 }
 
-/** Rename a file */
+/** Rename a file or a folder
+ * 
+ * @param path: old path
+ * @param newpath: new path
+ * @return 0 if succeed, -errno otherwise
+ */
 int caching_rename(const char *path, const char *newpath)
 {
 	CACHE_DATA->log(__FUNCTION__);
@@ -439,6 +533,8 @@ int caching_rename(const char *path, const char *newpath)
 
     string oldAbsolutePath = CACHE_DATA->absolutePath(path);
 	string newAbsolutePath = CACHE_DATA->absolutePath(newpath);
+	ASSERT_PATH_LENGTH(oldAbsolutePath)
+	ASSERT_PATH_LENGTH(newAbsolutePath)
 	
     // Get file size
     ASSERT_EXISTING(oldAbsolutePath)
@@ -471,6 +567,9 @@ int caching_rename(const char *path, const char *newpath)
  *
  * Introduced in version 2.3
  * Changed in version 2.6
+ *
+ * @param conn
+ * @return 0 if succeed, -errno otherwise
  */
 void *caching_init(struct fuse_conn_info *conn)
 {
@@ -486,6 +585,8 @@ void *caching_init(struct fuse_conn_info *conn)
  * Called on filesystem exit.
  *
  * Introduced in version 2.3
+ *
+ * @param userdata: private data returned by init
  */
 void caching_destroy(void *userdata)
 {
@@ -508,16 +609,12 @@ void caching_destroy(void *userdata)
  * However, in our case, this function only needs to print cache table to the log file.
  * 
  * Introduced in version 2.8
+ *
+ * @return 0 if succeed, -errno otherwise
  */
 int caching_ioctl (const char *, int cmd, void *arg,
-struct fuse_file_info *, unsigned int flags, void *data)
+				   struct fuse_file_info *, unsigned int flags, void *data)
 {
-    //print to log:
-	//log()
-	//1 2 3
-	//1 name of file relative to mountdir
-	//2 number of the block in the enumartion itself
-	//3 number of times it was accessed
 	CACHE_DATA->log(__FUNCTION__);
 
 	(void)cmd;
@@ -543,15 +640,16 @@ struct fuse_file_info *, unsigned int flags, void *data)
 	}
 	else
 	{
-	//TODO error?>
+		return -ENOENT;
 	}
 	
-	return 0; //TODO what to return?
+	return 0;
 }
 
 
-// Initialise the operations. 
-// You are not supposed to change this function.
+/** Initialise the operations. 
+ * You are not supposed to change this function.
+ */
 void init_caching_oper()
 {
 	caching_oper.getattr = caching_getattr;
@@ -593,11 +691,16 @@ void init_caching_oper()
 	caching_oper.ftruncate = NULL;
 }
 
-
+/**
+ * Validate input arguments
+ * @param argc
+ * @param argv
+ * @return true if the arguments are valid
+ */
 bool checkArgs(int argc, char* argv[])
 {
 	// Check correct param amount
-	if (argc != RIGHT_PARAM_AMOUNT)
+	if (argc != EXPECTED_ARGC)
 	{
 		return false;
 	}
@@ -612,6 +715,7 @@ bool checkArgs(int argc, char* argv[])
 		}
 		return false;
 	}
+	
 
 	char* absMountPath = realpath(argv[MOUNT_DIR], NULL);
 	if (absMountPath == NULL)
@@ -622,15 +726,18 @@ bool checkArgs(int argc, char* argv[])
 		}
 		return false;
 	}
+	
 
 	if (isEntryExists(absRootPath) != 0 || isEntryExists(absMountPath) != 0 ||
 		!isDirectory (absRootPath) || !isDirectory (absMountPath))
 	{
+		free(absRootPath);
+		free(absMountPath);
 		return false;
 	}
-
-	free(absMountPath);
+	
 	free(absRootPath);
+	free(absMountPath);
 
 	// Check if blockSize & numberOfBlocks are positive int
 	if (!(argv[BLOCKS_NUMBER] > 0 && argv[BLOCK_SIZE] > 0))
@@ -641,13 +748,18 @@ bool checkArgs(int argc, char* argv[])
 	return true;
 }
 
-
+/**
+ * Validate input, create private data object, and run FUSE.
+ * @param argc
+ * @param argv
+ * @return FUSE status after running
+ */
 int main(int argc, char* argv[])
 { 
 	// Checking the received parameters
 	if(!checkArgs(argc, argv))
 	{
-		cout << USAGE_ERROR;
+		cout << USAGE;
 		exit(1);
 	}
 
@@ -684,8 +796,7 @@ int main(int argc, char* argv[])
 		argv[i] = NULL;
 	}
         argv[2] = (char*) "-s";
-		argv[3] = (char*) "-f";
-	argc = 4;
+	argc = 3;
 
 	int fuse_stat = fuse_main(argc, argv, &caching_oper, cacheData);
 	return fuse_stat;

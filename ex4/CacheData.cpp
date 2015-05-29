@@ -53,8 +53,8 @@ CacheData::~CacheData()
 
 string CacheData::absolutePath(const char* path)
 {
-	// TODO validate that length does not exceed PATH_MAX
-    return rootDir + string(path);
+    string absolute = rootDir + string(path);
+	return absolute.length() > PATH_MAX ? "" : absolute;
 }
 
 DataBlock *CacheData::readBlockFromDisk(uint64_t  fh, const string path,
@@ -67,7 +67,7 @@ DataBlock *CacheData::readBlockFromDisk(uint64_t  fh, const string path,
 	}
 	
 	int result = pread(fh, dataBuffer, blockSize, blockNum * blockSize);
-	if (result < 0 || dataBuffer == NULL) // Could not read
+	if (result < 0) // Could not read
 	{
 		free(dataBuffer);
 		return NULL;

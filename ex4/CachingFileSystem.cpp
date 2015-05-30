@@ -252,7 +252,7 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 				 struct fuse_file_info *fi)
 {
 	CACHE_DATA->log(__FUNCTION__);
-    
+    buf[0]='\0';
 	NO_LOG_ACCESS(path)
 
 	string absolutePath = CACHE_DATA->absolutePath(path);
@@ -719,6 +719,7 @@ bool checkArgs(int argc, char* argv[])
 	char* absMountPath = realpath(argv[MOUNT_DIR], NULL);
 	if (absMountPath == NULL)
 	{
+		free(absRootPath);
 		if (errno != ENOMEM)
 		{
 			free(absMountPath);
@@ -798,7 +799,9 @@ int main(int argc, char* argv[])
 	}
     
 	argv[2] = (char*) "-s";
-	argc = 3;
+	argv[3] = (char*) "-f";
+	argc = 4;
+	// argc = 3;
 
 	int fuse_stat = fuse_main(argc, argv, &caching_oper, cacheData);
 	return fuse_stat;

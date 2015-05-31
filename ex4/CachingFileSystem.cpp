@@ -112,7 +112,8 @@ int caching_getattr(const char *path, struct stat *statbuf)
 	
 	int result = SUCCESS;
 
-	string absolutePath = CACHE_DATA->absolutePath(path);
+	string absolutePath("");
+	absolutePath = CACHE_DATA->absolutePath(path);
 	ASSERT_PATH_LENGTH(absolutePath)
 	
 	result = lstat(absolutePath.c_str(), statbuf);
@@ -173,7 +174,8 @@ int caching_access(const char *path, int mask)
     
 	NO_LOG_ACCESS(path)
 	
-	string absolutePath = CACHE_DATA->absolutePath(path);
+	string absolutePath(""); 
+	absolutePath = CACHE_DATA->absolutePath(path);
 	ASSERT_PATH_LENGTH(absolutePath)
 	
 	int result = access(absolutePath.c_str(), mask);
@@ -211,7 +213,8 @@ int caching_open(const char *path, struct fuse_file_info *fi)
     
 	int result = 0;
 
-	string absolutePath = CACHE_DATA->absolutePath(path);
+	string absolutePath(""); 
+	absolutePath = CACHE_DATA->absolutePath(path);
 	ASSERT_PATH_LENGTH(absolutePath)
 
 	if ((fi->flags & 3) != O_RDONLY)
@@ -255,7 +258,8 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
     buf[0]='\0';
 	NO_LOG_ACCESS(path)
 
-	string absolutePath = CACHE_DATA->absolutePath(path);
+	string absolutePath("");
+	absolutePath = CACHE_DATA->absolutePath(path);
 	ASSERT_PATH_LENGTH(absolutePath)
 
 	ASSERT_EXISTING(absolutePath)
@@ -263,12 +267,18 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 	// Check if the file is smaller than fuse-provided size
 	struct stat statBuf;
 	caching_fgetattr(path, &statBuf, fi);
-	size = (size < (size_t)statBuf.st_size - (size_t)offset) 
-			? size : (size_t)statBuf.st_size - (size_t)offset;
-	
-	if (size == 0)
+	size_t realSize = (size_t)statBuf.st_size;
+
+	if (realSize <= (size_t)offset) // Offset overflow.
 	{
-		// Nothing to read.
+		return -EOVERFLOW;
+	}
+
+	size = (size < realSize - (size_t)offset) 
+			? size : realSize - (size_t)offset;
+	
+	if (size == 0) // Nothing to read.
+	{
 		return 0;
 	}
 
@@ -740,7 +750,7 @@ bool checkArgs(int argc, char* argv[])
 	free(absMountPath);
 
 	// Check if blockSize & numberOfBlocks are positive int
-	if (!(argv[BLOCKS_NUMBER] > 0 && argv[BLOCK_SIZE] > 0))
+	if (!(atoi(argv[BLOCKS_NUMBER]) > 0 && atoi(argv[BLOCK_SIZE]) > 0))
 	{
 		return false;
 	}

@@ -1,6 +1,5 @@
 #ifndef _UTHREADS_H
 #define _UTHREADS_H
-
 /*
  * User-Level Threads Library (uthreads)
  * Author: OS, huji.os.2015@gmail.com

@@ -13,11 +13,10 @@ TARSRCS=$(TARGETS) Makefile README
 
 all: uthreads.a
 
-uthreads.o: $(TARGETS)
-	$(CC) $(CFLAGS) -c $(TARGETS)
-
-uthreads.a: uthreads.o
-	$(AR) $(LIBUTHREADS) uthreads.o
+uthreads.a: uthreads.o Thread.o Scheduler.o SignalManager.o PriorityQueue.o
+	$(AR) $(LIBUTHREADS) $^
+%.o: %.cpp
+	$(CC) $(CFLAGS) -c $^
 
 clean:
 	rm -rf uthreads.o uthreads.a

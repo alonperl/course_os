@@ -16,6 +16,7 @@
  */
 #include "CacheData.hpp"
 #include <malloc.h>
+#include <string.h>
 
 #define INIT_LFU 0
 
@@ -81,7 +82,8 @@ CacheData::~CacheData()
  */
 string CacheData::absolutePath(const char* path)
 {
-    string absolute = rootDir + string(path);
+    string absolute("");
+    absolute = rootDir + string(path);
 	return absolute.length() > PATH_MAX ? "" : absolute;
 }
 
@@ -94,14 +96,16 @@ string CacheData::absolutePath(const char* path)
 DataBlock *CacheData::readBlockFromDisk(uint64_t  fh, const string path,
 										unsigned long blockNum)
 {
-	// char* dataBuffer = (char*)malloc(sizeof(char) * (blockSize + 1));
-	char* dataBuffer = new char[blockSize]();
+	char* dataBuffer = (char*)malloc(sizeof(char) * (blockSize + 1));
+	// char* dataBuffer = new char[blockSize]();
 	if (dataBuffer == NULL)
 	{
 		return NULL;
 	}
+	dataBuffer[0] = '\0';
 	
 	int result = pread(fh, dataBuffer, blockSize, blockNum * blockSize);
+	// int result = memcpy()
 	if (result < 0) // Could not read
 	{
 		free(dataBuffer);

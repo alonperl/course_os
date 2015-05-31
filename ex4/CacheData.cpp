@@ -94,7 +94,8 @@ string CacheData::absolutePath(const char* path)
 DataBlock *CacheData::readBlockFromDisk(uint64_t  fh, const string path,
 										unsigned long blockNum)
 {
-	char* dataBuffer = (char*)malloc(sizeof(char) * (blockSize + 1));
+	// char* dataBuffer = (char*)malloc(sizeof(char) * (blockSize + 1));
+	char* dataBuffer = new char[blockSize]();
 	if (dataBuffer == NULL)
 	{
 		return NULL;

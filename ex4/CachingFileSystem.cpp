@@ -853,20 +853,20 @@ int main(int argc, char* argv[])
 	}
 	catch (int e)
 	{
-		cout << "System Error: cannot create private data." << endl;
+		cerr << "System Error: cannot create private data." << endl;
 		exit(FAIL);
 	}
 	
 	if (cacheData == NULL)
 	{
-		cout << "System Error: cannot create private data." << endl;
+		cerr << "System Error: cannot create private data." << endl;
 		exit(FAIL);
 	}
 	
 	ofstream logStream(cacheData->logFile, ios_base::app);
 	if (!logStream.good())
 	{
-		cout << "System Error: cannot open logfile." << endl;
+		cerr << "System Error: cannot open logfile." << endl;
 		exit(FAIL);
 	}
 	logStream.close();
@@ -883,5 +883,10 @@ int main(int argc, char* argv[])
 	argc = BLOCKS_NUMBER;
 
 	int fuse_stat = fuse_main(argc, argv, &caching_oper, cacheData);
+	if (fuse_stat)
+	{
+		cerr << "System Error: cannot run fuse." << endl;
+		exit(FAIL);
+	}
 	return fuse_stat;
 }

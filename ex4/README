@@ -1,0 +1,45 @@
+griffonn, ednussi
+Gregory Pasternak (327148417), Eran Nussinovitch (302186408)
+Ex: 4
+
+FILES:
+README
+Makefile
+CachingFileSystem.cpp
+CacheData.hpp
+CacheData.cpp
+DataBlock.hpp
+DataBlock.cpp
+
+REMARKS: NONE
+
+DESIGN DECISIONS:
+Apart from the caching_* function, that are at most straightforward, we have:
+-   a DataBlock class for single data block that holds the data itself, path of 
+    the file it is taken from, absolute block number in that file (from 0), and 
+    access count.
+-   a CacheData class for managing insertion and removal to/from cache, calculating
+    paths, and also holds the cache itself, as far as basic settings of current
+    run.
+The cache is basically a sorted set of blocks ordered by access count in order to
+give us ability to remove least frequently used blocks instantly (O(1)) when needed.
+In addition, in order to find blocks that are saved in cache, we have an unordered 
+map, which values are of type DataBlock, and keys are in format
+"<full_path_to_file>:<absolute_block_number>", so that knowing what block we want and
+from what file we can instantly say if it is in cache or not.
+Absolute block number is calculated by taking file_size modulo block_size.
+
+ANSWERS TO QUESTIONS:
+
+1.
+Yes, as far as cache is in heap (in RAM memory and not on disk), access to it is
+much faster, assuming that the FUSE process doesn't go in swap by OS decisions
+(in that case we will need to wait for OS to bring it back if someone accesses
+data inside our FS).
+
+2.
+Let's talk about both.
+Array-based: Memory for all the array (i.e. (block_size * block_number) of bytes)
+is allocated from the beginning; knowing what cell to go to, access time is constant;
+searching for least frequently used block is linear (iterate over every cell).
+

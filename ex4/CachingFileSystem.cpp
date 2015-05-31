@@ -57,18 +57,33 @@
 #define BLOCK_SIZE 4
 #define EXPECTED_ARGC 5
 
+#define INIT_STRUCT 0
+
 #define SUCCESS 0
+#define FAIL -1
+
+#define FLAG_READONLY 3
+#define FLAG_SINGLE_THREAD "-s"
+
+#define DIR_SEPARATOR "/"
+#define BLOCKNUM_SEPARATOR ":"
+
 
 /* Ensure no actions are permitted with logfile */
-#define NO_LOG_ACCESS(path) if (string(path).compare(LOG_FILENAME) == 0) { return -ENOENT; }
+#define NO_LOG_ACCESS(path) if (string(path).compare(LOG_FILENAME) == SUCCESS) { return -ENOENT; }
 /* Check if given path exists (file or folder) */
-#define ASSERT_EXISTING(path) if (isEntryExists(path) != 0) { return -ENOENT; }
+#define ASSERT_EXISTING(path) if (isEntryExists(path) != SUCCESS) { return -ENOENT; }
 #define ASSERT_PATH_LENGTH(path) if (path.empty()) { return -ENAMETOOLONG; }
 
 #define USAGE "usage: CachingFileSystem rootdir mountdir numberOfBlocks blockSize\n"
 
 using namespace std;
 
+/** 
+ * Define the fuse operations struct.
+ * It will later be initialized with supported
+ * operations.
+ */
 struct fuse_operations caching_oper;
 
 /**
@@ -78,7 +93,10 @@ struct fuse_operations caching_oper;
  */
 int isEntryExists(string path)
 {
-	struct stat fileStatBuf = {0};//TODO -Wextra errors
+	/**
+	 * File stat struct
+	 */
+	struct stat fileStatBuf = {INIT_STRUCT};
 	return stat(path.c_str(), &fileStatBuf);
 }
 
@@ -89,7 +107,10 @@ int isEntryExists(string path)
  */
 int isDirectory(string path)
 {
-	struct stat fileStatBuf = {0};//TODO -Wextra errors
+	/**
+	 * File stat struct
+	 */
+	struct stat fileStatBuf = {INIT_STRUCT};
 	stat(path.c_str(), &fileStatBuf);
 	return S_ISDIR(fileStatBuf.st_mode);
 }
@@ -106,23 +127,26 @@ int isDirectory(string path)
  */
 int caching_getattr(const char *path, struct stat *statbuf)
 {
-	CACHE_DATA->log(__FUNCTION__);
-    
+	int logStatus = CACHE_DATA->log(__FUNCTION__);
+	if (logStatus < SUCCESS)
+	{
+		return FAIL;
+	}
+	
 	NO_LOG_ACCESS(path)
 	
 	int result = SUCCESS;
 
 	if (statbuf == NULL)
 	{
-		return -1;//TODO what error?
+		return FAIL;
 	}
 
-	string absolutePath("");
-	absolutePath = CACHE_DATA->absolutePath(path);
+	string absolutePath = CACHE_DATA->absolutePath(path);
 	ASSERT_PATH_LENGTH(absolutePath)
 	
 	result = lstat(absolutePath.c_str(), statbuf);
-	if (result < 0)
+	if (result < SUCCESS)
 	{
 			result = -errno;
 	}
@@ -149,10 +173,14 @@ int caching_getattr(const char *path, struct stat *statbuf)
  */
 int caching_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *fi)
 {
-	CACHE_DATA->log(__FUNCTION__);
+	int logStatus = CACHE_DATA->log(__FUNCTION__);
+	if (logStatus < SUCCESS)
+	{
+		return FAIL;
+	}
 
 	NO_LOG_ACCESS(path)
-    
+	
 	int result = fstat(fi->fh, statbuf);
 
 	return result;
@@ -175,12 +203,15 @@ int caching_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_in
  */
 int caching_access(const char *path, int mask)
 {
-	CACHE_DATA->log(__FUNCTION__);
-    
+	int logStatus = CACHE_DATA->log(__FUNCTION__);
+	if (logStatus < SUCCESS)
+	{
+		return FAIL;
+	}
+	
 	NO_LOG_ACCESS(path)
 	
-	string absolutePath(""); 
-	absolutePath = CACHE_DATA->absolutePath(path);
+	string absolutePath = CACHE_DATA->absolutePath(path);
 	ASSERT_PATH_LENGTH(absolutePath)
 	
 	int result = access(absolutePath.c_str(), mask);
@@ -212,24 +243,27 @@ int caching_access(const char *path, int mask)
  */
 int caching_open(const char *path, struct fuse_file_info *fi)
 {
-	CACHE_DATA->log(__FUNCTION__);
+	int logStatus = CACHE_DATA->log(__FUNCTION__);
+	if (logStatus < SUCCESS)
+	{
+		return FAIL;
+	}
 
 	NO_LOG_ACCESS(path)
-    
-	int result = 0;
+	
+	int result = SUCCESS;
 
-	string absolutePath(""); 
-	absolutePath = CACHE_DATA->absolutePath(path);
+	string absolutePath = CACHE_DATA->absolutePath(path);
 	ASSERT_PATH_LENGTH(absolutePath)
 
-	if ((fi->flags & 3) != O_RDONLY)
+	if ((fi->flags & FLAG_READONLY) != O_RDONLY)
 	{
 		return -EACCES;
 	}
 
 	int fd = open(absolutePath.c_str(), fi->flags);
 
-	if (fd < 0)
+	if (fd < SUCCESS)
 	{
 		result = -errno;
 	}
@@ -259,12 +293,15 @@ int caching_open(const char *path, struct fuse_file_info *fi)
 int caching_read(const char *path, char *buf, size_t size, off_t offset,
 				 struct fuse_file_info *fi)
 {
-	CACHE_DATA->log(__FUNCTION__);
-    buf[0]='\0';
+	int logStatus = CACHE_DATA->log(__FUNCTION__);
+	if (logStatus < SUCCESS)
+	{
+		return FAIL;
+	}
+	// buf[0]='\0';
 	NO_LOG_ACCESS(path)
 
-	string absolutePath("");
-	absolutePath = CACHE_DATA->absolutePath(path);
+	string absolutePath = CACHE_DATA->absolutePath(path);
 	ASSERT_PATH_LENGTH(absolutePath)
 
 	ASSERT_EXISTING(absolutePath)
@@ -284,7 +321,7 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 	
 	if (size == 0) // Nothing to read.
 	{
-		return 0;
+		return SUCCESS;
 	}
 
 	CachedPathBlocksMap cache = CACHE_DATA->cachePathMap;
@@ -311,7 +348,7 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 
 	for (unsigned long blockNum = startBlockNum; blockNum <= endBlockNum; blockNum++)
 	{
-		 blockIter = cache.find(absolutePath + ":" + to_string(blockNum));
+		 blockIter = cache.find(absolutePath + BLOCKNUM_SEPARATOR + to_string(blockNum));
 
 		if (blockIter == cache.end()) // Not found in cache
 		{
@@ -389,11 +426,15 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
  */
 int caching_flush(const char *path, struct fuse_file_info *fi)
 {
-	CACHE_DATA->log(__FUNCTION__);
+	int logStatus = CACHE_DATA->log(__FUNCTION__);
+	if (logStatus < SUCCESS)
+	{
+		return FAIL;
+	}
 	
 	NO_LOG_ACCESS(path)
 	(void)fi;
-    
+	
 	return SUCCESS;
 }
 
@@ -417,10 +458,14 @@ int caching_flush(const char *path, struct fuse_file_info *fi)
  */
 int caching_release(const char *path, struct fuse_file_info *fi)
 {
-	CACHE_DATA->log(__FUNCTION__);
-    
+	int logStatus = CACHE_DATA->log(__FUNCTION__);
+	if (logStatus < SUCCESS)
+	{
+		return FAIL;
+	}
+	
 	NO_LOG_ACCESS(path)
-    
+	
 	return close(fi->fh);
 }
 
@@ -437,11 +482,15 @@ int caching_release(const char *path, struct fuse_file_info *fi)
  */
 int caching_opendir(const char *path, struct fuse_file_info *fi)
 {
-	CACHE_DATA->log(__FUNCTION__);
-    
+	int logStatus = CACHE_DATA->log(__FUNCTION__);
+	if (logStatus < SUCCESS)
+	{
+		return FAIL;
+	}
+	
 	NO_LOG_ACCESS(path)
 
-	int result = 0;
+	int result = SUCCESS;
 
 	string absolutePath = CACHE_DATA->absolutePath(path);
 	ASSERT_PATH_LENGTH(absolutePath)
@@ -483,13 +532,17 @@ int caching_opendir(const char *path, struct fuse_file_info *fi)
 int caching_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset,
 					struct fuse_file_info *fi)
 {
-	CACHE_DATA->log(__FUNCTION__);
+	int logStatus = CACHE_DATA->log(__FUNCTION__);
+	if (logStatus < SUCCESS)
+	{
+		return FAIL;
+	}
 	
 	NO_LOG_ACCESS(path)
 
 	(void)offset;
 		
-	int result = 0;
+	int result = SUCCESS;
 
 	DIR *dirPointer = (DIR*)(uintptr_t)fi->fh;
 	struct dirent *dirEntry;
@@ -501,15 +554,15 @@ int caching_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t o
 	}
 	else
 	{
-	    do 
-	    {
+		do 
+		{
 
-			if (filler(buf, dirEntry->d_name, NULL, 0) != 0)
+			if (filler(buf, dirEntry->d_name, NULL, 0) != SUCCESS)
 			{
-			    result = -ENOMEM; // TODO does filler update errno? if not - return -ENOMEM
-			    break;
+				result = -ENOMEM;
+				break;
 			}
-	    } while ((dirEntry = readdir(dirPointer)) != NULL);
+		} while ((dirEntry = readdir(dirPointer)) != NULL);
 	}
 
 	return result;
@@ -525,13 +578,17 @@ int caching_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t o
  */
 int caching_releasedir(const char *path, struct fuse_file_info *fi)
 {
-	CACHE_DATA->log(__FUNCTION__);
-    
+	int logStatus = CACHE_DATA->log(__FUNCTION__);
+	if (logStatus < SUCCESS)
+	{
+		return FAIL;
+	}
+	
 	NO_LOG_ACCESS(path)
 
 	closedir((DIR *)(uintptr_t)fi->fh);
 
-	return 0;
+	return SUCCESS;
 }
 
 /** Rename a file or a folder
@@ -542,8 +599,12 @@ int caching_releasedir(const char *path, struct fuse_file_info *fi)
  */
 int caching_rename(const char *path, const char *newpath)
 {
-	CACHE_DATA->log(__FUNCTION__);
-    
+	int logStatus = CACHE_DATA->log(__FUNCTION__);
+	if (logStatus < SUCCESS)
+	{
+		return FAIL;
+	}
+	
 	NO_LOG_ACCESS(path)
 
 	string oldAbsolutePath = CACHE_DATA->absolutePath(path);
@@ -554,7 +615,7 @@ int caching_rename(const char *path, const char *newpath)
 	ASSERT_EXISTING(oldAbsolutePath)
 
 	int result = rename(oldAbsolutePath.c_str(), newAbsolutePath.c_str());
-	if (result < 0)
+	if (result < SUCCESS)
 	{
 		return -errno;
 	}
@@ -562,8 +623,8 @@ int caching_rename(const char *path, const char *newpath)
 	// Check if want to rename dir
 	if (isDirectory (oldAbsolutePath))
 	{
-		 oldAbsolutePath += "/";
-		 newAbsolutePath += "/";
+		 oldAbsolutePath += DIR_SEPARATOR;
+		 newAbsolutePath += DIR_SEPARATOR;
 	}
 	
 	// Check if any of file's blocks are currently hashed
@@ -588,6 +649,7 @@ int caching_rename(const char *path, const char *newpath)
 void *caching_init(struct fuse_conn_info *conn)
 {
 	CACHE_DATA->log(__FUNCTION__);
+
 	(void)conn;
 	return CACHE_DATA;
 }
@@ -629,7 +691,11 @@ void caching_destroy(void *userdata)
 int caching_ioctl (const char *, int cmd, void *arg,
 				   struct fuse_file_info *, unsigned int flags, void *data)
 {
-	CACHE_DATA->log(__FUNCTION__);
+	int logStatus = CACHE_DATA->log(__FUNCTION__);
+	if (logStatus < SUCCESS)
+	{
+		return FAIL;
+	}
 
 	(void)cmd;
 	(void)arg;
@@ -657,7 +723,7 @@ int caching_ioctl (const char *, int cmd, void *arg,
 		return -ENOENT;
 	}
 	
-	return 0;
+	return SUCCESS;
 }
 
 
@@ -743,7 +809,7 @@ bool checkArgs(int argc, char* argv[])
 	}
 	
 
-	if (isEntryExists(absRootPath) != 0 || isEntryExists(absMountPath) != 0 ||
+	if (isEntryExists(absRootPath) != SUCCESS || isEntryExists(absMountPath) != SUCCESS ||
 		!isDirectory (absRootPath) || !isDirectory (absMountPath))
 	{
 		free(absRootPath);
@@ -755,7 +821,7 @@ bool checkArgs(int argc, char* argv[])
 	free(absMountPath);
 
 	// Check if blockSize & numberOfBlocks are positive int
-	if (!(atoi(argv[BLOCKS_NUMBER]) > 0 && atoi(argv[BLOCK_SIZE]) > 0))
+	if (!(atoi(argv[BLOCKS_NUMBER]) > SUCCESS && atoi(argv[BLOCK_SIZE]) > SUCCESS))
 	{
 		return false;
 	}
@@ -775,7 +841,7 @@ int main(int argc, char* argv[])
 	if(!checkArgs(argc, argv))
 	{
 		cout << USAGE;
-		exit(1);
+		exit(FAIL);
 	}
 
 	CacheData *cacheData = NULL;
@@ -788,35 +854,33 @@ int main(int argc, char* argv[])
 	catch (int e)
 	{
 		cout << "System Error: cannot create private data." << endl;
-		exit(1);
+		exit(FAIL);
 	}
 	
 	if (cacheData == NULL)
 	{
 		cout << "System Error: cannot create private data." << endl;
-		exit(1);
+		exit(FAIL);
 	}
 	
 	ofstream logStream(cacheData->logFile, ios_base::app);
 	if (!logStream.good())
 	{
 		cout << "System Error: cannot open logfile." << endl;
-		exit(1);
+		exit(FAIL);
 	}
 	logStream.close();
 		
 	init_caching_oper();
-	argv[1] = argv[2];
+	argv[ROOT_DIR] = argv[MOUNT_DIR];
 	
-	for (int i = 2; i< (argc - 1); i++)
+	for (int i = MOUNT_DIR; i < (argc - 1); i++)
 	{
 		argv[i] = NULL;
 	}
-    
-	argv[2] = (char*) "-s";
-	argv[3] = (char*) "-f";
-	argc = 4;
-	// argc = 3;
+	
+	argv[MOUNT_DIR] = (char*) FLAG_SINGLE_THREAD;
+	argc = BLOCKS_NUMBER;
 
 	int fuse_stat = fuse_main(argc, argv, &caching_oper, cacheData);
 	return fuse_stat;

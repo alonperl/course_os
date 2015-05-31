@@ -25,7 +25,7 @@
 DataBlock::DataBlock(char const* newData, const string path, 
 					 const unsigned long num) 
 	: data(newData)
-    , path(path)
+	, path(path)
 	, num(num)
 {
 	_useCount = 0;
@@ -61,6 +61,6 @@ void DataBlock::increaseUseCount()
  */
 bool DataBlockCompare::operator()(DataBlock* lhs, DataBlock* rhs)
 {
-  return lhs->_useCount < rhs->_useCount;
+	return lhs->_useCount < rhs->_useCount;
 }
 

@@ -24,8 +24,9 @@ using namespace std;
  * @brief DataBlock class represents single data block of a certain file, consisting
  * of data, path of file it was originated from and number of block it represents.
  */
-class DataBlock {
-    friend class DataBlockCompare;
+class DataBlock 
+{
+	friend class DataBlockCompare;
 
 public:
 	/**
@@ -34,33 +35,33 @@ public:
 	 * @param path - The path of the file the block is related to
 	 * @param num - The num of dataBlock from the file
 	 */
-    DataBlock(char const* data, const string path, const unsigned long num);
+	DataBlock(char const* data, const string path, const unsigned long num);
 
-    /**
-     * @brief Block Destructor
-     */
-    ~DataBlock();
+	/**
+	 * @brief Block Destructor
+	 */
+	~DataBlock();
 
-    char const* data;
+	char const* data;
 
-    /* The path of the file this Block's data is from */
-    string path;
+	/* The path of the file this Block's data is from */
+	string path;
 
-    /* Absolute number of this block in the file it represents */
-    const unsigned long num;
-    
-    /**
+	/* Absolute number of this block in the file it represents */
+	const unsigned long num;
+	
+	/**
  	 * @return block's use count
-     */
-    unsigned long getUseCount();
-    
-    /**
+	 */
+	unsigned long getUseCount();
+	
+	/**
  	 * Increases the use count of this block
  	 */
- 	void increaseUseCount();
+	void increaseUseCount();
 
 private:
-    unsigned long _useCount;
+	unsigned long _useCount;
 };
 
 /**
@@ -69,7 +70,7 @@ private:
  */
 struct DataBlockCompare
 {
-    bool operator()(DataBlock* lhs, DataBlock* rhs);
+	bool operator()(DataBlock* lhs, DataBlock* rhs);
 };
 
 #endif	/* DATABLOCK_H */

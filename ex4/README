@@ -34,33 +34,53 @@ ANSWERS TO QUESTIONS:
 1.
 Yes, as far as cache is in heap (in RAM memory and not on disk), access to it is
 much faster, assuming that the FUSE process doesn't go in swap by OS decisions
-(in that case we will need to wait for OS to bring it back if someone accesses
-data inside our FS).
+(in that case we will need to wait for OS to bring it back from the disk and it 
+will take the same time as without cache).
 
 2.
 Let's talk about both.
-Array-based: Memory for all the array (i.e. (block_size * block_number) of bytes)
-is allocated from the beginning; knowing what cell to go to, access time is constant;
-searching for least frequently used block is linear (iterate over every cell).
+	Array-based: 
+	Preferrable when the cache state is relatively stable (i.e. the blocks are 
+	changed seldom).
+	Memory for all the array (i.e. (block_size * block_number) of bytes)
+have to be continuous and to be allocated from the beginning; knowing what cell to go 
+to, access time is constant; however searching for least frequently used block is 
+linear (iterate over every cell). Moreover, when initializing such an array, it can be 
+ploblematic to get all the memory if the cache size is big.
+
+	Sorted list-based:
+	Preferrable when the blocks are removed frequently, and new blocks are added.
+	The large advantage is that pushing new block is logarithmic in time,
+and finding the candidate for removal is constant (simply take the head). Also, it does
+not allocate for itself memory that is currently unneeded (depends on implemenation).
+However, it can be splitted into different pages of the memory, not necessarily continuous,
+so it can take more time to find specific block.
+
 
 3.
-It will be much harder to manage LRU for swapping pages since
-the hardware is the one which manges the memory access, when
- the Operating system is the one which manages the filesystem access. While Clock-cycle based algorithems require less 
- memory, only a bit for each page, Sophisticated memory 
- access algorithems will be very diffcult to implement in the hardware.
+It will be much harder to manage LRU for swapping pages since the hardware is the one
+which manages the memory access, while the Operating system is the one which manages 
+the filesystem access. Clock-cycle based algorithms require less memory, while more
+sophisticated memory access algorithms will be very diffcult to implement in the hardware.
 
 4. 
 LRU is better when:
-A file "File" is used frequently in a small period of time. After it the file is no longer used, while other files are used in a moderate manner. "File" would stay in the cache forever, just using up space.
+A file "foo" is used many times in a small period of time. After that the file is 
+no longer used, while other files are used in a moderate manner. In case of LFU 
+"foo" would stay in the cache forever, just using up space. But LRU will free it up
+whenever it needs more space in cache.
 
 LFU is better when:
-If we use on a regular base X files in the same frequency and an additional file is used 10 times as much. LRU would not recognize it's specil useage amount while LFU would.
+If we use on a regular base X files in the same frequency and an additional file 
+is used 10 times as much. LRU would free this file from the cache, while LFU will
+understand the file is probably will be used more soon.
 
 Both are no good:
-If we use X files in a particular order each time, one always follow after the other, neither LFU nor LRU would be good for this case and would recognize the specil attribute.
+If we use X files in a particular order each time, one always follow after the 
+other, neither LFU nor LRU would be good for this case and would recognize the specil attribute.
 
 5.
-The ideal block-size in this execise would be the size of the real filesystem.
-When we use a smaller value, we will need to use many cache blocks for each real block.
+The ideal block-size in this execise would be the size of the real filesystem page.
+When we use a smaller value, we will need to use many cache blocks for each real block (and it
+can probably not fit exactly on real disk or memory page and an unneeded overhead will come).
 When we use a bigger value, we will have unused space.

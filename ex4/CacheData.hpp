@@ -53,7 +53,7 @@ public:
      * @param num - The num of dataBlock from the file
      */
     CacheData(const string rootDir, const string logFile, 
-              const unsigned long maxBlocksCount, const unsigned int blockSize);
+              const unsigned long setMaxBlocksCount, const unsigned int setBlockSize);
     
     /**
      * @brief CacheData Destructor - delete and clears all inner members
@@ -121,6 +121,8 @@ public:
     unsigned long cacheSize();
 
 private:
+    CacheData();
+
     /**
      * @param block - the block we want its map key
      * @return The block's key

@@ -22,13 +22,21 @@
  * @param path - The path of the file the block is related to
  * @param num - The num of dataBlock from the file
  */
-DataBlock::DataBlock(const string data, const string path, 
+DataBlock::DataBlock(char const* newData, const string path, 
 					 const unsigned long num) 
-	: data(data)
+	: data(newData)
     , path(path)
 	, num(num)
 {
 	_useCount = 0;
+}
+
+/**
+ * @brief Block Destructor
+ */
+DataBlock::~DataBlock()
+{
+	delete[](data);
 }
 
 /**

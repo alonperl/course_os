@@ -78,7 +78,7 @@ struct fuse_operations caching_oper;
  */
 int isEntryExists(string path)
 {
-	struct stat fileStatBuf = {0};
+	struct stat fileStatBuf = {0};//TODO -Wextra errors
 	return stat(path.c_str(), &fileStatBuf);
 }
 
@@ -89,7 +89,7 @@ int isEntryExists(string path)
  */
 int isDirectory(string path)
 {
-	struct stat fileStatBuf = {0};
+	struct stat fileStatBuf = {0};//TODO -Wextra errors
 	stat(path.c_str(), &fileStatBuf);
 	return S_ISDIR(fileStatBuf.st_mode);
 }
@@ -114,7 +114,7 @@ int caching_getattr(const char *path, struct stat *statbuf)
 
 	if (statbuf == NULL)
 	{
-		return -1;
+		return -1;//TODO what error?
 	}
 
 	string absolutePath("");
@@ -330,7 +330,7 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 		if (startBlockNum == endBlockNum)
 		{
 			// Reading from one block only
-			strncpy(buf + read, block->data.c_str() + startBlockOffset, size);
+			strncpy(buf + read, block->data + startBlockOffset, size);
 			block->increaseUseCount();
 			read = size;
 			break;
@@ -339,17 +339,17 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 		// Reading from multiple blocks
 		if (blockNum == startBlockNum) // First block -> read from start offset
 		{
-			strncpy(buf + read, block->data.c_str() + startBlockOffset, blockSize - startBlockOffset);
+			strncpy(buf + read, block->data + startBlockOffset, blockSize - startBlockOffset);
 			read += blockSize - startBlockOffset;
 		}
 		else if (blockNum == endBlockNum) // Last block -> readl till end offset
 		{
-			strncpy(buf + read, block->data.c_str(), endBlockOffset);
+			strncpy(buf + read, block->data, endBlockOffset);
 			read += endBlockOffset;
 		}
 		else // Middle blocks
 		{
-			strncpy(buf + read, block->data.c_str(), blockSize);
+			strncpy(buf + read, block->data, blockSize);
 			read += blockSize;
 		}
 		
@@ -778,7 +778,7 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	CacheData *cacheData;
+	CacheData *cacheData = NULL;
 	
 	try
 	{

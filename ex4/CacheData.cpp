@@ -20,6 +20,7 @@
 
 #define INIT_LFU 0
 
+
 /**
 * @param path - The path we wish to get it's real Path
 * @return The real of a realative path 
@@ -38,6 +39,13 @@ string CacheData::stringRealPath(string path)
 	return strRealPath;
 }
 
+CacheData::CacheData()
+	: rootDir("/")
+    , logFile("/")
+    , maxBlocksCount(0)
+	, blockSize(0)
+{}
+
 /**
  * @brief CacheData Constructor
  * @param rootdir - The root directory path
@@ -47,11 +55,11 @@ string CacheData::stringRealPath(string path)
  * @param num - The num of dataBlock from the file
  */
 CacheData::CacheData(const string root, const string logfile, 
-					 const unsigned long maxBlocksCount, const unsigned int blockSize)
+					 const unsigned long setMaxBlocksCount, const unsigned int setBlockSize)
             : rootDir(stringRealPath(root))
             , logFile(rootDir+"/"+logfile)
-            , maxBlocksCount(maxBlocksCount)
-			, blockSize(blockSize)
+            , maxBlocksCount(setMaxBlocksCount)
+			, blockSize(setBlockSize)
 {
 	if (rootDir == "NULL")
 	{
@@ -96,37 +104,34 @@ string CacheData::absolutePath(const char* path)
 DataBlock *CacheData::readBlockFromDisk(uint64_t  fh, const string path,
 										unsigned long blockNum)
 {
-	char* dataBuffer = (char*)malloc(sizeof(char) * (blockSize + 1));
-	// char* dataBuffer = new char[blockSize]();
+	// char* dataBuffer = (char*)malloc(sizeof(char) * (blockSize + 2));
+	char* dataBuffer = new char[blockSize + 1];
+	// char dataBuffer[10];
 	if (dataBuffer == NULL)
 	{
 		return NULL;
 	}
-	dataBuffer[0] = '\0';
 	
 	int result = pread(fh, dataBuffer, blockSize, blockNum * blockSize);
-	// int result = memcpy()
 	if (result < 0) // Could not read
 	{
-		free(dataBuffer);
+		delete[](dataBuffer);
 		return NULL;
 	}
-	
-	string data = string(dataBuffer);
-
-	free(dataBuffer);
-	dataBuffer = NULL;
-
-	// Check if there is more place in cache
-	if (_cacheSize >= maxBlocksCount)
+	else
 	{
-		deleteLeastUsedBlock();
-	}
+		// Check if there is more place in cache
+		if (_cacheSize >= maxBlocksCount)
+		{
+			deleteLeastUsedBlock();
+		}
 
-	DataBlock* block = new DataBlock(data, path, blockNum);
-	pushDataBlock(block);
+		DataBlock* block = new DataBlock(dataBuffer, path, blockNum);
+		pushDataBlock(block);
+		
+		return block;
+	}
 	
-	return block;
 }
 
 /**

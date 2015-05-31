@@ -34,9 +34,14 @@ public:
 	 * @param path - The path of the file the block is related to
 	 * @param num - The num of dataBlock from the file
 	 */
-    DataBlock(const string data, const string path, const unsigned long num);
+    DataBlock(char const* data, const string path, const unsigned long num);
 
-    const string data;
+    /**
+     * @brief Block Destructor
+     */
+    ~DataBlock();
+
+    char const* data;
 
     /* The path of the file this Block's data is from */
     string path;

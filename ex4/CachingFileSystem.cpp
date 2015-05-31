@@ -298,7 +298,7 @@ int caching_read(const char *path, char *buf, size_t size, off_t offset,
 	{
 		return FAIL;
 	}
-	// buf[0]='\0';
+
 	NO_LOG_ACCESS(path)
 
 	string absolutePath = CACHE_DATA->absolutePath(path);

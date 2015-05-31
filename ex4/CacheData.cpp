@@ -111,9 +111,7 @@ string CacheData::absolutePath(const char* path)
 DataBlock *CacheData::readBlockFromDisk(uint64_t  fh, const string path,
 										unsigned long blockNum)
 {
-	// char* dataBuffer = (char*)malloc(sizeof(char) * (blockSize + 2));
 	char* dataBuffer = new char[blockSize + 1];
-	// char dataBuffer[10];
 	if (dataBuffer == NULL)
 	{
 		return NULL;
@@ -158,7 +156,6 @@ void CacheData::pushDataBlock(DataBlock* block)
  */  
 int CacheData::log(string action)
 {
-//	cout<<action<<endl;
 	action = action.substr(FUNC_NAME_OFFSET, action.length());
 	ofstream logStream(logFile, ios_base::app);
 	if (logStream.good())

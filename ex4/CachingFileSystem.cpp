@@ -78,7 +78,7 @@ struct fuse_operations caching_oper;
  */
 int isEntryExists(string path)
 {
-	struct stat fileStatBuf;
+	struct stat fileStatBuf = {0};
 	return stat(path.c_str(), &fileStatBuf);
 }
 
@@ -89,7 +89,7 @@ int isEntryExists(string path)
  */
 int isDirectory(string path)
 {
-	struct stat fileStatBuf;
+	struct stat fileStatBuf = {0};
 	stat(path.c_str(), &fileStatBuf);
 	return S_ISDIR(fileStatBuf.st_mode);
 }
@@ -111,6 +111,11 @@ int caching_getattr(const char *path, struct stat *statbuf)
 	NO_LOG_ACCESS(path)
 	
 	int result = SUCCESS;
+
+	if (statbuf == NULL)
+	{
+		return -1;
+	}
 
 	string absolutePath("");
 	absolutePath = CACHE_DATA->absolutePath(path);

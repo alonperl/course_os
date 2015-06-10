@@ -1,4 +1,4 @@
-CC=gcc
+CC=g++
 RM = rm -rf
 
 INCS=-I.

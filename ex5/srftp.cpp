@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
+#include <packets.h>
 
 /* Definitions */
 #define MAX_HOSTNAME 128
@@ -50,12 +51,35 @@
 
 using namespace std;
 
+/**
+ * Server parameters: port and max filesize this server can accept.
+ */
 struct args_struct
 {
 	int port;
-	int maxFileSize;
+	unsigned int maxFileSize;
 };
 
+/**
+ * Client parameters: thread handler, socket handler, and max file size
+ * that can be accepted from this client (in our case it is always as server's).
+ */
+struct client_data
+{
+	pthread_t clientThread;
+	int clientSocket;
+	unsigned int maxFileSize;
+};
+
+/**
+ * Validate and store parameters
+ * 
+ * @param argc: number of arguments
+ * @param argv: array of arguments
+ * @param args: pointer to struct where the params should be stored
+ * 
+ * @return -1 on error and USAGE is printed, 0 otherwise
+ */
 int validateArgs(int argc, char const *argv[], struct args_struct *args)
 {
 	if (argc != ARGS_NUM)
@@ -70,7 +94,7 @@ int validateArgs(int argc, char const *argv[], struct args_struct *args)
 	}
 
 	args->maxFileSize = (int)strtol(argv[ARGS_MAX_FILE_SIZE], NULL, DECIMAL);
-	if (args->maxFileSize <= 0L || args->maxFileSize > PATH_MAX)
+	if (args->maxFileSize <= 0L || args->maxFileSize > UINT_MAX)
 	{
 		return FAILURE;
 	}
@@ -78,7 +102,14 @@ int validateArgs(int argc, char const *argv[], struct args_struct *args)
 	return SUCCESS;
 }
 
-int serverUp(struct args_struct args)
+/**
+ * Power up server: create socket, bind it to a port, start listening to it.
+ *
+ * @param port: local port to bind to (1 - 65535)
+ *
+ * @return -1 if error occured and prints at what stage, 0 otherwise
+ */
+int serverUp(int port)
 {
 	// Get own hostname
  	char hostname[MAX_HOSTNAME+1];
@@ -96,7 +127,7 @@ int serverUp(struct args_struct args)
  	// Get own address
  	struct sockaddr_in socketAddress;
  	socketAddress.sin_family = host->h_addrtype;
- 	socketAddress.sin_port = htons(args.port);
+ 	socketAddress.sin_port = htons(port);
  	memcpy(&socketAddress.sin_addr, host->h_addr, host->h_length);
 
  	// Create welcome socket
@@ -122,17 +153,79 @@ int serverUp(struct args_struct args)
  	return welcomeSocket;
 }
 
-void* clientHandler(void* maxFileSize)
+
+/**
+ * Client handle routine: Tell client what size of files server can accept,
+ *		receive its file if sent and store on disk.
+ * @param pClient: client_data struct with client parameters
+ *
+ * @return nullptr
+ */
+void* clientHandler(void* pClient)
 {
+	// Exchange vars
+	int sent, received;
+	Packet* recvPacket = initPacket();
+
+	struct client_data* client = (struct client_data*) pClient;
+
+	// Construct welcome packet
+	Packet* welcomePacket = initPacket();
+	welcomePacket->status = SERVER_RESPONSE;
+	welcomePacket->dataSize = sizeof(unsigned int);
+
+	welcomePacket->data = (char*) malloc(sizeof(char) * welcomePacket->dataSize);
+	memcpy(welcomePacket->data, &(client->maxFileSize), welcomePacket->dataSize);
 	
+	char* buffer = packetToBytes(welcomePacket);
+	
+	// Send welcome packet with size. Client should disconnect if its file exceeds
+	sent = send(client->clientSocket, buffer, PACKET_SIZE, 0);
+
+	freePacket(welcomePacket);
+
+	// Read from socket
+	while((received = recv(client->clientSocket, buffer, PACKET_SIZE, 0)) >= 0)
+	{
+		if (received == 0) // Client closed connection
+		{
+			break;
+		}
+
+		received = recv(client->clientSocket, buffer, PACKET_SIZE, 0);
+		cout << received << ": " << buffer << endl;
+	}
+
+	free(buffer);
+	freePacket(recvPacket);
+
+	return nullptr;
 }
 
+/**
+ * Create and store client data, create separate pthread for this client.
+ *
+ * @param clientSocket: socket to connect to client through
+ * @param clientSocketAddress: additional socket data
+ * @param maxFileSize: maximal file size that can be accepted from this client
+ *
+ * @return -1 on error and prints at what stage, 0 otherwise
+ */
 int createClientThread(int clientSocket, struct sockaddr *clientSocketAddress, 
-					   int maxFileSize)//, vector<pthread_t> *clients)
+					   unsigned int maxFileSize)
 {
-	pthread_t clientThread;
 	
-	if (pthread_create(&clientThread, NULL, clientHandler, maxFileSize))
+	struct client_data* client = (struct client_data*) malloc(sizeof(struct client_data));
+	if (client == nullptr)
+	{
+		cerr << SYSCALL_ERROR("malloc");
+		return FAILURE;
+	}
+
+	client->maxFileSize = maxFileSize;
+	client->clientSocket = clientSocket;
+	
+	if (pthread_create(&(client->clientThread), NULL, clientHandler, client))
 	{
 		cerr << SYSCALL_ERROR("pthread_create");
 		return FAILURE;
@@ -144,6 +237,14 @@ int createClientThread(int clientSocket, struct sockaddr *clientSocketAddress,
 	return SUCCESS;
 }
 
+/**
+ * Main server routine: validate params, bind network connection, accept clients.
+ *
+ * @param argc: number of cli arguments
+ * @param argv: array of cli arguments
+ *
+ * @return -1 on error, 0 otherwise (never actually happens)
+ */
 int main(int argc, char const *argv[])
 {
 	// Validate input
@@ -155,7 +256,7 @@ int main(int argc, char const *argv[])
  	}
 
  	// Connect to the world
- 	int welcomeSocket = serverUp(args);
+ 	int welcomeSocket = serverUp(args.port);
  	if (welcomeSocket == FAILURE)
  	{
  		return FAILURE;

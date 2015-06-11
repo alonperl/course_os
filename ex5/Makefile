@@ -2,13 +2,13 @@ CC=g++
 RM = rm -rf
 
 INCS=-I.
-CFLAGS = -Wall -g $(INCS)
+CFLAGS = -std=c++11 -Wall -g $(INCS) -lpthread
 LOADLIBES = -L./
 
-CLIENTSRC = clftp.cpp
+CLIENTSRC = clftp.cpp packets.cpp
 CLIENTX = clftp
 
-SERVERSRC = srftp.cpp
+SERVERSRC = srftp.cpp packets.cpp
 SERVERX = srftp
 
 TAR=tar

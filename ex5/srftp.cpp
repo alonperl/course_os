@@ -169,11 +169,14 @@ int serverUp(int port)
 void* clientHandler(void* pClient)
 {
 	// Exchange vars
-	bool nameReceived;
+	bool nameReceived, sizeReceived;
 	int sent, received;
 	Packet* recvPacket = initPacket();
 
 	char* filename;
+	char* filedata;
+	unsigned int filesize;
+	fstream outputStream;
 
 	struct client_data* client = (struct client_data*) pClient;
 
@@ -217,15 +220,55 @@ void* clientHandler(void* pClient)
 			else // Save filename and open such a file
 			{
 				filename = (char*) malloc(sizeof(char) * recvPacket->dataSize);
-				memcpy(filename)
+				if (filename == nullptr)
+				{
+					cerr << SYSCALL_ERROR("malloc");
+					return nullptr;
+				}
+				
+				memcpy(filename, recvPacket->data, recvPacket->dataSize);
+				nameReceived = true;
 			}
 		}
 
-		// Write to file
+		else if (recvPacket->status == CLIENT_FILESIZE) // Filename packet type
+		{
+			if (sizeReceived) // Filename has already been received
+			{
+				continue;
+			}
+			else // Save filename and open such a file
+			{
+				memcpy(&filesize, recvPacket->data, recvPacket->dataSize);
+				sizeReceived = true;
+			}
+		}
 
+		else if (recvPacket->status == CLIENT_DATA)
+		{
+			if (nameReceived && sizeReceived) // All metadata is here
+			{	
+				
+
+
+			}
+		}
 	}
 
+	// Write to file
+	outputStream.open(filename, ofstream::out | ofstream::binary);
+	
+	if (!outputStream.good())
+	{
+		// File already open TODO WHAT TO DO?
+	}
+
+	outputStream.write(filedata, filesize);
+	outputStream.close();
+
 	free(buffer);
+	free(filedata);
+	free(filename);
 	freePacket(recvPacket);
 
 	return nullptr;

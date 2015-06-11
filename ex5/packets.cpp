@@ -16,12 +16,15 @@
 #include "packets.h"
 #include <malloc.h>
 #include <string.h>
+#include <iostream>
 
 #ifndef SYSCALL_ERROR
 #define SYSCALL_ERROR(syscall) "Error: function: " << syscall << "errno: " << errno << "\n"
 #endif
 
 #define FAILURE -1;
+
+using namespace std;
 
 /**
  * Allocate memory for packet
@@ -68,6 +71,10 @@ char* packetToBytes(Packet* packet)
 	memcpy(buffer, &(packet->dataSize), FIELD_LEN_DATASIZE);
 	memcpy(buffer + FIELD_LEN_DATASIZE, &(packet->status), FIELD_LEN_STATUS);
 	memcpy(buffer + FIELD_LEN_DATASIZE + FIELD_LEN_STATUS, &(packet->data), packet->dataSize);
+	
+	// Pad with zeros
+	memset(buffer + FIELD_LEN_DATASIZE + FIELD_LEN_STATUS + packet->dataSize, '\0', 
+		   FIELD_LEN_DATA - packet->dataSize);
 
 	return buffer;
 }

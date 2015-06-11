@@ -25,10 +25,11 @@
 #define FIELD_LEN_STATUS sizeof(char)
 #define FIELD_LEN_DATA PACKET_SIZE - FIELD_LEN_DATASIZE - FIELD_LEN_STATUS
 
-#define 
+#define CLIENT_FILESIZE_DATASIZE sizeof(unsigned int)
 
 /* Possible packet status */
-enum Status:char { 
+enum Status:char 
+{ 
 	CLIENT_FILENAME,
 	CLIENT_FILESIZE,
 	CLIENT_DATA,

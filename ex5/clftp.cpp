@@ -188,8 +188,8 @@ int main(int argc, char** argv){
 		error("ERROR connecting");
 	}
 
+	//Receive from Server Deatils
 	char* serverDetailsBuffer;
-	//recieve data getting char* -> turn to packet
 	int serverDetails = recv(serverSocket, serverDetailsBuffer, PACKET_SIZE, 0);
 
 	if (serverDetails == FAILURE)
@@ -215,8 +215,22 @@ int main(int argc, char** argv){
 		//TODO or maybe keep waiting and now exit?
 	}
 
-	//Check if the size 
-	 (unsigned int) workPacket->data
+	//Check size of files server can recieve
+	if ((unsigned int) workPacket->data <= (unsigned int)fileInServerSize)
+	{
+		//Close connection and exit
+		close(serverSocket);
+		cerr << "File I want to send is too big";
+		exit(1);
+	}
+
+	//intialize first packet to send
+	workPacket->dataSize = CLIENT_FILESIZE_DATASIZE;
+	workPacket->status = CLIENT_FILESIZE;
+	workPacket->data = allocPacketData(CLIENT_FILESIZE_DATASIZE);
+	memcpy(workPacket->data, &fileInServerSize)
+
+
 
 
 	int fileSize = getFileSize(ifs);
@@ -224,10 +238,7 @@ int main(int argc, char** argv){
 	//send information
 
 	
-	//intialize first packet
-	workPacket->dataSize =
-	workPacket->status = 
-	workPacket->data =  
+
 
 
 

@@ -43,7 +43,8 @@ using namespace std;
 #define SUCCESS 0
 #define ERROR -1
 #define EXIT_CODE 1
-#define BUFFER_SIZE 1024
+#define MAX_PORT_NUM 65535
+#define MIN_PORT_NUM 1
 
 #define PORT_PARA_INDX 1
 #define HOST_NAME_PARA_INDX 2
@@ -51,6 +52,34 @@ using namespace std;
 #define DESIRED_FILE_NAME_IN_SERVER_PARA_INDX 4
 #define CORRECT_ARGS_NUM 5
 
+
+bool checkArgs(int argc, char** argv)
+{
+	if (argc != CORRECT_ARGS_NUM)
+	{
+		return false;
+	}
+
+	int port = atoi(argv[PORT_PARA_INDX]);
+	if (port == 0 || port > MAX_PORT_NUM || port < MIN_PORT_NUM)
+	{
+		return false;
+	}
+
+	int transferFileNameSize = argv[TRANSFER_FILE_NAME_PARA_INDX].length();
+	int desiredNameSize = argv[DESIRED_FILE_NAME_IN_SERVER_PARA_INDX].length();
+
+	if (transferFileNameSize == 0 || desiredNameSize == 0 || 
+		transferFileNameSize > PATH_MAX || desiredNameSize > PATH_MAX)
+	{
+		return false;
+	}
+
+	struct hostent *server = gethostbyname(argv[HOST_NAME_PARA_INDX]);
+	//TODO what to check about host name??
+
+    return true;
+}
 
 void error(string errorMessage)
 {
@@ -68,9 +97,8 @@ int getFileSize(ifstream &ifs)
 	return end - begin;
 }
 
-void sendAllBuffer (char* buffer, int bufferSize, int serverSocket)
+void sendBuffer (char* buffer, int bufferSize, int serverSocket)
 {
-	
 	int bytesSent = 0;
 	int sent = 1;
 
@@ -85,59 +113,6 @@ void sendAllBuffer (char* buffer, int bufferSize, int serverSocket)
 	}
 }
 
-void sendFileContent(ifstream& ifs, int fileSize)
-{
-	char* buffer = (char*) malloc(BUFFER_SIZE);
-	if (buffer == NULL)
-	{
-		error ("ERROR: malloc error.");
-	}
-	int toSend = fileSize;
-
-	while (toSend > BUFFER_SIZE)
-	{
-		ifs.read(buffer, BUFFER_SIZE);
-		sendAllBuffer(buffer, BUFFER_SIZE);
-		toSend -= BUFFER_SIZE;
-	}
-	if (toSend != 0)
-	{
-		ifs.read(buffer, toSend);
-		sendAllBuffer(buffer, toSend);
-	}
-	
-	free (buffer);
-}
-
-bool checkArgs(int argc, char** argv)
-{
-	if (argc != CORRECT_ARGS_NUM)
-	{
-		return false;
-	}
-
-    args->port = (int) strtol(argv[ARGS_PORT], NULL, DECIMAL);
-    if (args->port == 0 || args->port > MAX_PORT_NUM || args->port < MIN_PORT_NUM)
-    {
-        return FAILURE;
-    }
-
-    args->maxFileSize = (int) strtol(argv[ARGS_MAX_FILE_SIZE], NULL, DECIMAL);
-    if (args->maxFileSize == 0 || args->maxFileSize == LONG_MAX || args->maxFileSize == LONG_MIN)
-    {
-        return FAILURE;
-    }
-
-    return SUCCESS;
-
-	//TODO check other param
-
-}
-
-
-//*********************************** MAIN ************************************
-
-
 int main(int argc, char** argv){
 
 	if (!checkArgs(argc, argv))
@@ -150,7 +125,7 @@ int main(int argc, char** argv){
 	struct hostent *server = gethostbyname(argv[HOST_NAME_PARA_INDX]);
 	string fileNameInServer = argv[DESIRED_FILE_NAME_IN_SERVER_PARA_INDX]; //get name of file to be stored in server
 	string transferFileName = argv[TRANSFER_FILE_NAME_PARA_INDX]; //get local file name
-	int fileInServerSize = argv[DESIRED_FILE_NAME_IN_SERVER_PARA_INDX].length();
+	int nameSize = fileNameInServer.length();
 
 	char* fileToSave = (char*)malloc(fileNameInServer.size()+1);
 	char* fileToTransfer = (char*)malloc(transferFileName.size()+1);
@@ -158,7 +133,6 @@ int main(int argc, char** argv){
 	if (fileToTransfer == NULL || fileToSave == NULL)
 	{
 		error ("ERROR: malloc error.");
-		exit(1); //TODO - only exit??
 	}
 
 	memcpy (fileToTransfer, transferFileName.c_str(), transferFileName.size()+1);
@@ -175,17 +149,17 @@ int main(int argc, char** argv){
 	// TODO check port is of right type: Description: uint16_t htons(uint16_t hostshort);
 	serverAddres.sin_port = htons(port);
 
-	//open file and get it's size:
+	//open file and check accessiblity
 	ifstream ifs(fileToTransfer, ios::in);
 	if (ifs == NULL)
 	{
-		error("ERROR: open file");	
+		error("ERROR: open file.");	
 	}
 
 	//connect to server.
 	if (connect(serverSocket,((struct sockaddr*)&serverAddres),sizeof(serverAddres)) < 0)
 	{
-		error("ERROR connecting");
+		error("ERROR connecting.");
 	}
 
 	//Receive from Server Deatils
@@ -200,56 +174,82 @@ int main(int argc, char** argv){
 	}
 	else if (serverDetails == 0)
 	{
-		cerr << "Server is down";
-		exit(1);
-		//TODO or maybe keep waiting and now exit?
+		error ("ERROR: Server is Down.");
+		//TODO or maybe keep waiting and not exit?
 	}
 
-	// Turn recieved details from server into packet and check args
+	// Initalize packet and check args
 	Packet *workPacket = initPacket();
 	workPacket->bytesToPacket(serverDetailsBuffer);
+
 	if (workPacket->status != SERVER_RESPONSE)
 	{
-		cerr << "Got wrong packet somehow";
-		exit(1);
-		//TODO or maybe keep waiting and now exit?
+		error ("ERROR: Recieved Unknown Packet Type.");
+		//TODO or maybe keep waiting and not exit?
 	}
 
 	//Check size of files server can recieve
-	if ((unsigned int) workPacket->data <= (unsigned int)fileInServerSize)
+	unsigned int fileSize = getFileSize(ifs);
+	if ((unsigned int) workPacket->data <= fileSize)
 	{
 		//Close connection and exit
 		close(serverSocket);
-		cerr << "File I want to send is too big";
-		exit(1);
+		error ("ERROR: Server Doesn't support files of desired Size.");
 	}
 
-	//intialize first packet to send
+	//Intialize first packet to send containning file size
 	workPacket->dataSize = CLIENT_FILESIZE_DATASIZE;
 	workPacket->status = CLIENT_FILESIZE;
 	workPacket->data = allocPacketData(CLIENT_FILESIZE_DATASIZE);
-	memcpy(workPacket->data, &fileInServerSize)
+	memcpy(workPacket->data, &fileSize, CLIENT_FILESIZE_DATASIZE);
+	//Send first packet
+	sendBuffer(packetToBytes(workPacket), PACKET_SIZE, serverSocket);
 
+	//Intialize second packet to send containning file name
+	workPacket->dataSize = nameSize;
+	workPacket->status = CLIENT_FILENAME;
+	free (workPacket->data); //Free allocated memory from before
+	workPacket->data = allocPacketData(nameSize);
+	memcpy(workPacket->data, &fileToTransfer, nameSize);
+	//Send second packet
+	sendBuffer(packetToBytes(workPacket), PACKET_SIZE, serverSocket);
 
+	//Intialize packet to send containning data
+	workPacket->status = CLIENT_DATA;
+	if (fileSize >= FIELD_LEN_DATA)
+	{
+		workPacket->dataSize = FIELD_LEN_DATA;
+	}
 
+	//Send all data using packets
+	int toSend = fileSize;
+	char* buffer = (char*) malloc(FIELD_LEN_DATA);
+	if (buffer == NULL)
+	{
+		error ("ERROR: malloc error.");
+	}
 
-	int fileSize = getFileSize(ifs);
-
-	//send information
-
-	
-
-
-
-
-	sendAllBuffer ((char*) &fileSize, sizeof (int), serverSocket);
-	sendAllBuffer((char*) &fileInServerSize , sizeof(int), serverSocket);
-	sendAllBuffer(fileToSave, fileInServerSize + 1, serverSocket);
-	
-	sendFileContent(ifs, fileSize);
+	while (toSend > PACKET_SIZE)
+	{
+		free (workPacket->data); //Free allocated memory from before
+		workPacket->data = allocPacketData(FIELD_LEN_DATA);
+		ifs.read(buffer, FIELD_LEN_DATA);
+		memcpy(workPacket->data, buffer, FIELD_LEN_DATA);
+		sendBuffer(packetToBytes(workPacket), PACKET_SIZE, serverSocket); //Send data packet
+		toSend -= FIELD_LEN_DATA;
+	}
+	if (toSend != 0) //In case there is still data with smaller size than max size of packet
+	{
+		workPacket->dataSize = toSend;
+		ifs.read(buffer, toSend);
+		memcpy(workPacket->data, buffer, toSend);
+		sendBuffer(packetToBytes(workPacket), PACKET_SIZE, serverSocket);
+	}
 
 	//closing
-	free (packet);
+	free (workPacket->data);
+	free (workPacket);
+	free (buffer);
 	free (fileToSave);
 	free (fileToTransfer);
 	close(serverSocket);
@@ -257,5 +257,3 @@ int main(int argc, char** argv){
 
 	return SUCCESS;
 }
-
-//******************************* END OF PROGRAM*******************************

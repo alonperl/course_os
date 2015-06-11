@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
+#include <fstream>
 #include <packets.h>
 
 /* Definitions */
@@ -170,7 +171,7 @@ void* clientHandler(void* pClient)
 {
 	// Exchange vars
 	bool nameReceived, sizeReceived;
-	int sent, received;
+	int dataSent, sent, received, dataReceived;
 	Packet* recvPacket = initPacket();
 
 	char* filename;
@@ -190,10 +191,24 @@ void* clientHandler(void* pClient)
 	
 	char* buffer = packetToBytes(welcomePacket);
 	
-	// Send welcome packet with size. Client should disconnect if its file exceeds
-	sent = send(client->clientSocket, buffer, PACKET_SIZE, 0);
+	dataSent = 0;
 
+	// Send welcome packet with size. Client should disconnect if its file exceeds
+	while (dataSent < PACKET_SIZE)
+	{
+		sent = send(client->clientSocket, buffer + sent, PACKET_SIZE, 0);
+	
+		if (sent == ERROR)
+		{
+			cerr << SYSCALL_ERROR("send");
+			pthread_exit();
+		}
+	
+		dataSent += sent;
+	}
 	freePacket(welcomePacket);
+
+	dataReceived = 0;
 
 	// Read from socket
 	while((received = recv(client->clientSocket, buffer, PACKET_SIZE, 0)) >= 0)
@@ -248,9 +263,8 @@ void* clientHandler(void* pClient)
 		{
 			if (nameReceived && sizeReceived) // All metadata is here
 			{	
-				
-
-
+				memcpy(filedata + dataReceived, recvPacket->data, recvPacket->dataSize);
+				dataReceived += recvPacket->dataSize;
 			}
 		}
 	}

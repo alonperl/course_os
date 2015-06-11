@@ -27,8 +27,9 @@
 
 /* Possible packet status */
 enum Status:char { 
-	CLIENT_REQUEST, 
-	CLIENT_DATA, 
+	CLIENT_REQUEST,
+	CLIENT_FILENAME,
+	CLIENT_DATA,
 	SERVER_RESPONSE
 }; 
 
@@ -74,5 +75,11 @@ Packet* bytesToPacket(char* buffer);
  */
 void freePacket(Packet* packet);
 
+/**
+ * Allocate memory for Packet data
+ *
+ * @return nullptr if malloc failed, pointer to data block otherwise
+ */
+char* allocPacketData(int dataSize);
 
 #endif

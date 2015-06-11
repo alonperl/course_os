@@ -17,6 +17,10 @@
 #include <malloc.h>
 #include <string.h>
 
+#ifndef SYSCALL_ERROR
+#define SYSCALL_ERROR(syscall) "Error: function: " << syscall << "errno: " << errno << "\n"
+#endif
+
 #define FAILURE -1;
 
 /**
@@ -31,6 +35,7 @@ Packet* initPacket()
 	packet = (Packet*) malloc(sizeof(Packet));
 	if (packet == nullptr)
 	{
+		cerr << SYSCALL_ERROR("malloc");
 		return nullptr;
 	}
 
@@ -56,6 +61,7 @@ char* packetToBytes(Packet* packet)
 	char* buffer = (char*) malloc(sizeof(short) + sizeof(char) * (1 + packet->dataSize));
 	if (buffer == nullptr)
 	{
+		cerr << SYSCALL_ERROR("malloc");
 		return nullptr;
 	}
 
@@ -84,6 +90,7 @@ Packet* bytesToPacket(char* buffer)
 	Packet* packet = (Packet*) malloc(sizeof(packet));
 	if (packet == nullptr)
 	{
+		cerr << SYSCALL_ERROR("malloc");
 		return nullptr;
 	}
 	
@@ -93,6 +100,7 @@ Packet* bytesToPacket(char* buffer)
 	packet->data = (char*) malloc(sizeof(char) * packet->dataSize);
 	if (packet->data == nullptr)
 	{
+		cerr << SYSCALL_ERROR("malloc");
 		return nullptr;
 	}
 	
@@ -109,4 +117,21 @@ void freePacket(Packet* packet)
 	free(packet->data);
 	free(packet);
 	packet = nullptr;
+}
+
+/**
+ * Allocate memory for Packet data
+ *
+ * @return nullptr if malloc failed, pointer to data block otherwise
+ */
+char* allocPacketData(int dataSize)
+{
+	char* pData = (char*) malloc(sizeof(char) * dataSize);
+	if (pData == nullptr)
+	{
+		cerr << SYSCALL_ERROR("malloc");
+		return nullptr;
+	}
+
+	return pData;
 }

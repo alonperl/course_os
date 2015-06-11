@@ -42,6 +42,8 @@ typedef struct packet
 	char* data;					// Actual data
 } Packet;
 
+
+
 /**
  * Allocate memory for packet
  */

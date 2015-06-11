@@ -188,15 +188,48 @@ int main(int argc, char** argv){
 		error("ERROR connecting");
 	}
 
+	char* serverDetailsBuffer;
+	//recieve data getting char* -> turn to packet
+	int serverDetails = recv(serverSocket, serverDetailsBuffer, PACKET_SIZE, 0);
+
+	if (serverDetails == FAILURE)
+	{
+		cerr << SYSCALL_ERROR("recv");
+		exit(1);
+		//TODO or maybe keep waiting and now exit?
+	}
+	else if (serverDetails == 0)
+	{
+		cerr << "Server is down";
+		exit(1);
+		//TODO or maybe keep waiting and now exit?
+	}
+
+	// Turn recieved details from server into packet and check args
+	Packet *workPacket = initPacket();
+	workPacket->bytesToPacket(serverDetailsBuffer);
+	if (workPacket->status != SERVER_RESPONSE)
+	{
+		cerr << "Got wrong packet somehow";
+		exit(1);
+		//TODO or maybe keep waiting and now exit?
+	}
+
+	//Check if the size 
+	 (unsigned int) workPacket->data
+
+
 	int fileSize = getFileSize(ifs);
 
 	//send information
-	Packet *packet = initPacket();
+
 	
 	//intialize first packet
-	packet->dataSize =
-	packet->status = 
-	packet->data =  
+	workPacket->dataSize =
+	workPacket->status = 
+	workPacket->data =  
+
+
 
 	sendAllBuffer ((char*) &fileSize, sizeof (int), serverSocket);
 	sendAllBuffer((char*) &fileInServerSize , sizeof(int), serverSocket);
@@ -205,6 +238,7 @@ int main(int argc, char** argv){
 	sendFileContent(ifs, fileSize);
 
 	//closing
+	free (packet);
 	free (fileToSave);
 	free (fileToTransfer);
 	close(serverSocket);

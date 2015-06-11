@@ -25,10 +25,12 @@
 #define FIELD_LEN_STATUS sizeof(char)
 #define FIELD_LEN_DATA PACKET_SIZE - FIELD_LEN_DATASIZE - FIELD_LEN_STATUS
 
+#define 
+
 /* Possible packet status */
 enum Status:char { 
-	CLIENT_REQUEST,
 	CLIENT_FILENAME,
+	CLIENT_FILESIZE,
 	CLIENT_DATA,
 	SERVER_RESPONSE
 }; 

@@ -40,10 +40,15 @@
 #define DECIMAL 10
 
 #define USAGE "Usage: srftp server-port max-file-size\n"
+
+#ifndef SYSCALL_ERROR
 #define SYSCALL_ERROR(syscall) "Error: function: " << syscall << "errno: " << errno << "\n"
+#endif
 
 #define SUCCESS 0
 #define FAILURE -1
+
+#define CONNECTION_CLOSED 0
 
 #define ARGS_NUM 3
 #define ARGS_PORT 1
@@ -164,8 +169,11 @@ int serverUp(int port)
 void* clientHandler(void* pClient)
 {
 	// Exchange vars
+	bool nameReceived;
 	int sent, received;
 	Packet* recvPacket = initPacket();
+
+	char* filename;
 
 	struct client_data* client = (struct client_data*) pClient;
 
@@ -174,7 +182,7 @@ void* clientHandler(void* pClient)
 	welcomePacket->status = SERVER_RESPONSE;
 	welcomePacket->dataSize = sizeof(unsigned int);
 
-	welcomePacket->data = (char*) malloc(sizeof(char) * welcomePacket->dataSize);
+	welcomePacket->data = allocPacketData(welcomePacket->dataSize);
 	memcpy(welcomePacket->data, &(client->maxFileSize), welcomePacket->dataSize);
 	
 	char* buffer = packetToBytes(welcomePacket);
@@ -187,13 +195,34 @@ void* clientHandler(void* pClient)
 	// Read from socket
 	while((received = recv(client->clientSocket, buffer, PACKET_SIZE, 0)) >= 0)
 	{
-		if (received == 0) // Client closed connection
+		if (received == CONNECTION_CLOSED) // Client closed connection
 		{
 			break;
 		}
+		else if (received == FAILURE) // Error in receiving
+		{
+			cerr << SYSCALL_ERROR("recv");
+			break;
+		}
 
-		received = recv(client->clientSocket, buffer, PACKET_SIZE, 0);
-		cout << received << ": " << buffer << endl;
+		// Get data
+		recvPacket = bytesToPacket(buffer);
+
+		if (recvPacket->status == CLIENT_FILENAME) // Filename packet type
+		{
+			if (nameReceived) // Filename has already been received
+			{
+				continue;
+			}
+			else // Save filename and open such a file
+			{
+				filename = (char*) malloc(sizeof(char) * recvPacket->dataSize);
+				memcpy(filename)
+			}
+		}
+
+		// Write to file
+
 	}
 
 	free(buffer);

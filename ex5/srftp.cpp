@@ -198,7 +198,7 @@ void* clientHandler(void* pClient)
 	// Send welcome packet with size. Client should disconnect if its file exceeds
 	while (dataSent < PACKET_SIZE)
 	{
-		sent = send(client->clientSocket, buffer + sent, PACKET_SIZE, 0);
+		sent = send(client->clientSocket, buffer + dataSent, PACKET_SIZE, 0);
 	
 		if (sent == FAILURE)
 		{

@@ -319,15 +319,15 @@ void* clientHandler(void* pClient)
 
 	outputStream.write(filedata, filesize);
 	outputStream.close();
-cout<<"free buf"<<endl;
+cerr<<"free buf"<<endl;
 	free(buffer);
-cout<<"free filedata"<<endl;
+cerr<<"free filedata"<<endl;
 	free(filedata);
-cout<<"free filename"<<endl;
+cerr<<"free filename"<<endl;
 	free(filename);
-cout<<"free packet"<<endl;
+cerr<<"free packet"<<endl;
 	freePacket(recvPacket);
-cout<<"freed!"<<endl;
+cerr<<"freed!"<<endl;
 
 	pthread_exit(nullptr);
 }

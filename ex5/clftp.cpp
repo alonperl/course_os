@@ -174,6 +174,7 @@ int main(int argc, char** argv){
 		error("Usage: clftp server-port server-hostname file-to-transfer filename-in-server");
 	}
 
+	cerr << "ARGS ARE FINE" << endl;
 	//Initialize parameters:
 	int port = atoi(argv[PORT_PARA_INDX]);
 	struct hostent *server = gethostbyname(argv[HOST_NAME_PARA_INDX]);
@@ -193,6 +194,8 @@ int main(int argc, char** argv){
 	memcpy (fileToSave, fileNameInServer.c_str(), fileNameInServer.size()+1);
 	//TODO in future maybe delete this no need to set string than char*
 
+	cerr << "CREATING SOCKET" << endl;
+
 	//Create a socket:
 	int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	struct sockaddr_in serverAddres;
@@ -201,6 +204,8 @@ int main(int argc, char** argv){
 	bcopy((char *)server->h_addr, (char *)&serverAddres.sin_addr.s_addr, server->h_length);
 	serverAddres.sin_port = htons(port);
 
+	cerr << "CREATED SOCKET" << endl;
+
 	//Open file and check accessiblity
 	ifstream ifs(fileToTransfer, ios::in);
 	if (ifs == NULL)
@@ -208,6 +213,7 @@ int main(int argc, char** argv){
 		error("ERROR: open file.");	
 	}
 
+	cerr << "CONNECT TO SOCKET" << endl;
 	//Connect to server.
 	if (connect(serverSocket,((struct sockaddr*)&serverAddres),sizeof(serverAddres)) < 0)
 	{
@@ -219,8 +225,10 @@ int main(int argc, char** argv){
 		error("ERROR connecting.");
 	}
 
+	cerr << "Recieved Details From Server" << endl;
+
 	//Receive from Server Deatils
-	char* serverDetailsBuffer = nullptr;
+	char* serverDetailsBuffer = (char*)malloc(FIELD_LEN_DATASIZE + FIELD_LEN_DATA + sizeof(int));
 	int serverDetails = recv(serverSocket, serverDetailsBuffer, PACKET_SIZE, 0);
 	if (serverDetails == ERROR)
 	{
@@ -233,6 +241,8 @@ int main(int argc, char** argv){
 		error ("ERROR: Server is Down.");
 		//TODO or maybe keep waiting and not exit?
 	}
+
+	cerr << "Turn INFO From Server To Packet" << endl;
 
 	// Initalize packet and check args
 	Packet *workPacket = initPacket();

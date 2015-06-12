@@ -259,7 +259,7 @@ void* clientHandler(void* pClient)
 			}
 
 			dataReceived += received;
-			cerr << "data got " <<endl;
+			cerr << "data got, received: " << dataReceived <<endl;
 		}
 
 		// Convert buffer to packet

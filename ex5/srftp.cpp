@@ -171,7 +171,8 @@ void* clientHandler(void* pClient)
 {
 	// Exchange vars
 	bool nameReceived, sizeReceived;
-	int dataSent, sent, received, dataReceived, expectSize;
+	unsigned int dataSent, dataReceived;
+	int sent, received, expectSize;
 	int currentPacketDataSize;
 	Packet* recvPacket = initPacket();
 
@@ -290,6 +291,7 @@ void* clientHandler(void* pClient)
 			else // Save filesize
 			{
 				memcpy(&filesize, recvPacket->data, recvPacket->dataSize);
+				filedata = (char*) malloc(sizeof(char) * filesize);
 				sizeReceived = true;
 			}
 		}

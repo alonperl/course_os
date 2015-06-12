@@ -211,7 +211,8 @@ int main(int argc, char** argv){
 	//Connect to server.
 	if (connect(serverSocket,((struct sockaddr*)&serverAddres),sizeof(serverAddres)) < 0)
 	{
-		cout << "serverSocket is:" << serverSocket << "\n";
+		cout << "serverSocket is: " << serverSocket << "\n";
+		cout << "server h_addr is: " << server->h_addr << endl;
 		error("ERROR connecting.");
 	}
 

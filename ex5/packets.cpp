@@ -72,9 +72,9 @@ char* packetToBytes(Packet* packet)
 	memcpy(buffer + FIELD_LEN_DATASIZE, &(packet->status), FIELD_LEN_STATUS);
 	memcpy(buffer + FIELD_LEN_DATASIZE + FIELD_LEN_STATUS, &(packet->data), packet->dataSize);
 	
-	// Pad with zeros
-	memset(buffer + FIELD_LEN_DATASIZE + FIELD_LEN_STATUS + packet->dataSize, '\0', 
-		   FIELD_LEN_DATA - packet->dataSize);
+	// // Pad with zeros
+	// memset(buffer + FIELD_LEN_DATASIZE + FIELD_LEN_STATUS + packet->dataSize, '\0', 
+	// 	   FIELD_LEN_DATA - packet->dataSize);
 
 	return buffer;
 }

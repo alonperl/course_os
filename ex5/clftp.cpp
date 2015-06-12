@@ -36,6 +36,9 @@
 #include <unistd.h>
 #include <fstream>
 #include <packets.h> 
+#include <limits.h>
+#include <sys/stat.h>
+
 
 using namespace std;
 
@@ -52,6 +55,9 @@ using namespace std;
 #define DESIRED_FILE_NAME_IN_SERVER_PARA_INDX 4
 #define CORRECT_ARGS_NUM 5
 #define IS_DIRECTORY 0
+#ifndef SYSCALL_ERROR
+#define SYSCALL_ERROR(syscall) "Error: function: " << syscall << "errno: " << errno << "\n"
+#endif
 
 
 bool checkArgs(int argc, char** argv)
@@ -70,6 +76,7 @@ bool checkArgs(int argc, char** argv)
 	}
 
 	//check names are valid
+
 	int transferFileNameSize = strlen(argv[TRANSFER_FILE_NAME_PARA_INDX]);
 	int desiredNameSize = strlen(argv[DESIRED_FILE_NAME_IN_SERVER_PARA_INDX]);
 	if (transferFileNameSize == 0 || desiredNameSize == 0 || 
@@ -86,15 +93,37 @@ bool checkArgs(int argc, char** argv)
 	}
 
 	//Check file exists or is Directory
-	char* path = realpath(transferFileNameSize, NULL);
+	char* path = realpath(argv[TRANSFER_FILE_NAME_PARA_INDX], NULL);
+	if (path == NULL)
+	{
+		free(path);
+		return false;
+	}
+
+	/**
+	 * File stat struct
+	 */
 	struct stat fileStatBuf = {INIT_STRUCT};
-	int fileStatus = stat(path.c_str(), &fileStatBuf);
-	if (fileStatus != SUCCESS || S_ISDIR(fileStatBuf.st_mode) == IS_DIRECTORY)
+	stat(path, &fileStatBuf);
+	if (S_ISDIR(fileStatBuf.st_mode) == IS_DIRECTORY)
 	{
 		free(path);
 		return false;
 	}
 	free(path);
+
+	//Check if we can open file
+	string transferFileName = argv[TRANSFER_FILE_NAME_PARA_INDX];
+	char* fileToTransfer = (char*)malloc(transferFileName.size()+1);
+	memcpy (fileToTransfer, transferFileName.c_str(), transferFileName.size()+1);
+	ifstream ifs(fileToTransfer, ios::in);
+	if (ifs == NULL)
+	{
+		free(fileToTransfer);
+		return false;
+	}
+	free(fileToTransfer);
+	ifs.close();
 
     return true;
 }
@@ -165,7 +194,7 @@ int main(int argc, char** argv){
 	bcopy((char *)server->h_addr, (char *)&serverAddres.sin_addr.s_addr, server->h_length);
 	serverAddres.sin_port = htons(port);
 
-	//Ppen file and check accessiblity
+	//Open file and check accessiblity
 	ifstream ifs(fileToTransfer, ios::in);
 	if (ifs == NULL)
 	{
@@ -179,10 +208,9 @@ int main(int argc, char** argv){
 	}
 
 	//Receive from Server Deatils
-	char* serverDetailsBuffer;
+	char* serverDetailsBuffer = nullptr;
 	int serverDetails = recv(serverSocket, serverDetailsBuffer, PACKET_SIZE, 0);
-
-	if (serverDetails == FAILURE)
+	if (serverDetails == ERROR)
 	{
 		cerr << SYSCALL_ERROR("recv");
 		exit(1);
@@ -196,7 +224,7 @@ int main(int argc, char** argv){
 
 	// Initalize packet and check args
 	Packet *workPacket = initPacket();
-	workPacket->bytesToPacket(serverDetailsBuffer);
+	workPacket = bytesToPacket(serverDetailsBuffer);
 
 	if (workPacket->status != SERVER_RESPONSE)
 	{
@@ -205,8 +233,12 @@ int main(int argc, char** argv){
 	}
 
 	//Check size of files server can recieve
-	unsigned int fileSize = getFileSize(ifs);
-	if ((unsigned int) workPacket->data <= fileSize)
+	int fileSize = getFileSize(ifs);
+	if (fileSize < 0 )
+	{
+		error("ERROR: Size of file is negative");
+	}
+	if (atoi(workPacket->data) <= fileSize)
 	{
 		//Close connection and exit
 		close(serverSocket);
@@ -232,13 +264,13 @@ int main(int argc, char** argv){
 
 	//Intialize packet to send containning data
 	workPacket->status = CLIENT_DATA;
-	if (fileSize >= FIELD_LEN_DATA)
+	if ((unsigned int)fileSize >= FIELD_LEN_DATA)
 	{
 		workPacket->dataSize = FIELD_LEN_DATA;
 	}
 
 	//Send all data using packets
-	int toSend = fileSize;
+	unsigned int toSend = fileSize;
 	char* buffer = (char*) malloc(FIELD_LEN_DATA);
 	if (buffer == NULL)
 	{

@@ -267,6 +267,8 @@ int main(int argc, char** argv){
 		error ("ERROR: Server Doesn't support files of desired Size.");
 	}
 
+	cerr << "Send First Packet" << endl;
+
 	//Intialize first packet to send containning file size
 	workPacket->dataSize = CLIENT_FILESIZE_DATASIZE;
 	workPacket->status = CLIENT_FILESIZE;
@@ -274,6 +276,8 @@ int main(int argc, char** argv){
 	memcpy(workPacket->data, &fileSize, CLIENT_FILESIZE_DATASIZE);
 	//Send first packet
 	sendBuffer(packetToBytes(workPacket), PACKET_SIZE, serverSocket);
+
+	cerr << "Send Second Packet" << endl;
 
 	//Intialize second packet to send containning file name
 	workPacket->dataSize = nameSize;
@@ -290,6 +294,9 @@ int main(int argc, char** argv){
 	{
 		workPacket->dataSize = FIELD_LEN_DATA;
 	}
+
+	cerr << "Send File with Packets" << endl;
+
 
 	//Send all data using packets
 	unsigned int toSend = fileSize;

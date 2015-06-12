@@ -18,7 +18,16 @@
 #include <malloc.h>
 #include <string.h>
 
-#define INIT_LFU 0
+#define SUCCESS 0
+#define FAIL -1
+
+#define DEFAULT_OFFSET 0
+#define FUNC_NAME_OFFSET 8
+
+#define NULL_PATH ""
+#define DIR_SEPARATOR "/"
+#define BLOCKNUM_SEPARATOR ":"
+
 
 /**
 * @param path - The path we wish to get it's real Path
@@ -38,6 +47,13 @@ string CacheData::stringRealPath(string path)
 	return strRealPath;
 }
 
+CacheData::CacheData()
+	: rootDir(DIR_SEPARATOR)
+	, logFile(DIR_SEPARATOR)
+	, maxBlocksCount(SUCCESS)
+	, blockSize(SUCCESS)
+{}
+
 /**
  * @brief CacheData Constructor
  * @param rootdir - The root directory path
@@ -47,11 +63,11 @@ string CacheData::stringRealPath(string path)
  * @param num - The num of dataBlock from the file
  */
 CacheData::CacheData(const string root, const string logfile, 
-					 const unsigned long maxBlocksCount, const unsigned int blockSize)
-            : rootDir(stringRealPath(root))
-            , logFile(rootDir+"/"+logfile)
-            , maxBlocksCount(maxBlocksCount)
-			, blockSize(blockSize)
+					 const unsigned long setMaxBlocksCount, const unsigned int setBlockSize)
+			: rootDir(stringRealPath(root))
+			, logFile(rootDir + DIR_SEPARATOR + logfile)
+			, maxBlocksCount(setMaxBlocksCount)
+			, blockSize(setBlockSize)
 {
 	if (rootDir == "NULL")
 	{
@@ -82,9 +98,8 @@ CacheData::~CacheData()
  */
 string CacheData::absolutePath(const char* path)
 {
-    string absolute("");
-    absolute = rootDir + string(path);
-	return absolute.length() > PATH_MAX ? "" : absolute;
+	string absolute = rootDir + string(path);
+	return absolute.length() > PATH_MAX ? NULL_PATH : absolute;
 }
 
 /**
@@ -96,37 +111,32 @@ string CacheData::absolutePath(const char* path)
 DataBlock *CacheData::readBlockFromDisk(uint64_t  fh, const string path,
 										unsigned long blockNum)
 {
-	char* dataBuffer = (char*)malloc(sizeof(char) * (blockSize + 1));
-	// char* dataBuffer = new char[blockSize]();
+	char* dataBuffer = new char[blockSize + 1];
 	if (dataBuffer == NULL)
 	{
 		return NULL;
 	}
-	dataBuffer[0] = '\0';
 	
 	int result = pread(fh, dataBuffer, blockSize, blockNum * blockSize);
-	// int result = memcpy()
-	if (result < 0) // Could not read
+	if (result < SUCCESS) // Could not read
 	{
-		free(dataBuffer);
+		delete[](dataBuffer);
 		return NULL;
 	}
-	
-	string data = string(dataBuffer);
-
-	free(dataBuffer);
-	dataBuffer = NULL;
-
-	// Check if there is more place in cache
-	if (_cacheSize >= maxBlocksCount)
+	else
 	{
-		deleteLeastUsedBlock();
-	}
+		// Check if there is more place in cache
+		if (_cacheSize >= maxBlocksCount)
+		{
+			deleteLeastUsedBlock();
+		}
 
-	DataBlock* block = new DataBlock(data, path, blockNum);
-	pushDataBlock(block);
+		DataBlock* block = new DataBlock(dataBuffer, path, blockNum);
+		pushDataBlock(block);
+		
+		return block;
+	}
 	
-	return block;
 }
 
 /**
@@ -144,21 +154,26 @@ void CacheData::pushDataBlock(DataBlock* block)
  * @param action - the action to record
  * Log's in the requested action
  */  
-void CacheData::log(string action)
+int CacheData::log(string action)
 {
-//	cout<<action<<endl;
-	action = action.substr(8, action.length());
+	action = action.substr(FUNC_NAME_OFFSET, action.length());
 	ofstream logStream(logFile, ios_base::app);
 	if (logStream.good())
 	{
-		time_t unixTime = std::time(nullptr);
+		time_t unixTime = time(nullptr);
+		if (unixTime < SUCCESS)
+		{
+			return FAIL;
+		}
+		
 		logStream << unixTime << " " << action << endl;
 		logStream.close();
+
+		return SUCCESS;
 	}
 	else
 	{
-		cout<<"cannot create logfile"<<endl;
-		throw -1;
+		return FAIL;
 	}
 }
 
@@ -190,11 +205,11 @@ void CacheData::renameCachedBlocks(const string oldPath, const string newPath)
 		 blockIter != cacheFreqSet.end(); blockIter++)
 	{
 		if ((*blockIter) != NULL && 
-			(*blockIter)->path.compare(0, oldPath.length(), oldPath))
+			(*blockIter)->path.compare(DEFAULT_OFFSET, oldPath.length(), oldPath))
 		{
 			// Found relevant block
 			cachePathMap.erase((*blockIter)->path);
-			(*blockIter)->path.replace(0, oldPath.length(), newPath);
+			(*blockIter)->path.replace(DEFAULT_OFFSET, oldPath.length(), newPath);
 			cachePathMap.insert(pair<string, DataBlock*>(_blockKey(*blockIter), (*blockIter)));
 		}
 	}
@@ -214,5 +229,5 @@ unsigned long CacheData::cacheSize()
  */
 string CacheData::_blockKey(DataBlock* block)
 {
-	return block->path + ":" + to_string(block->num);
+	return block->path + BLOCKNUM_SEPARATOR + to_string(block->num);
 }

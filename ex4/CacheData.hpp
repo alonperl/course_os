@@ -44,91 +44,94 @@ typedef set<DataBlock*, DataBlockCompare> CachedBlocksSet;
 class CacheData
 {
 public:
-    /**
-     * @brief CacheData Constructor
-     * @param rootdir - The root directory path
-     * @param logFile - The log file's path
-     * @param maxBlocksCount - the maximum amount of blocks allowed to cache
-     * @param blockSize - the max size of each dataBlock
-     * @param num - The num of dataBlock from the file
-     */
-    CacheData(const string rootDir, const string logFile, 
-              const unsigned long maxBlocksCount, const unsigned int blockSize);
-    
-    /**
-     * @brief CacheData Destructor - delete and clears all inner members
-     */
-    ~CacheData();
-    
-    /**
-     * @param path - The path we wish to get it's real Path
-     * @return The real of a realative path 
-     */
-    string stringRealPath(string path);
-    
-    /**
-     * @param path - The path we wish to get it's absoulte Path
-     * @return The absoulte of a relative path
-     */
-    string absolutePath(const char* path);
-    
-    /**
-     * @param block - the block to add to cache
-     * Adds to cache a new dataBlock
-     */
-    void pushDataBlock(DataBlock* block);
-    
-    /**
-     * @param fh - the file handler
-     * @param path - the path of the file the inforamtion is in
-     * @param blockNum - the number of block in the file
-     * @return A pointer to a dataBlock containning the requested data
-     */
-    DataBlock* readBlockFromDisk(uint64_t  fh, const string path, unsigned long blockNum);
-    
-    /**
-     * Delete's the least used datablock in cache
-     */
-    void deleteLeastUsedBlock();
-    
-    /**
-     * @param fh - the file handler
-     * @param path - the path of the file the inforamtion is in
-     * Renames all cached dataBlock's path
-     */
-    void renameCachedBlocks(const string oldPath, const string newPath);
-    
-    /**
-     * @param action - the action to record
-     * Log's in the requested action
-     */  
-    void log(string action);
+	/**
+	 * @brief CacheData Constructor
+	 * @param rootdir - The root directory path
+	 * @param logFile - The log file's path
+	 * @param maxBlocksCount - the maximum amount of blocks allowed to cache
+	 * @param blockSize - the max size of each dataBlock
+	 * @param num - The num of dataBlock from the file
+	 */
+	CacheData(const string rootDir, const string logFile, 
+			  const unsigned long setMaxBlocksCount, const unsigned int setBlockSize);
+	
+	/**
+	 * @brief CacheData Destructor - delete and clears all inner members
+	 */
+	~CacheData();
+	
+	/**
+	 * @param path - The path we wish to get it's real Path
+	 * @return The real of a realative path 
+	 */
+	string stringRealPath(string path);
+	
+	/**
+	 * @param path - The path we wish to get it's absoulte Path
+	 * @return The absoulte of a relative path
+	 */
+	string absolutePath(const char* path);
+	
+	/**
+	 * @param block - the block to add to cache
+	 * Adds to cache a new dataBlock
+	 */
+	void pushDataBlock(DataBlock* block);
+	
+	/**
+	 * @param fh - the file handler
+	 * @param path - the path of the file the inforamtion is in
+	 * @param blockNum - the number of block in the file
+	 * @return A pointer to a dataBlock containning the requested data
+	 */
+	DataBlock* readBlockFromDisk(uint64_t  fh, const string path, unsigned long blockNum);
+	
+	/**
+	 * Delete's the least used datablock in cache
+	 */
+	void deleteLeastUsedBlock();
+	
+	/**
+	 * @param fh - the file handler
+	 * @param path - the path of the file the inforamtion is in
+	 * Renames all cached dataBlock's path
+	 */
+	void renameCachedBlocks(const string oldPath, const string newPath);
+	
+	/**
+	 * @param action - the action to record
+	 *	  Log's in the requested action
+	 * @return -1 if failed to open logfile, 0 otherwise.
+	 */  
+	int log(string action);
 
-    /* Map <file_path>:<block_number_in_file> of all cached blocks */
-    CachedPathBlocksMap cachePathMap;
-    /* Set of all cached blocks ordered by access count */
-    CachedBlocksSet cacheFreqSet;
+	/* Map <file_path>:<block_number_in_file> of all cached blocks */
+	CachedPathBlocksMap cachePathMap;
+	/* Set of all cached blocks ordered by access count */
+	CachedBlocksSet cacheFreqSet;
    
-    /* Settings */
-    const string rootDir; // Root dir path
-    const string logFile; // Logfile path
-    const unsigned long maxBlocksCount; // Maximum block number
-    const unsigned int blockSize; // Block size
-    
-    /**
-     * @return block's use count
-     */
-    unsigned long cacheSize();
+	/* Settings */
+	const string rootDir; // Root dir path
+	const string logFile; // Logfile path
+	const unsigned long maxBlocksCount; // Maximum block number
+	const unsigned int blockSize; // Block size
+	
+	/**
+	 * @return block's use count
+	 */
+	unsigned long cacheSize();
 
 private:
-    /**
-     * @param block - the block we want its map key
-     * @return The block's key
-     */
-    string _blockKey(DataBlock* block);
-    
-    // Current number of blocks in cache
-    unsigned long _cacheSize;
+	CacheData();
+
+	/**
+	 * @param block - the block we want its map key
+	 * @return The block's key
+	 */
+	string _blockKey(DataBlock* block);
+	
+	// Current number of blocks in cache
+	unsigned long _cacheSize;
 };
 
 #endif	/* CACHE_DATA_H */

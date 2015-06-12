@@ -45,38 +45,56 @@ using namespace std;
 #define EXIT_CODE 1
 #define MAX_PORT_NUM 65535
 #define MIN_PORT_NUM 1
-
+#define INIT_STRUCT 0
 #define PORT_PARA_INDX 1
 #define HOST_NAME_PARA_INDX 2
 #define TRANSFER_FILE_NAME_PARA_INDX 3
 #define DESIRED_FILE_NAME_IN_SERVER_PARA_INDX 4
 #define CORRECT_ARGS_NUM 5
+#define IS_DIRECTORY 0
 
 
 bool checkArgs(int argc, char** argv)
 {
+	//Checks num of args is valid
 	if (argc != CORRECT_ARGS_NUM)
 	{
 		return false;
 	}
 
+	//Checks port num is valid
 	int port = atoi(argv[PORT_PARA_INDX]);
 	if (port == 0 || port > MAX_PORT_NUM || port < MIN_PORT_NUM)
 	{
 		return false;
 	}
 
-	int transferFileNameSize = argv[TRANSFER_FILE_NAME_PARA_INDX].length();
-	int desiredNameSize = argv[DESIRED_FILE_NAME_IN_SERVER_PARA_INDX].length();
-
+	//check names are valid
+	int transferFileNameSize = strlen(argv[TRANSFER_FILE_NAME_PARA_INDX]);
+	int desiredNameSize = strlen(argv[DESIRED_FILE_NAME_IN_SERVER_PARA_INDX]);
 	if (transferFileNameSize == 0 || desiredNameSize == 0 || 
 		transferFileNameSize > PATH_MAX || desiredNameSize > PATH_MAX)
 	{
 		return false;
 	}
 
-	struct hostent *server = gethostbyname(argv[HOST_NAME_PARA_INDX]);
-	//TODO what to check about host name??
+	//Check host name is valid
+	struct hostent *serverName = gethostbyname(argv[HOST_NAME_PARA_INDX]);
+	if (serverName == NULL)
+	{
+		return false;
+	}
+
+	//Check file exists or is Directory
+	char* path = realpath(transferFileNameSize, NULL);
+	struct stat fileStatBuf = {INIT_STRUCT};
+	int fileStatus = stat(path.c_str(), &fileStatBuf);
+	if (fileStatus != SUCCESS || S_ISDIR(fileStatBuf.st_mode) == IS_DIRECTORY)
+	{
+		free(path);
+		return false;
+	}
+	free(path);
 
     return true;
 }
@@ -117,7 +135,7 @@ int main(int argc, char** argv){
 
 	if (!checkArgs(argc, argv))
 	{
-		exit(1); //TODO maybe print error?
+		error("Usage: clftp server-port server-hostname file-to-transfer filename-in-server");
 	}
 
 	//Initialize parameters:
@@ -139,24 +157,22 @@ int main(int argc, char** argv){
 	memcpy (fileToSave, fileNameInServer.c_str(), fileNameInServer.size()+1);
 	//TODO in future maybe delete this no need to set string than char*
 
-	//create a socket:
+	//Create a socket:
 	int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	struct sockaddr_in serverAddres;
 	bzero((char *) &serverAddres, sizeof(serverAddres)); //puds with 0 for some reason?
 	serverAddres.sin_family = AF_INET;
 	bcopy((char *)server->h_addr, (char *)&serverAddres.sin_addr.s_addr, server->h_length);
-
-	// TODO check port is of right type: Description: uint16_t htons(uint16_t hostshort);
 	serverAddres.sin_port = htons(port);
 
-	//open file and check accessiblity
+	//Ppen file and check accessiblity
 	ifstream ifs(fileToTransfer, ios::in);
 	if (ifs == NULL)
 	{
 		error("ERROR: open file.");	
 	}
 
-	//connect to server.
+	//Connect to server.
 	if (connect(serverSocket,((struct sockaddr*)&serverAddres),sizeof(serverAddres)) < 0)
 	{
 		error("ERROR connecting.");

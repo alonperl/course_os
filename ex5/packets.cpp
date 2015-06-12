@@ -87,20 +87,13 @@ char* packetToBytes(Packet* packet)
  * @return nullptr if packet not allocated;
  *		   pointer to buffer otherwise
  */
-Packet* bytesToPacket(char* buffer)
+Packet* bytesToPacket(Packet* packet, char* buffer)
 {
 	if (buffer == nullptr)
 	{
 		return nullptr;
 	}
 
-	Packet* packet = (Packet*) malloc(sizeof(Packet));
-	if (packet == nullptr)
-	{
-		cerr << SYSCALL_ERROR("malloc");
-		return nullptr;
-	}
-	
 	memcpy(&(packet->dataSize), buffer, FIELD_LEN_DATASIZE);
 	memcpy(&(packet->status), buffer + FIELD_LEN_DATASIZE, FIELD_LEN_STATUS);
 

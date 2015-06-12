@@ -174,7 +174,7 @@ void* clientHandler(void* pClient)
 	unsigned int dataSent, dataReceived, expectSize;
 	int sent, received;
 	int currentPacketDataSize;
-	Packet* recvPacket = initPacket();
+	Packet recvPacket;
 
 	char* filename;
 	char* filedata;
@@ -269,9 +269,9 @@ void* clientHandler(void* pClient)
 		}
 
 		// Convert buffer to packet
-		recvPacket = bytesToPacket(buffer);
+		bytesToPacket(&recvPacket, buffer);
 
-		if (recvPacket->status == CLIENT_FILENAME) // Filename packet type
+		if (recvPacket.status == CLIENT_FILENAME) // Filename packet type
 		{
 			if (nameReceived) // Filename has already been received
 			{
@@ -279,20 +279,20 @@ void* clientHandler(void* pClient)
 			}
 			else // Save filename
 			{
-				filename = (char*) malloc(sizeof(char) * recvPacket->dataSize);
+				filename = (char*) malloc(sizeof(char) * recvPacket.dataSize);
 				if (filename == nullptr)
 				{
 					cerr << SYSCALL_ERROR("malloc");
 					pthread_exit(nullptr);
 				}
 				
-				memcpy(filename, recvPacket->data, recvPacket->dataSize);
+				memcpy(filename, recvPacket.data, recvPacket.dataSize);
 				nameReceived = true;
 				cerr << "filename got "<< filename <<endl;
 			}
 		}
 
-		else if (recvPacket->status == CLIENT_FILESIZE) // Filesize packet type
+		else if (recvPacket.status == CLIENT_FILESIZE) // Filesize packet type
 		{
 			if (sizeReceived) // Filesize has already been received
 			{
@@ -300,19 +300,19 @@ void* clientHandler(void* pClient)
 			}
 			else // Save filesize
 			{
-				memcpy(&filesize, recvPacket->data, recvPacket->dataSize);
+				memcpy(&filesize, recvPacket.data, recvPacket.dataSize);
 				filedata = (char*) malloc(sizeof(char) * filesize); // Allocate data
 				sizeReceived = true;
 				cerr << "fileseze got "<< filesize <<endl;
 			}
 		}
 
-		else if (recvPacket->status == CLIENT_DATA)
+		else if (recvPacket.status == CLIENT_DATA)
 		{
 			if (nameReceived && sizeReceived) // All metadata is here
 			{	
-				memcpy(filedata + dataReceived, recvPacket->data, recvPacket->dataSize);
-				dataReceived += recvPacket->dataSize;
+				memcpy(filedata + dataReceived, recvPacket.data, recvPacket.dataSize);
+				dataReceived += recvPacket.dataSize;
 			}
 		}
 

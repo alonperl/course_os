@@ -245,10 +245,10 @@ int main(int argc, char** argv){
 	cerr << "Turn INFO From Server To Packet" << endl;
 
 	// Initalize packet and check args
-	Packet *workPacket = initPacket();
-	workPacket = bytesToPacket(serverDetailsBuffer);
+	Packet workPacket;
+	bytesToPacket(&workPacket, serverDetailsBuffer);
 
-	if (workPacket->status != SERVER_RESPONSE)
+	if (workPacket.status != SERVER_RESPONSE)
 	{
 		error ("ERROR: Recieved Unknown Packet Type.");
 		//TODO or maybe keep waiting and not exit?
@@ -262,7 +262,7 @@ int main(int argc, char** argv){
 	}
 
 	unsigned int serverMaxSizeOfFile;
-	memcpy(&serverMaxSizeOfFile, workPacket->data, workPacket->dataSize);
+	memcpy(&serverMaxSizeOfFile, workPacket.data, workPacket.dataSize);
 
 	if (serverMaxSizeOfFile <= (unsigned int)fileSize)
 	{
@@ -274,29 +274,29 @@ int main(int argc, char** argv){
 	cerr << "Send First Packet" << endl;
 
 	//Intialize first packet to send containning file size
-	workPacket->dataSize = CLIENT_FILESIZE_DATASIZE;
-	workPacket->status = CLIENT_FILESIZE;
-	workPacket->data = allocPacketData(CLIENT_FILESIZE_DATASIZE);
-	memcpy(workPacket->data, &fileSize, CLIENT_FILESIZE_DATASIZE);
+	workPacket.dataSize = CLIENT_FILESIZE_DATASIZE;
+	workPacket.status = CLIENT_FILESIZE;
+	workPacket.data = allocPacketData(CLIENT_FILESIZE_DATASIZE);
+	memcpy(workPacket.data, &fileSize, CLIENT_FILESIZE_DATASIZE);
 	//Send first packet
 	sendBuffer(packetToBytes(workPacket), PACKET_SIZE, serverSocket);
 
 	cerr << "Send Second Packet" << endl;
 
 	//Intialize second packet to send containning file name
-	workPacket->dataSize = nameSize;
-	workPacket->status = CLIENT_FILENAME;
-	free (workPacket->data); //Free allocated memory from before
-	workPacket->data = allocPacketData(nameSize);
-	memcpy(workPacket->data, &fileToTransfer, nameSize);
+	workPacket.dataSize = nameSize;
+	workPacket.status = CLIENT_FILENAME;
+	free (workPacket.data); //Free allocated memory from before
+	workPacket.data = allocPacketData(nameSize);
+	memcpy(workPacket.data, &fileToTransfer, nameSize);
 	//Send second packet
 	sendBuffer(packetToBytes(workPacket), PACKET_SIZE, serverSocket);
 
 	//Intialize packet to send containning data
-	workPacket->status = CLIENT_DATA;
+	workPacket.status = CLIENT_DATA;
 	if ((unsigned int)fileSize >= FIELD_LEN_DATA)
 	{
-		workPacket->dataSize = FIELD_LEN_DATA;
+		workPacket.dataSize = FIELD_LEN_DATA;
 	}
 
 	cerr << "Send File with Packets" << endl;
@@ -312,23 +312,23 @@ int main(int argc, char** argv){
 
 	while (toSend > PACKET_SIZE)
 	{
-		free (workPacket->data); //Free allocated memory from before
-		workPacket->data = allocPacketData(FIELD_LEN_DATA);
+		free (workPacket.data); //Free allocated memory from before
+		workPacket.data = allocPacketData(FIELD_LEN_DATA);
 		ifs.read(buffer, FIELD_LEN_DATA);
-		memcpy(workPacket->data, buffer, FIELD_LEN_DATA);
+		memcpy(workPacket.data, buffer, FIELD_LEN_DATA);
 		sendBuffer(packetToBytes(workPacket), PACKET_SIZE, serverSocket); //Send data packet
 		toSend -= FIELD_LEN_DATA;
 	}
 	if (toSend != 0) //In case there is still data with smaller size than max size of packet
 	{
-		workPacket->dataSize = toSend;
+		workPacket.dataSize = toSend;
 		ifs.read(buffer, toSend);
-		memcpy(workPacket->data, buffer, toSend);
+		memcpy(workPacket.data, buffer, toSend);
 		sendBuffer(packetToBytes(workPacket), PACKET_SIZE, serverSocket);
 	}
 
 	//closing
-	free (workPacket->data);
+	free (workPacket.data);
 	free (workPacket);
 	free (buffer);
 	free (fileToSave);

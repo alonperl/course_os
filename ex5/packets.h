@@ -72,7 +72,7 @@ char* packetToBytes(Packet* packet);
  * @return nullptr if packet not allocated;
  *		   pointer to buffer otherwise
  */
-Packet* bytesToPacket(char* buffer);
+Packet* bytesToPacket(Packet* packet, char* buffer);
 
 
 /**

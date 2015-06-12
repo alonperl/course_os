@@ -210,10 +210,10 @@ void* clientHandler(void* pClient)
 	}
 
 
-cerr<<"free packet"<<endl;
-	freePacket(welcomePacket);
 cerr<<"free buf"<<endl;
 	free(buffer);
+cerr<<"free packet"<<endl;
+	freePacket(welcomePacket);
 
 	dataReceived = 0;
 	expectSize = PACKET_SIZE;

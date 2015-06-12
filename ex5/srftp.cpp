@@ -184,12 +184,12 @@ void* clientHandler(void* pClient)
 	struct client_data* client = (struct client_data*) pClient;
 
 	// Construct welcome packet
-	Packet* welcomePacket = initPacket();
-	welcomePacket->status = SERVER_RESPONSE;
-	welcomePacket->dataSize = sizeof(unsigned int);
+	Packet welcomePacket;
+	welcomePacket.status = SERVER_RESPONSE;
+	welcomePacket.dataSize = sizeof(unsigned int);
 
-	welcomePacket->data = allocPacketData(welcomePacket->dataSize);
-	memcpy(welcomePacket->data, &(client->maxFileSize), sizeof(client->maxFileSize));
+	welcomePacket.data = allocPacketData(welcomePacket.dataSize);
+	memcpy(welcomePacket.data, &(client->maxFileSize), sizeof(client->maxFileSize));
 	
 	char* buffer = packetToBytes(welcomePacket);
 	
@@ -211,7 +211,7 @@ void* clientHandler(void* pClient)
 
 
 	free(buffer);
-	freePacket(welcomePacket);
+	// freePacket(welcomePacket);
 
 	dataReceived = 0;
 	expectSize = PACKET_SIZE;
@@ -341,7 +341,7 @@ cerr<<"free filedata"<<endl;
 cerr<<"free filename"<<endl;
 	free(filename);
 cerr<<"free packet"<<endl;
-	freePacket(recvPacket);
+	// freePacket(recvPacket);
 cerr<<"freed!"<<endl;
 
 	pthread_exit(nullptr);

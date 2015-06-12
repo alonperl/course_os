@@ -171,8 +171,8 @@ void* clientHandler(void* pClient)
 {
 	// Exchange vars
 	bool nameReceived, sizeReceived;
-	unsigned int dataSent, sent, received, dataReceived, expectSize;
-	unsigned int currentPacketDataSize;
+	int dataSent, sent, received, dataReceived, expectSize;
+	int currentPacketDataSize;
 	Packet* recvPacket = initPacket();
 
 	char* filename;
@@ -199,10 +199,10 @@ void* clientHandler(void* pClient)
 	{
 		sent = send(client->clientSocket, buffer + sent, PACKET_SIZE, 0);
 	
-		if (sent == ERROR)
+		if (sent == FAILURE)
 		{
 			cerr << SYSCALL_ERROR("send");
-			pthread_exit();
+			pthread_exit(nullptr);
 		}
 	
 		dataSent += sent;
@@ -223,7 +223,7 @@ void* clientHandler(void* pClient)
 		if (received == FAILURE) // Error in receiving
 		{
 			cerr << SYSCALL_ERROR("recv");
-			break;
+			pthread_exit(nullptr);
 		}
 
 		dataReceived += received;
@@ -235,7 +235,7 @@ void* clientHandler(void* pClient)
 			if (received == FAILURE) // Error in receiving
 			{ // TODO check errno
 				cerr << SYSCALL_ERROR("recv");
-				break;
+				pthread_exit(nullptr);
 			}
 
 			dataReceived += received;
@@ -252,7 +252,7 @@ void* clientHandler(void* pClient)
 			if (received == FAILURE) // Error in receiving
 			{ // TODO check errno
 				cerr << SYSCALL_ERROR("recv");
-				break;
+				pthread_exit(nullptr);
 			}
 
 			dataReceived += received;
@@ -273,7 +273,7 @@ void* clientHandler(void* pClient)
 				if (filename == nullptr)
 				{
 					cerr << SYSCALL_ERROR("malloc");
-					return nullptr;
+					pthread_exit(nullptr);
 				}
 				
 				memcpy(filename, recvPacket->data, recvPacket->dataSize);
@@ -323,7 +323,7 @@ void* clientHandler(void* pClient)
 	free(filename);
 	freePacket(recvPacket);
 
-	return nullptr;
+	pthread_exit(nullptr);
 }
 
 /**

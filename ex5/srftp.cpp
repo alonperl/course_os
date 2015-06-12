@@ -171,8 +171,8 @@ void* clientHandler(void* pClient)
 {
 	// Exchange vars
 	bool nameReceived, sizeReceived;
-	int dataSent, sent, received, dataReceived, expectSize;
-	int currentPacketDataSize;
+	unsigned int dataSent, sent, received, dataReceived, expectSize;
+	unsigned int currentPacketDataSize;
 	Packet* recvPacket = initPacket();
 
 	char* filename;

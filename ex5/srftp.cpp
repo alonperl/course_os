@@ -241,6 +241,7 @@ void* clientHandler(void* pClient)
 			}
 
 			dataReceived += received;
+			cerr << "datalen got " <<endl;
 		}
 
 		// Datasize field got, update expected size
@@ -258,6 +259,7 @@ void* clientHandler(void* pClient)
 			}
 
 			dataReceived += received;
+			cerr << "data got " <<endl;
 		}
 
 		// Convert buffer to packet
@@ -280,6 +282,7 @@ void* clientHandler(void* pClient)
 				
 				memcpy(filename, recvPacket->data, recvPacket->dataSize);
 				nameReceived = true;
+				cerr << "filename got "<< filename <<endl;
 			}
 		}
 
@@ -292,8 +295,9 @@ void* clientHandler(void* pClient)
 			else // Save filesize
 			{
 				memcpy(&filesize, recvPacket->data, recvPacket->dataSize);
-				filedata = (char*) malloc(sizeof(char) * filesize);
+				filedata = (char*) malloc(sizeof(char) * filesize); // Allocate data
 				sizeReceived = true;
+				cerr << "fileseze got "<< filesize <<endl;
 			}
 		}
 

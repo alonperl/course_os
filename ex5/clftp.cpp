@@ -329,7 +329,7 @@ int main(int argc, char** argv){
 
 	//closing
 	free (workPacket.data);
-	free (workPacket);
+	// free (workPacket);
 	free (buffer);
 	free (fileToSave);
 	free (fileToTransfer);

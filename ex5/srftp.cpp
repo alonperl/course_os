@@ -228,7 +228,7 @@ void* clientHandler(void* pClient)
 
 		dataReceived += received;
 
-		// Get full packet
+		// Get data length
 		while (dataReceived < FIELD_LEN_DATASIZE)
 		{
 			received = recv(client->clientSocket, buffer + dataReceived, FIELD_LEN_DATASIZE - dataReceived, 0);
@@ -302,6 +302,9 @@ void* clientHandler(void* pClient)
 				dataReceived += recvPacket->dataSize;
 			}
 		}
+
+		dataReceived = 0;
+		expectSize = PACKET_SIZE;
 	}
 
 	// Write to file

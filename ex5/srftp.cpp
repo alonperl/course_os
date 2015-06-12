@@ -190,7 +190,9 @@ void* clientHandler(void* pClient)
 
 	welcomePacket->data = allocPacketData(welcomePacket->dataSize);
 	memcpy(welcomePacket->data, &(client->maxFileSize), sizeof(client->maxFileSize));
-	
+	unsigned int a;
+	memcpy(&a, welcomePacket->data, sizeof(client->maxFileSize));
+	cerr << a << endl;
 	char* buffer = packetToBytes(welcomePacket);
 
 	Packet* p = bytesToPacket(buffer);

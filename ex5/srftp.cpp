@@ -312,6 +312,7 @@ cerr<<"free packet"<<endl;
 		expectSize = PACKET_SIZE;
 	}
 
+cerr<<"filename "<< filename <<endl;
 	// Write to file
 	outputStream.open(filename, ofstream::out | ofstream::binary);
 	
@@ -319,9 +320,11 @@ cerr<<"free packet"<<endl;
 	{
 		// File already open TODO WHAT TO DO?
 	}
-
+cerr<<"opened"<<endl;
 	outputStream.write(filedata, filesize);
+cerr<<"written"<<endl;
 	outputStream.close();
+cerr<<"closed"<<endl;
 
 cerr<<"free buf"<<endl;
 	free(buffer);

@@ -190,14 +190,8 @@ void* clientHandler(void* pClient)
 
 	welcomePacket->data = allocPacketData(welcomePacket->dataSize);
 	memcpy(welcomePacket->data, &(client->maxFileSize), sizeof(client->maxFileSize));
-	unsigned int a;
-	memcpy(&a, welcomePacket->data, sizeof(client->maxFileSize));
-	cerr << a << endl;
-	cerr << "it was ok if it is 5000"<< endl;
+	
 	char* buffer = packetToBytes(welcomePacket);
-
-	Packet* p = bytesToPacket(buffer);
-	cerr << p->data << endl;
 	
 	dataSent = 0;
 
@@ -216,9 +210,7 @@ void* clientHandler(void* pClient)
 	}
 
 
-cerr<<"free buf"<<endl;
 	free(buffer);
-cerr<<"free packet"<<endl;
 	freePacket(welcomePacket);
 
 	dataReceived = 0;

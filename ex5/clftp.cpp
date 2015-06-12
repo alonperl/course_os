@@ -39,6 +39,7 @@
 #include <limits.h>
 #include <sys/stat.h>
 
+
 using namespace std;
 
 //Variables
@@ -197,7 +198,7 @@ int main(int argc, char** argv){
 	struct sockaddr_in serverAddres;
 	bzero((char *) &serverAddres, sizeof(serverAddres)); //puds with 0 for some reason?
 	serverAddres.sin_family = AF_INET;
-	bcopy(inet_ntoa(*((struct in_addr*)server->h_addr)), (char *)&serverAddres.sin_addr.s_addr, server->h_length);
+	bcopy((char *)server->h_addr, (char *)&serverAddres.sin_addr.s_addr, server->h_length);
 	serverAddres.sin_port = htons(port);
 
 	//Open file and check accessiblity
@@ -210,6 +211,7 @@ int main(int argc, char** argv){
 	//Connect to server.
 	if (connect(serverSocket,((struct sockaddr*)&serverAddres),sizeof(serverAddres)) < 0)
 	{
+		cout << errno << endl;
 		cout << "serverSocket is: " << serverSocket << "\n";
 		cout << "server h_addr is: " << server->h_addr << endl;
 		cout << "server h_name is: " << server->h_name << endl;

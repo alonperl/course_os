@@ -56,7 +56,7 @@ using namespace std;
 #define CORRECT_ARGS_NUM 5
 #define IS_DIRECTORY 0
 #ifndef SYSCALL_ERROR
-#define SYSCALL_ERROR(syscall) "Error: function: " << syscall << "errno: " << errno << "\n"
+#define SYSCALL_ERROR(syscall) "Error: function: " << syscall << " errno: " << errno << "\n"
 #endif
 
 

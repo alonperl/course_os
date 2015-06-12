@@ -203,7 +203,7 @@ void* clientHandler(void* pClient)
 		if (sent == FAILURE)
 		{
 			cerr << SYSCALL_ERROR("send");
-			pthread_exit(nullptr);
+			pthread_exit(NULL);
 		}
 	
 		dataSent += sent;

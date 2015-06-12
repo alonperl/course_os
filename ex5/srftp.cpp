@@ -209,7 +209,10 @@ void* clientHandler(void* pClient)
 		dataSent += sent;
 	}
 
+
+cerr<<"free packet"<<endl;
 	freePacket(welcomePacket);
+cerr<<"free buf"<<endl;
 	free(buffer);
 
 	dataReceived = 0;
@@ -319,6 +322,7 @@ void* clientHandler(void* pClient)
 
 	outputStream.write(filedata, filesize);
 	outputStream.close();
+
 cerr<<"free buf"<<endl;
 	free(buffer);
 cerr<<"free filedata"<<endl;

@@ -246,7 +246,9 @@ void* clientHandler(void* pClient)
 
 		// Datasize field got, update expected size
 		memcpy(&currentPacketDataSize, buffer, FIELD_LEN_DATASIZE);
+		cerr << currentPacketDataSize << endl;;
 		expectSize = FIELD_LEN_DATASIZE + FIELD_LEN_STATUS + currentPacketDataSize;
+		cerr << expectSize << endl;;
 
 		// Get full packet
 		while (dataReceived < expectSize)
@@ -257,9 +259,13 @@ void* clientHandler(void* pClient)
 				cerr << SYSCALL_ERROR("recv");
 				pthread_exit(nullptr);
 			}
+			else if (received == 0) // client closed connection
+			{
+				break;
+			}
 // TODO CHECK IF ZERO AND FINISH (ALL THE FILE IS RECEIVED AND CLIENT CLOSED CONNECTION)
 			dataReceived += received;
-			cerr << "data received: " << dataReceived << ", this time received: " << received << "expected: " << expectSize <<endl;
+			cerr << "data received: " << dataReceived << ", this time received: " << received << endl;
 		}
 
 		// Convert buffer to packet

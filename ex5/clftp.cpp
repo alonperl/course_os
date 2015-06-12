@@ -213,6 +213,8 @@ int main(int argc, char** argv){
 	{
 		cout << "serverSocket is: " << serverSocket << "\n";
 		cout << "server h_addr is: " << server->h_addr << endl;
+		cout << "server h_name is: " << server->h_name << endl;
+		cout << "serverAddres.sin_addr.s_addr is: " <<serverAddres.sin_addr.s_addr <<endl;
 		error("ERROR connecting.");
 	}
 

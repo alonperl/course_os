@@ -39,7 +39,6 @@
 #include <limits.h>
 #include <sys/stat.h>
 
-
 using namespace std;
 
 //Variables
@@ -198,7 +197,7 @@ int main(int argc, char** argv){
 	struct sockaddr_in serverAddres;
 	bzero((char *) &serverAddres, sizeof(serverAddres)); //puds with 0 for some reason?
 	serverAddres.sin_family = AF_INET;
-	bcopy((char *)server->h_addr, (char *)&serverAddres.sin_addr.s_addr, server->h_length);
+	bcopy(inet_ntoa(*((struct in_addr*)server->h_addr)), (char *)&serverAddres.sin_addr.s_addr, server->h_length);
 	serverAddres.sin_port = htons(port);
 
 	//Open file and check accessiblity

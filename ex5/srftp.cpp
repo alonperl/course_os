@@ -193,6 +193,7 @@ void* clientHandler(void* pClient)
 	unsigned int a;
 	memcpy(&a, welcomePacket->data, sizeof(client->maxFileSize));
 	cerr << a << endl;
+	cerr << "it was ok if it is 5000"<< endl;
 	char* buffer = packetToBytes(welcomePacket);
 
 	Packet* p = bytesToPacket(buffer);

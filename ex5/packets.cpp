@@ -111,7 +111,7 @@ Packet* bytesToPacket(char* buffer)
 		return nullptr;
 	}
 	
-	memcpy(&(packet->data), buffer + FIELD_LEN_DATASIZE + FIELD_LEN_STATUS, packet->dataSize);
+	memcpy(packet->data, buffer + FIELD_LEN_DATASIZE + FIELD_LEN_STATUS, packet->dataSize);
 
 	return packet;
 }

@@ -279,7 +279,7 @@ int main(int argc, char** argv){
 	workPacket.data = allocPacketData(CLIENT_FILESIZE_DATASIZE);
 	memcpy(workPacket.data, &fileSize, CLIENT_FILESIZE_DATASIZE);
 	//Send first packet
-	sendBuffer(packetToBytes(workPacket), PACKET_SIZE, serverSocket);
+	sendBuffer(packetToBytes(&workPacket), PACKET_SIZE, serverSocket);
 
 	cerr << "Send Second Packet" << endl;
 
@@ -290,7 +290,7 @@ int main(int argc, char** argv){
 	workPacket.data = allocPacketData(nameSize);
 	memcpy(workPacket.data, &fileToTransfer, nameSize);
 	//Send second packet
-	sendBuffer(packetToBytes(workPacket), PACKET_SIZE, serverSocket);
+	sendBuffer(packetToBytes(&workPacket), PACKET_SIZE, serverSocket);
 
 	//Intialize packet to send containning data
 	workPacket.status = CLIENT_DATA;
@@ -316,7 +316,7 @@ int main(int argc, char** argv){
 		workPacket.data = allocPacketData(FIELD_LEN_DATA);
 		ifs.read(buffer, FIELD_LEN_DATA);
 		memcpy(workPacket.data, buffer, FIELD_LEN_DATA);
-		sendBuffer(packetToBytes(workPacket), PACKET_SIZE, serverSocket); //Send data packet
+		sendBuffer(packetToBytes(&workPacket), PACKET_SIZE, serverSocket); //Send data packet
 		toSend -= FIELD_LEN_DATA;
 	}
 	if (toSend != 0) //In case there is still data with smaller size than max size of packet
@@ -324,7 +324,7 @@ int main(int argc, char** argv){
 		workPacket.dataSize = toSend;
 		ifs.read(buffer, toSend);
 		memcpy(workPacket.data, buffer, toSend);
-		sendBuffer(packetToBytes(workPacket), PACKET_SIZE, serverSocket);
+		sendBuffer(packetToBytes(&workPacket), PACKET_SIZE, serverSocket);
 	}
 
 	//closing

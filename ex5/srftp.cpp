@@ -171,7 +171,8 @@ void* clientHandler(void* pClient)
 {
 	// Exchange vars
 	bool nameReceived, sizeReceived;
-	int dataSent, sent, received, dataReceived;
+	int dataSent, sent, received, dataReceived, expectSize;
+	int currentPacketDataSize;
 	Packet* recvPacket = initPacket();
 
 	char* filename;
@@ -206,24 +207,58 @@ void* clientHandler(void* pClient)
 	
 		dataSent += sent;
 	}
+
 	freePacket(welcomePacket);
+	free(buffer);
 
 	dataReceived = 0;
+	expectSize = PACKET_SIZE;
 
-	// Read from socket
-	while((received = recv(client->clientSocket, buffer, PACKET_SIZE, 0)) >= 0)
+	buffer = (char*) malloc(sizeof(char) * PACKET_SIZE);
+
+	// Read packet from socket and process it
+	// If 0 bytes read => connection closed
+	while ((received = recv(client->clientSocket, buffer, FIELD_LEN_DATASIZE, 0)) != 0)
 	{
-		if (received == CONNECTION_CLOSED) // Client closed connection
-		{
-			break;
-		}
-		else if (received == FAILURE) // Error in receiving
+		if (received == FAILURE) // Error in receiving
 		{
 			cerr << SYSCALL_ERROR("recv");
 			break;
 		}
 
-		// Get data
+		dataReceived += received;
+
+		// Get full packet
+		while (dataReceived < FIELD_LEN_DATASIZE)
+		{
+			received = recv(client->clientSocket, buffer + dataReceived, FIELD_LEN_DATASIZE - dataReceived, 0);
+			if (received == FAILURE) // Error in receiving
+			{ // TODO check errno
+				cerr << SYSCALL_ERROR("recv");
+				break;
+			}
+
+			dataReceived += received;
+		}
+
+		// Datasize field got, update expected size
+		memcpy(&currentPacketDataSize, buffer, FIELD_LEN_DATASIZE);
+		expectSize = FIELD_LEN_DATASIZE + FIELD_LEN_STATUS + currentPacketDataSize;
+
+		// Get full packet
+		while (dataReceived < expectSize)
+		{
+			received = recv(client->clientSocket, buffer + dataReceived, expectSize - dataReceived, 0);
+			if (received == FAILURE) // Error in receiving
+			{ // TODO check errno
+				cerr << SYSCALL_ERROR("recv");
+				break;
+			}
+
+			dataReceived += received;
+		}
+
+		// Convert buffer to packet
 		recvPacket = bytesToPacket(buffer);
 
 		if (recvPacket->status == CLIENT_FILENAME) // Filename packet type
@@ -232,7 +267,7 @@ void* clientHandler(void* pClient)
 			{
 				continue;
 			}
-			else // Save filename and open such a file
+			else // Save filename
 			{
 				filename = (char*) malloc(sizeof(char) * recvPacket->dataSize);
 				if (filename == nullptr)
@@ -246,13 +281,13 @@ void* clientHandler(void* pClient)
 			}
 		}
 
-		else if (recvPacket->status == CLIENT_FILESIZE) // Filename packet type
+		else if (recvPacket->status == CLIENT_FILESIZE) // Filesize packet type
 		{
-			if (sizeReceived) // Filename has already been received
+			if (sizeReceived) // Filesize has already been received
 			{
 				continue;
 			}
-			else // Save filename and open such a file
+			else // Save filesize
 			{
 				memcpy(&filesize, recvPacket->data, recvPacket->dataSize);
 				sizeReceived = true;

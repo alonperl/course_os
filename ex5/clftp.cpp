@@ -260,7 +260,11 @@ int main(int argc, char** argv){
 	{
 		error("ERROR: Size of file is negative");
 	}
-	if (atoi(workPacket->data) <= fileSize)
+
+	unsigned int serverMaxSizeOfFile;
+	memcpy(&serverMaxSizeOfFile, workPacket->data, workPacket->dataSize);
+
+	if (serverMaxSizeOfFile <= (unsigned int)fileSize)
 	{
 		//Close connection and exit
 		close(serverSocket);

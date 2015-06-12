@@ -65,6 +65,7 @@ bool checkArgs(int argc, char** argv)
 	//Checks num of args is valid
 	if (argc != CORRECT_ARGS_NUM)
 	{
+		cout << "num of args invalid\n";
 		return false;
 	}
 
@@ -72,16 +73,17 @@ bool checkArgs(int argc, char** argv)
 	int port = atoi(argv[PORT_PARA_INDX]);
 	if (port == 0 || port > MAX_PORT_NUM || port < MIN_PORT_NUM)
 	{
+		cout << "bad port num\n";
 		return false;
 	}
 
 	//check names are valid
-
 	int transferFileNameSize = strlen(argv[TRANSFER_FILE_NAME_PARA_INDX]);
 	int desiredNameSize = strlen(argv[DESIRED_FILE_NAME_IN_SERVER_PARA_INDX]);
 	if (transferFileNameSize == 0 || desiredNameSize == 0 || 
 		transferFileNameSize > PATH_MAX || desiredNameSize > PATH_MAX)
 	{
+		cout << "bad names\n";
 		return false;
 	}
 
@@ -89,6 +91,7 @@ bool checkArgs(int argc, char** argv)
 	struct hostent *serverName = gethostbyname(argv[HOST_NAME_PARA_INDX]);
 	if (serverName == NULL)
 	{
+		cout << "bad host name\n";
 		return false;
 	}
 
@@ -96,6 +99,7 @@ bool checkArgs(int argc, char** argv)
 	char* path = realpath(argv[TRANSFER_FILE_NAME_PARA_INDX], NULL);
 	if (path == NULL)
 	{
+		cout << "doesn't exist\n";
 		free(path);
 		return false;
 	}
@@ -105,8 +109,9 @@ bool checkArgs(int argc, char** argv)
 	 */
 	struct stat fileStatBuf = {INIT_STRUCT};
 	stat(path, &fileStatBuf);
-	if (S_ISDIR(fileStatBuf.st_mode) == IS_DIRECTORY)
+	if (S_ISDIR(fileStatBuf.st_mode))
 	{
+		cout << "is directory \n";
 		free(path);
 		return false;
 	}
@@ -119,6 +124,8 @@ bool checkArgs(int argc, char** argv)
 	ifstream ifs(fileToTransfer, ios::in);
 	if (ifs == NULL)
 	{
+		cout << "can't open \n";
+
 		free(fileToTransfer);
 		return false;
 	}
@@ -204,6 +211,7 @@ int main(int argc, char** argv){
 	//Connect to server.
 	if (connect(serverSocket,((struct sockaddr*)&serverAddres),sizeof(serverAddres)) < 0)
 	{
+		cout << "serverSocket is:" << serverSocket << "\n";
 		error("ERROR connecting.");
 	}
 

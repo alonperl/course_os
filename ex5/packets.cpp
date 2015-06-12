@@ -94,7 +94,7 @@ Packet* bytesToPacket(char* buffer)
 		return nullptr;
 	}
 
-	Packet* packet = (Packet*) malloc(sizeof(packet));
+	Packet* packet = (Packet*) malloc(sizeof(Packet));
 	if (packet == nullptr)
 	{
 		cerr << SYSCALL_ERROR("malloc");

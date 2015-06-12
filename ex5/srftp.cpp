@@ -257,9 +257,9 @@ void* clientHandler(void* pClient)
 				cerr << SYSCALL_ERROR("recv");
 				pthread_exit(nullptr);
 			}
-
+// TODO CHECK IF ZERO AND FINISH (ALL THE FILE IS RECEIVED AND CLIENT CLOSED CONNECTION)
 			dataReceived += received;
-			cerr << "data got, received: " << dataReceived <<endl;
+			cerr << "data received: " << dataReceived << ", this time received: " << received << "expected: " << expectSize <<endl;
 		}
 
 		// Convert buffer to packet

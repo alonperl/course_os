@@ -242,7 +242,6 @@ void* clientHandler(void* pClient)
 			}
 
 			dataReceived += received;
-			cerr << "datalen got " <<endl;
 		}
 
 		// Datasize field got, update expected size
@@ -264,9 +263,8 @@ void* clientHandler(void* pClient)
 			{
 				break;
 			}
-// TODO CHECK IF ZERO AND FINISH (ALL THE FILE IS RECEIVED AND CLIENT CLOSED CONNECTION)
+
 			dataReceived += received;
-			cerr << "data received: " << dataReceived << ", this time received: " << received << endl;
 		}
 
 		// Convert buffer to packet
@@ -289,7 +287,6 @@ void* clientHandler(void* pClient)
 				
 				memcpy(filename, recvPacket.data, recvPacket.dataSize);
 				nameReceived = true;
-				cerr << "filename got "<< filename <<endl;
 			}
 		}
 
@@ -304,7 +301,6 @@ void* clientHandler(void* pClient)
 				memcpy(&filesize, recvPacket.data, recvPacket.dataSize);
 				filedata = (char*) malloc(sizeof(char) * filesize); // Allocate data
 				sizeReceived = true;
-				cerr << "fileseze got "<< filesize <<endl;
 			}
 		}
 
@@ -322,7 +318,6 @@ void* clientHandler(void* pClient)
 		expectSize = PACKET_SIZE;
 	}
 
-cerr<<"filename "<< filename <<endl;
 	// Write to file
 	outputStream.open(filename, ofstream::out | ofstream::binary);
 	
@@ -330,21 +325,14 @@ cerr<<"filename "<< filename <<endl;
 	{
 		// File already open TODO WHAT TO DO?
 	}
-cerr<<"opened"<<endl;
-	outputStream.write(filedata, filesize);
-cerr<<"written"<<endl;
-	outputStream.close();
-cerr<<"closed"<<endl;
 
-cerr<<"free buf"<<endl;
+	outputStream.write(filedata, filesize);
+	outputStream.close();
+
 	free(buffer);
-cerr<<"free filedata"<<endl;
 	free(filedata);
-cerr<<"free filename"<<endl;
 	free(filename);
-cerr<<"free packet"<<endl;
-	// freePacket(recvPacket);
-cerr<<"freed!"<<endl;
+	// freePacket(recvPacket); // TODO
 
 	pthread_exit(nullptr);
 }

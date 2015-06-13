@@ -221,12 +221,12 @@ void* clientHandler(void* pClient)
 	dataReceived = 0;
 	realDataReceived = 0;
 	expectSize = PACKET_SIZE;
-int i = 0;
+
 	buffer = (char*) malloc(sizeof(char) * PACKET_SIZE); // Maximal packet possible
 
 	// Read packet from socket and process it
 	// If 0 bytes read => connection closed
-	while ((received = recv(client->clientSocket, buffer, FIELD_LEN_DATASIZE, 0)) != 0 || i++ < 2000000)
+	while ((received = recv(client->clientSocket, buffer, FIELD_LEN_DATASIZE, 0)) != 0)
 	{
 		if (received == FAILURE) // Error in receiving
 		{
@@ -413,8 +413,9 @@ int main(int argc, char const *argv[])
 	struct sockaddr clientSocketAddress;
 	socklen_t sockaddr_len = sizeof(struct sockaddr_storage);
  	
+ 	int i = 0;
  	// Wait for clients
- 	while(true)
+ 	while(true || i++ < 2000000)
  	{
  		// Accept client
  		clientSocket = accept(welcomeSocket, &clientSocketAddress, &sockaddr_len);

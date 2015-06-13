@@ -25,6 +25,8 @@
 #define FIELD_LEN_STATUS sizeof(char)
 #define FIELD_LEN_DATA PACKET_SIZE - FIELD_LEN_DATASIZE - FIELD_LEN_STATUS
 
+#define WELCOME_PACKET_SIZE FIELD_LEN_DATASIZE + FIELD_LEN_DATASIZE + sizeof(unsigned long long)
+
 #define CLIENT_FILESIZE_DATASIZE sizeof(unsigned int)
 
 /* Possible packet status */

@@ -66,12 +66,12 @@ void Client::sendData(ifstream &temp, int size , int socket)
 	char* buff;
 	//TODO - error incase chould not provide space.
 	int needToSend = size; 
+		int i;
 	while (needToSend > BUFF_SIZE)
 	{
 		buff = (char*) malloc(BUFF_SIZE);
 		temp.read(buff, BUFF_SIZE); // read into buffer 1024 byte from temp
 		
-		int i;
 		for (i = 0; i < BUFF_SIZE; ++i)
 		{
 			cerr<< (int)(buff[i]);
@@ -90,7 +90,6 @@ void Client::sendData(ifstream &temp, int size , int socket)
 		char* buffDelta = (char*) malloc(needToSend);
 		bzero(buffDelta, needToSend);
 		temp.read(buffDelta, needToSend); // read what was left
-
 		for (i = 0; i < BUFF_SIZE; ++i)
 		{
 			cerr<< (int)(buff[i]);

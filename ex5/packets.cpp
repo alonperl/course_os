@@ -76,15 +76,15 @@ int bytesToPacket(Packet* packet, char* buffer)
 	return 0;
 }
 
-/**
- * Free memory allocated for packet
- */
-void freePacket(Packet* packet)
-{
-	free(packet->data);
-	free(packet);
-	packet = nullptr;
-}
+// /**
+//  * Free memory allocated for packet
+//  */
+// void freePacket(Packet* packet)
+// {
+// 	free(packet->data);
+// 	free(packet);
+// 	packet = nullptr;
+// }
 
 /**
  * Allocate memory for Packet data
@@ -94,14 +94,14 @@ void freePacket(Packet* packet)
  * 
  * @return -1 if malloc failed, 0 otherwise
  */
-int allocPacketData(Packet* packet, int dataSize)
-{
-	packet->data = (char*) realloc(packet->data, sizeof(char) * dataSize);
-	if (packet->data == nullptr)
-	{
-		cerr << SYSCALL_ERROR("malloc");
-		return -1;
-	}
+// int allocPacketData(Packet* packet, int dataSize)
+// {
+// 	packet->data = (char*) realloc(packet->data, sizeof(char) * dataSize);
+// 	if (packet->data == nullptr)
+// 	{
+// 		cerr << SYSCALL_ERROR("malloc");
+// 		return -1;
+// 	}
 
-	return 0;
-}
+// 	return 0;
+// }

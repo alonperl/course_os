@@ -43,6 +43,8 @@
 using namespace std;
 
 //Variables
+#define EMPTY_FILE 0
+#define HEADER_LNEGTH 3
 #define SUCCESS 0
 #define ERROR -1
 #define EXIT_CODE 1
@@ -278,7 +280,7 @@ int main(int argc, char** argv){
 	workPacket.data = allocPacketData(CLIENT_FILESIZE_DATASIZE);
 	memcpy(workPacket.data, &fileSize, CLIENT_FILESIZE_DATASIZE);
 	//Send first packet
-	sendBuffer(packetToBytes(&workPacket), PACKET_SIZE, serverSocket);
+	sendBuffer(packetToBytes(&workPacket), CLIENT_FILESIZE_DATASIZE + HEADER_LNEGTH, serverSocket);
 	// sendBuffer(packetToBytes(&workPacket), FIELD_LEN_DATASIZE + FIELD_LEN_STATUS + CLIENT_FILESIZE_DATASIZE, serverSocket);
 
 	cerr << "Send File name packet Packet" << endl;
@@ -290,7 +292,7 @@ int main(int argc, char** argv){
 	workPacket.data = allocPacketData(nameSize);
 	memcpy(workPacket.data, argv[DESIRED_FILE_NAME_IN_SERVER_PARA_INDX], nameSize);
 	//Send second packet
-	sendBuffer(packetToBytes(&workPacket), PACKET_SIZE, serverSocket);
+	sendBuffer(packetToBytes(&workPacket), nameSize + HEADER_LNEGTH, serverSocket);
 
 	//Intialize packet to send containning data
 	workPacket.status = CLIENT_DATA;
@@ -319,17 +321,17 @@ int main(int argc, char** argv){
 		sendBuffer(packetToBytes(&workPacket), PACKET_SIZE, serverSocket); //Send data packet
 		toSend -= FIELD_LEN_DATA;
 	}
-	if (toSend != 0) //In case there is still data with smaller size than max size of packet
+	//In case there is still data with smaller size than max size of packet
+	if (toSend != EMPTY_FILE) 
 	{
 		workPacket.dataSize = toSend;
 		ifs.read(buffer, toSend);
 		memcpy(workPacket.data, buffer, toSend);
-		sendBuffer(packetToBytes(&workPacket), PACKET_SIZE, serverSocket);
+		sendBuffer(packetToBytes(&workPacket), toSend + HEADER_LNEGTH, serverSocket);
 	}
 
 	//closing
 	free (workPacket.data);
-	// free (workPacket);
 	free (buffer);
 	free (fileToSave);
 	free (fileToTransfer);

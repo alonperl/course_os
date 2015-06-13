@@ -283,7 +283,7 @@ void* clientHandler(void* pClient)
 					pthread_exit(nullptr);
 				}
 				
-				memcpy(filename, recvPacket.data, recvPacket.dataSize);
+				memcpy(filename, recvPacket.data, recvPacket.dataSize + 1);
 				nameReceived = true;
 			}
 		}

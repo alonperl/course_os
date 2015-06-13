@@ -317,7 +317,7 @@ void* clientHandler(void* pClient)
 	}
 
 	// Write to file
-	cerr<< filename << " (" << sizeof(filename) << ")" << endl;
+	cerr<< filename << " (" << strlen(filename) << ")" << endl;
 	outputStream.open(filename, ofstream::out | ofstream::binary);
 	
 	if (!outputStream.good())

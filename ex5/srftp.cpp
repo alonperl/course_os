@@ -176,7 +176,7 @@ void* clientHandler(void* pClient)
 	int currentPacketDataSize;
 	Packet recvPacket;
 
-	char* filename;
+	char* filename = NULL;
 	char* filedata;
 	unsigned int filesize;
 	fstream outputStream;
@@ -280,7 +280,7 @@ void* clientHandler(void* pClient)
 				{
 					free(filename);
 				}
-				
+
 				filename = (char*) malloc(sizeof(char) * (recvPacket.dataSize + 1));
 				if (filename == nullptr)
 				{

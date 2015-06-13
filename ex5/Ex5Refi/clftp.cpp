@@ -79,6 +79,7 @@ void Client::sendData(ifstream &temp, int size , int socket)
 	if (needToSend > 0) // in case something more to send
 	{
 		char* buffDelta = (char*) malloc(needToSend);
+		bzero(buffDelta, needToSend);
 		temp.read(buffDelta, needToSend); // read what was left
 		cout<<"The delta is: "<<needToSend<<endl;
 		sendBaffer(buffDelta , needToSend, socket); // send to socket

@@ -192,7 +192,7 @@ void* clientHandler(void* pClient)
 	allocPacketData(&welcomePacket, welcomePacket.dataSize);
 	memcpy(welcomePacket.data, &(client->maxFileSize), sizeof(client->maxFileSize));
 	
-	char* buffer = nullptr;
+	char* buffer = (char*) malloc(sizeof(char) * PACKET_SIZE);
 	packetToBytes(&welcomePacket, buffer);
 	
 	dataSent = 0;

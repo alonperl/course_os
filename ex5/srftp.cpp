@@ -253,7 +253,7 @@ void* clientHandler(void* pClient)
 		// Get full packet
 		while (dataReceived < expectSize)
 		{
-			received = recv(client->clientSocket, buffer + dataReceived, expectSize - dataReceived, 0);
+			received = recv(client->clientSocket, buffer + dataReceived, PACKET_SIZE - dataReceived, 0);
 			if (received == FAILURE) // Error in receiving
 			{ // TODO check errno
 				cerr << SYSCALL_ERROR("recv");

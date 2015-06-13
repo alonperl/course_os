@@ -62,8 +62,7 @@ int packetToBytes(Packet* packet, char* buffer)
 		return -1;
 	}
 
-	free(buffer);
-	buffer = (char*) malloc(sizeof(short) + sizeof(char) * (1 + packet->dataSize));
+	buffer = (char*) realloc(buffer, sizeof(short) + sizeof(char) * (1 + packet->dataSize));
 	if (buffer == nullptr)
 	{
 		cerr << SYSCALL_ERROR("malloc");

@@ -344,12 +344,12 @@ int main(int argc, char** argv){
 	}
 
 	//closing
-	free (workPacket.data);
-	free (buffer);
-	free (dataBuffer);
-	free (fileToSave);
-	free (fileToTransfer);
-	free(serverDetailsBuffer);
+	// free (workPacket.data);
+	// free (buffer);
+	// free (dataBuffer);
+	// free (fileToSave);
+	// free (fileToTransfer);
+	// free(serverDetailsBuffer);
 	close(serverSocket);
 	ifs.close();
 

@@ -208,7 +208,7 @@ int main(int argc, char** argv){
 	cerr << "CREATED SOCKET" << endl;
 
 	//Open file and check accessiblity
-	ifstream ifs(fileToTransfer, ios::in);
+	ifstream ifs(fileToTransfer, ios::in | ios::binary);
 	if (ifs == NULL)
 	{
 		error("ERROR: open file.");	

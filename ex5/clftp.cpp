@@ -316,6 +316,7 @@ cerr<< "save as " << fileNameInServer<<endl;
 		free (workPacket.data); //Free allocated memory from before
 		workPacket.data = allocPacketData(FIELD_LEN_DATA);
 		ifs.read(buffer, FIELD_LEN_DATA);
+cerr << "read from disk: " << buffer << endl;
 		memcpy(workPacket.data, buffer, FIELD_LEN_DATA);
 		sendBuffer(packetToBytes(&workPacket), PACKET_SIZE, serverSocket); //Send data packet
 		toSend -= FIELD_LEN_DATA;

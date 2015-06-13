@@ -67,13 +67,12 @@ char* packetToBytes(Packet* packet);
 /**
  * Create packet from buffer.
  * 
+ * @param packet: pointer to packet with data
  * @param buffer: pointer to buffer for data
  *
- * @return nullptr if packet not allocated;
- *		   pointer to buffer otherwise
+ * @return -1 if packet not allocated; 0 otherwise
  */
-Packet* bytesToPacket(Packet* packet, char* buffer);
-
+int bytesToPacket(Packet* packet, char* buffer);
 
 /**
  * Free memory allocated for packet

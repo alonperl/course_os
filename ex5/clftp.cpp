@@ -121,7 +121,7 @@ bool checkArgs(int argc, char** argv)
 
 	//Check if we can open file
 	string transferFileName = argv[TRANSFER_FILE_NAME_PARA_INDX];
-	char* fileToTransfer = (char*)malloc(transferFileName.size()+1);
+	char fileToTransfer[PATH_MAX];
 	memcpy (fileToTransfer, transferFileName.c_str(), transferFileName.size()+1);
 	ifstream ifs(fileToTransfer, ios::in | ios::binary);
 	if (ifs == NULL)
@@ -184,8 +184,8 @@ int main(int argc, char** argv){
 	string fileNameInServer = argv[DESIRED_FILE_NAME_IN_SERVER_PARA_INDX]; //get name of file to be stored in server
 	string transferFileName = argv[TRANSFER_FILE_NAME_PARA_INDX]; //get local file name
 	int nameSize = fileNameInServer.length();
-	char* fileToSave = (char*)malloc(fileNameInServer.size()+1);
-	char* fileToTransfer = (char*)malloc(transferFileName.size()+1);
+	char fileToSave[PATH_MAX];
+	char fileToTransfer[PATH_MAX];
 
 	if (fileToTransfer == NULL || fileToSave == NULL)
 	{
@@ -230,7 +230,7 @@ int main(int argc, char** argv){
 	cerr << "Recieved Details From Server" << endl;
 
 	//Receive from Server Deatils
-	char* serverDetailsBuffer = (char*)malloc(FIELD_LEN_DATASIZE + FIELD_LEN_DATA + sizeof(int));
+	char serverDetailsBuffer[PACKET_SIZE];
 	int serverDetails = recv(serverSocket, serverDetailsBuffer, PACKET_SIZE, 0);
 	if (serverDetails == ERROR)
 	{
@@ -248,7 +248,7 @@ int main(int argc, char** argv){
 
 	// Initalize packet and check args
 	Packet workPacket;
-	workPacket.data = (char*) malloc(FIELD_LEN_DATA * sizeof(char)); //TODO could be shortened
+	// workPacket.data = (char*) malloc(FIELD_LEN_DATA * sizeof(char)); //TODO could be shortened
 	bytesToPacket(&workPacket, serverDetailsBuffer);
 
 	if (workPacket.status != SERVER_RESPONSE)
@@ -279,11 +279,11 @@ int main(int argc, char** argv){
 	//Intialize first packet to send containning file size
 	workPacket.dataSize = CLIENT_FILESIZE_DATASIZE;
 	workPacket.status = CLIENT_FILESIZE;
-	workPacket.data = (char*) malloc(FIELD_LEN_DATA * sizeof(char));
+	// workPacket.data = (char*) malloc(FIELD_LEN_DATA * sizeof(char));
 
 	memcpy(workPacket.data, &fileSize, CLIENT_FILESIZE_DATASIZE);
 	//Send first packet
-	char* buffer = (char*) malloc(sizeof(char) * PACKET_SIZE);
+	char buffer[PACKET_SIZE];
 	packetToBytes(&workPacket, buffer);
 	sendBuffer(buffer, CLIENT_FILESIZE_DATASIZE + HEADER_LNEGTH, serverSocket);
 
@@ -316,7 +316,7 @@ int main(int argc, char** argv){
 	// 	error ("ERROR: malloc error.");
 	// }
 
-	char* dataBuffer = (char*) malloc(sizeof(char) * FIELD_LEN_DATA);
+	char dataBuffer[FIELD_LEN_DATA];
 	if (dataBuffer == NULL)
 	{
 		cerr << SYSCALL_ERROR("malloc");

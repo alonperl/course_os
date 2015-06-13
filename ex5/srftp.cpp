@@ -176,7 +176,7 @@ void* clientHandler(void* pClient)
 	int currentPacketDataSize;
 	Packet recvPacket;
 
-	char* filename = NULL;
+	char filename[PATH_MAX];
 	char* filedata;
 	unsigned int filesize;
 	fstream outputStream;
@@ -187,12 +187,13 @@ void* clientHandler(void* pClient)
 	Packet welcomePacket;
 	welcomePacket.status = SERVER_RESPONSE;
 	welcomePacket.dataSize = sizeof(unsigned int);
-	welcomePacket.data = (char*)malloc(sizeof(char) * PACKET_SIZE); //TODO small
+	// welcomePacket.data = (char*)malloc(sizeof(char) * PACKET_SIZE; //TODO small
 
 	// allocPacketData(&welcomePacket, welcomePacket.dataSize);
 	memcpy(welcomePacket.data, &(client->maxFileSize), sizeof(client->maxFileSize));
 	
-	char* buffer = (char*) malloc(sizeof(char) * PACKET_SIZE);
+	// char* buffer = (char*) malloc(sizeof(char) * PACKET_SIZE);
+	char buffer[PACKET_SIZE];
 	packetToBytes(&welcomePacket, buffer);
 	
 	dataSent = 0;
@@ -212,14 +213,14 @@ void* clientHandler(void* pClient)
 	}
 
 
-	free(buffer);
+	// free(buffer);
 	// freePacket(welcomePacket);
 
 	dataReceived = 0;
 	realDataReceived = 0;
 	expectSize = PACKET_SIZE;
 
-	buffer = (char*) malloc(sizeof(char) * PACKET_SIZE);
+	// buffer = (char*) malloc(sizeof(char) * PACKET_SIZE);
 
 	// Read packet from socket and process it
 	// If 0 bytes read => connection closed
@@ -278,7 +279,7 @@ void* clientHandler(void* pClient)
 			}
 			else // Save filename
 			{
-				filename = (char*) realloc(filename, sizeof(char) * (recvPacket.dataSize));
+				// filename = (char*) realloc(filename, sizeof(char) * (recvPacket.dataSize));
 				if (filename == nullptr)
 				{
 					cerr << SYSCALL_ERROR("malloc");

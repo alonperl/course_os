@@ -323,10 +323,11 @@ int main(int argc, char** argv){
 		exit(1);
 	}
 
+	cerr<<"Strating to actually send file to Server"<<endl;
 	while (toSend > PACKET_SIZE)
 	{
-		free (workPacket.data); //Free allocated memory from before
-
+		//free (workPacket.data); //Free allocated memory from before
+		workPacket.data = (char*) realloc(workPacket.data ,FIELD_LEN_DATA * sizeof(char)); 
 		ifs.read(dataBuffer, FIELD_LEN_DATA);
 		memcpy(workPacket.data, dataBuffer, FIELD_LEN_DATA);
 		packetToBytes(&workPacket, buffer);
@@ -336,6 +337,7 @@ int main(int argc, char** argv){
 	//In case there is still data with smaller size than max size of packet
 	if (toSend != EMPTY_FILE) 
 	{
+		workPacket.data = (char*) realloc(workPacket.data ,toSend * sizeof(char)); 
 		workPacket.dataSize = toSend;
 		ifs.read(dataBuffer, toSend);
 		memcpy(workPacket.data, dataBuffer, toSend);

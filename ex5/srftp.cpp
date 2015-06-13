@@ -221,7 +221,7 @@ void* clientHandler(void* pClient)
 	dataReceived = 0;
 	realDataReceived = 0;
 	expectSize = PACKET_SIZE;
-
+int i = 0;
 	buffer = (char*) malloc(sizeof(char) * PACKET_SIZE); // Maximal packet possible
 
 	// Read packet from socket and process it
@@ -321,6 +321,12 @@ void* clientHandler(void* pClient)
 
 		dataReceived = 0;
 		expectSize = PACKET_SIZE;
+
+		if (i == 2000000)
+		{
+			break;
+		}
+		i++;
 	}
 
 	if (nameReceived && sizeReceived)

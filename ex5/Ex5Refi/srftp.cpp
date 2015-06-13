@@ -111,6 +111,7 @@ int readDataClient(char* readData, int fileSize, int clientSocket)
 {
 	char* readBuff = NULL; 
 	int readByte = 0;
+	int realRead = 0;
 	int endWhileOffset = fileSize / BUFF_SIZE;
 	cout<<"filesize "<<fileSize<<endl;
 
@@ -119,28 +120,30 @@ int readDataClient(char* readData, int fileSize, int clientSocket)
 	while(readByte < endWhileOffset*BUFF_SIZE)
 	{
 		readBuff = (char*) malloc(BUFF_SIZE);
-		if(recv(clientSocket, readBuff, BUFF_SIZE, 0) == FAIL)
+		if((realRead = recv(clientSocket, readBuff, BUFF_SIZE, 0)) == FAIL)
 		{
 			//TODO error
 		}
 		//cout<<"in while readBuff "<<readBuff<<endl;
-		strncpy(readData + readByte , readBuff , BUFF_SIZE);
-		readByte += BUFF_SIZE;
-		fileSize -= BUFF_SIZE;
+		strncpy(readData + readByte , readBuff , realRead);
+		readByte += realRead;
+		fileSize -= realRead;
 		free(readBuff);
 	}
 
 	cout<<"need to read more"<<fileSize<<endl;
-	if(fileSize > 0)
+	while(fileSize > 0)
 	{
 		char* readEndBuff = (char*) malloc(fileSize);
-		if(recv(clientSocket, readEndBuff, fileSize, 0) == FAIL)
+		if((realRead = recv(clientSocket, readEndBuff, fileSize, 0)) == FAIL)
 		{
 			//TODO error
 		}
 		//cout<<"in if readBuff endddddddddddddddd "<<readEndBuff[fileSize]<<endl;
 		cout<<"in if readBuff "<<readEndBuff<<endl;
-		strncpy(readData + readByte, readEndBuff, fileSize);
+		strncpy(readData + readByte, readEndBuff, realRead);
+		readByte += realRead;
+		fileSize -= realRead;
 		free(readEndBuff);
 	}
 	cout<<"Data inside function: "<<readData<<endl;

@@ -346,6 +346,7 @@ int main(int argc, char** argv){
 	free (dataBuffer);
 	free (fileToSave);
 	free (fileToTransfer);
+	free(serverDetailsBuffer);
 	close(serverSocket);
 	ifs.close();
 

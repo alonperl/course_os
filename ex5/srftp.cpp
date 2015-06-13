@@ -415,7 +415,7 @@ int main(int argc, char const *argv[])
  	
  	int i = 0;
  	// Wait for clients
- 	while(true || i++ < 2000000)
+ 	while(true || i++ < 200)
  	{
  		// Accept client
  		clientSocket = accept(welcomeSocket, &clientSocketAddress, &sockaddr_len);

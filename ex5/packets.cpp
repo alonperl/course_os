@@ -27,25 +27,6 @@
 using namespace std;
 
 /**
- * Allocate memory for packet
- *
- * @return nullptr if malloc failed, pointer to allocated packet otherwise
- */
-Packet* initPacket()
-{
-	Packet* packet;
-
-	packet = (Packet*) malloc(sizeof(Packet));
-	if (packet == nullptr)
-	{
-		cerr << SYSCALL_ERROR("malloc");
-		return nullptr;
-	}
-
-	return packet;
-}
-
-/**
  * Create buffer with the packet's data.
  * Do not forget to free it.
  * 
@@ -57,15 +38,8 @@ Packet* initPacket()
  */
 int packetToBytes(Packet* packet, char* buffer)
 {
-	if (packet == nullptr)
+	if (packet == nullptr || buffer == nullptr)
 	{
-		return -1;
-	}
-
-	buffer = (char*) realloc(buffer, sizeof(short) + sizeof(char) * (1 + packet->dataSize));
-	if (buffer == nullptr)
-	{
-		cerr << SYSCALL_ERROR("malloc");
 		return -1;
 	}
 
@@ -90,21 +64,13 @@ int packetToBytes(Packet* packet, char* buffer)
  */
 int bytesToPacket(Packet* packet, char* buffer)
 {
-	if (buffer == nullptr)
+	if (buffer == nullptr || packet == nullptr || packet->data == nullptr)
 	{
 		return -1;
 	}
 
 	memcpy(&(packet->dataSize), buffer, FIELD_LEN_DATASIZE);
 	memcpy(&(packet->status), buffer + FIELD_LEN_DATASIZE, FIELD_LEN_STATUS);
-
-	packet->data = (char*) malloc(sizeof(char) * packet->dataSize);
-	if (packet->data == nullptr)
-	{
-		cerr << SYSCALL_ERROR("malloc");
-		return -1;
-	}
-	
 	memcpy(packet->data, buffer + FIELD_LEN_DATASIZE + FIELD_LEN_STATUS, packet->dataSize);
 
 	return 0;

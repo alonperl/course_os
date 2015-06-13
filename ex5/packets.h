@@ -46,13 +46,6 @@ typedef struct packet
 	char* data;					// Actual data
 } Packet;
 
-
-
-/**
- * Allocate memory for packet
- */
-Packet* initPacket();
-
 /**
  * Create buffer with the packet's data.
  * Do not forget to free it.
@@ -78,7 +71,7 @@ int bytesToPacket(Packet* packet, char* buffer);
 /**
  * Free memory allocated for packet
  */
-void freePacket(Packet* packet);
+// void freePacket(Packet* packet);
 
 /**
  * Allocate memory for Packet data
@@ -88,6 +81,6 @@ void freePacket(Packet* packet);
  * 
  * @return -1 if malloc failed, 0 otherwise
  */
-int allocPacketData(Packet* packet, int dataSize);
+// int allocPacketData(Packet* packet, int dataSize);
 
 #endif

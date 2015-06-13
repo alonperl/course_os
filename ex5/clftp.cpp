@@ -177,6 +177,7 @@ int main(int argc, char** argv){
 	}
 
 	cerr << "ARGS ARE FINE" << endl;
+	
 	//Initialize parameters:
 	int port = atoi(argv[PORT_PARA_INDX]);
 	struct hostent *server = gethostbyname(argv[HOST_NAME_PARA_INDX]);
@@ -247,6 +248,7 @@ int main(int argc, char** argv){
 
 	// Initalize packet and check args
 	Packet workPacket;
+	packet->data = (char*) malloc(FIELD_LEN_DATA * sizeof(char)); //TODO could be shortened
 	bytesToPacket(&workPacket, serverDetailsBuffer);
 
 	if (workPacket.status != SERVER_RESPONSE)
@@ -278,7 +280,7 @@ int main(int argc, char** argv){
 	workPacket.dataSize = CLIENT_FILESIZE_DATASIZE;
 	workPacket.status = CLIENT_FILESIZE;
 	workPacket.data = nullptr;
-	allocPacketData(&workPacket, CLIENT_FILESIZE_DATASIZE);
+
 	memcpy(workPacket.data, &fileSize, CLIENT_FILESIZE_DATASIZE);
 	//Send first packet
 	char* buffer = (char*) malloc(sizeof(char) * PACKET_SIZE);
@@ -290,7 +292,7 @@ int main(int argc, char** argv){
 	//Intialize second packet to send containning file name
 	workPacket.dataSize = nameSize;
 	workPacket.status = CLIENT_FILENAME;
-	allocPacketData(&workPacket, nameSize);
+
 	memcpy(workPacket.data, fileNameInServer.c_str(), nameSize + 1);
 	//Send second packet
 	packetToBytes(&workPacket, buffer);
@@ -324,7 +326,7 @@ int main(int argc, char** argv){
 	while (toSend > PACKET_SIZE)
 	{
 		free (workPacket.data); //Free allocated memory from before
-		allocPacketData(&workPacket, FIELD_LEN_DATA);
+
 		ifs.read(dataBuffer, FIELD_LEN_DATA);
 		memcpy(workPacket.data, dataBuffer, FIELD_LEN_DATA);
 		packetToBytes(&workPacket, buffer);

@@ -281,7 +281,7 @@ int main(int argc, char** argv){
 	allocPacketData(&workPacket, CLIENT_FILESIZE_DATASIZE);
 	memcpy(workPacket.data, &fileSize, CLIENT_FILESIZE_DATASIZE);
 	//Send first packet
-	char* buffer = nullptr;
+	char* buffer = (char*) malloc(sizeof(char) * PACKET_SIZE);
 	packetToBytes(&workPacket, buffer);
 	sendBuffer(buffer, CLIENT_FILESIZE_DATASIZE + HEADER_LNEGTH, serverSocket);
 

@@ -129,7 +129,7 @@ void freePacket(Packet* packet)
  */
 int allocPacketData(Packet* packet, int dataSize)
 {
-	packet->data = (char*) realloc(sizeof(char) * dataSize);
+	packet->data = (char*) realloc(packet->data, sizeof(char) * dataSize);
 	if (packet->data == nullptr)
 	{
 		cerr << SYSCALL_ERROR("malloc");

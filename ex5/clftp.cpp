@@ -277,7 +277,7 @@ int main(int argc, char** argv){
 	//Intialize first packet to send containning file size
 	workPacket.dataSize = CLIENT_FILESIZE_DATASIZE;
 	workPacket.status = CLIENT_FILESIZE;
-	allocPacketData(workPacket, CLIENT_FILESIZE_DATASIZE);
+	allocPacketData(&workPacket, CLIENT_FILESIZE_DATASIZE);
 	memcpy(workPacket.data, &fileSize, CLIENT_FILESIZE_DATASIZE);
 	//Send first packet
 	sendBuffer(packetToBytes(&workPacket), CLIENT_FILESIZE_DATASIZE + HEADER_LNEGTH, serverSocket);
@@ -289,7 +289,7 @@ int main(int argc, char** argv){
 	workPacket.dataSize = nameSize;
 	workPacket.status = CLIENT_FILENAME;
 	free (workPacket.data); //Free allocated memory from before
-	allocPacketData(workPacket, nameSize);
+	allocPacketData(&workPacket, nameSize);
 	memcpy(workPacket.data, fileNameInServer.c_str(), nameSize + 1);
 	//Send second packet
 	sendBuffer(packetToBytes(&workPacket), nameSize + HEADER_LNEGTH, serverSocket);
@@ -315,7 +315,7 @@ int main(int argc, char** argv){
 	while (toSend > PACKET_SIZE)
 	{
 		free (workPacket.data); //Free allocated memory from before
-		allocPacketData(workPacket, FIELD_LEN_DATA);
+		allocPacketData(&workPacket, FIELD_LEN_DATA);
 		ifs.read(buffer, FIELD_LEN_DATA);
 		memcpy(workPacket.data, buffer, FIELD_LEN_DATA);
 		sendBuffer(packetToBytes(&workPacket), PACKET_SIZE, serverSocket); //Send data packet

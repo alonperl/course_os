@@ -413,9 +413,8 @@ int main(int argc, char const *argv[])
 	struct sockaddr clientSocketAddress;
 	socklen_t sockaddr_len = sizeof(struct sockaddr_storage);
  	
- 	int i = 0;
  	// Wait for clients
- 	while(true || i++ < 200)
+ 	while(true)
  	{
  		// Accept client
  		clientSocket = accept(welcomeSocket, &clientSocketAddress, &sockaddr_len);

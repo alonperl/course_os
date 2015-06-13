@@ -267,7 +267,7 @@ int main(int argc, char** argv){
 	unsigned long long serverMaxSizeOfFile = 0l;
 	memcpy(&serverMaxSizeOfFile, workPacket.data, workPacket.dataSize);
 
-	if (serverMaxSizeOfFile <= (unsigned int)fileSize)
+	if (serverMaxSizeOfFile <= fileSize)
 	{
 		//Close connection and exit
 		close(serverSocket);

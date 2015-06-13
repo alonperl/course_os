@@ -63,7 +63,7 @@ using namespace std;
 struct args_struct
 {
 	int port;
-	unsigned int maxFileSize;
+	unsigned long long maxFileSize;
 };
 
 /**
@@ -74,7 +74,7 @@ struct client_data
 {
 	pthread_t clientThread;
 	int clientSocket;
-	unsigned int maxFileSize;
+	unsigned long long maxFileSize;
 };
 
 /**
@@ -100,7 +100,7 @@ int validateArgs(int argc, char const *argv[], struct args_struct *args)
 	}
 
 	args->maxFileSize = (int)strtol(argv[ARGS_MAX_FILE_SIZE], NULL, DECIMAL);
-	if (args->maxFileSize <= 0L || args->maxFileSize > UINT_MAX)
+	if (args->maxFileSize <= 0L || args->maxFileSize > ULLONG_MAX)
 	{
 		return FAILURE;
 	}
@@ -346,7 +346,7 @@ void* clientHandler(void* pClient)
  * @return -1 on error and prints at what stage, 0 otherwise
  */
 int createClientThread(int clientSocket, struct sockaddr *clientSocketAddress, 
-					   unsigned int maxFileSize)
+					   unsigned long long maxFileSize)
 {
 	
 	struct client_data* client = (struct client_data*) malloc(sizeof(struct client_data));

@@ -143,7 +143,7 @@ void error(string errorMessage)
 	exit(EXIT_CODE);
 }
 
-int getFileSize(ifstream &ifs) 
+unsigned long long getFileSize(ifstream &ifs) 
 {
 	long begin, end;
 	begin = ifs.tellg();
@@ -256,13 +256,13 @@ int main(int argc, char** argv){
 	}
 
 	//Check size of files server can recieve
-	int fileSize = getFileSize(ifs);
-	if (fileSize < 0 )
+	unsigned long long fileSize = getFileSize(ifs);
+	if (fileSize < 0l)
 	{
 		error("ERROR: Size of file is negative");
 	}
 
-	unsigned int serverMaxSizeOfFile;
+	unsigned long long serverMaxSizeOfFile;
 	memcpy(&serverMaxSizeOfFile, workPacket.data, workPacket.dataSize);
 
 	if (serverMaxSizeOfFile <= (unsigned int)fileSize)
@@ -296,7 +296,7 @@ int main(int argc, char** argv){
 
 	//Intialize packet to send containning data
 	workPacket.status = CLIENT_DATA;
-	if ((unsigned int)fileSize >= FIELD_LEN_DATA)
+	if ((unsigned long long)fileSize >= FIELD_LEN_DATA)
 	{
 		workPacket.dataSize = FIELD_LEN_DATA;
 	}
@@ -305,7 +305,7 @@ int main(int argc, char** argv){
 
 
 	//Send all data using packets
-	unsigned int toSend = fileSize;
+	unsigned long long toSend = fileSize;
 	char* buffer = (char*) malloc(FIELD_LEN_DATA);
 	if (buffer == NULL)
 	{

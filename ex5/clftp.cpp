@@ -170,7 +170,7 @@ void sendBuffer (char* buffer, int bufferSize, int serverSocket)
 }
 
 int main(int argc, char** argv){
-
+//TODO free memory on errors
 	if (!checkArgs(argc, argv))
 	{
 		error("Usage: clftp server-port server-hostname file-to-transfer filename-in-server");
@@ -264,7 +264,7 @@ int main(int argc, char** argv){
 		error("ERROR: Size of file is negative");
 	}
 
-	unsigned long long serverMaxSizeOfFile;
+	unsigned long long serverMaxSizeOfFile = 0l;
 	memcpy(&serverMaxSizeOfFile, workPacket.data, workPacket.dataSize);
 
 	if (serverMaxSizeOfFile <= (unsigned int)fileSize)

@@ -323,16 +323,19 @@ void* clientHandler(void* pClient)
 		expectSize = PACKET_SIZE;
 	}
 
-	// Write to file
-	outputStream.open(filename, ofstream::out | ofstream::binary);
-	
-	if (!outputStream.good())
+	if (nameReceived && sizeReceived)
 	{
-		// File already open TODO WHAT TO DO?
-	}
+		// Write to file
+		outputStream.open(filename, ofstream::out | ofstream::binary);
+		
+		if (!outputStream.good())
+		{
+			// File already open TODO WHAT TO DO?
+		}
 
-	outputStream.write(filedata, filesize);
-	outputStream.close();
+		outputStream.write(filedata, filesize);
+		outputStream.close();
+	}
 
 	free(buffer);
 	free(filename);

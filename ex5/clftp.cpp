@@ -289,7 +289,7 @@ cerr<< "save as " << fileNameInServer<<endl;
 	workPacket.status = CLIENT_FILENAME;
 	free (workPacket.data); //Free allocated memory from before
 	workPacket.data = allocPacketData(nameSize);
-	memcpy(workPacket.data, &fileToTransfer, nameSize);
+	memcpy(workPacket.data, fileToTransfer, nameSize);
 	//Send second packet
 	sendBuffer(packetToBytes(&workPacket), PACKET_SIZE, serverSocket);
 

@@ -70,7 +70,12 @@ void Client::sendData(ifstream &temp, int size , int socket)
 	{
 		buff = (char*) malloc(BUFF_SIZE);
 		temp.read(buff, BUFF_SIZE); // read into buffer 1024 byte from temp
-		cerr<< (int)buff <<endl;
+		int i;
+		for (i = 0; i < BUFF_SIZE; ++i)
+		{
+			cerr<< (int)(buff[i]);
+		}
+		cerr<<endl;
 		sendBaffer(buff , BUFF_SIZE, socket); 
 		needToSend -= BUFF_SIZE;
 		free(buff);
@@ -82,7 +87,12 @@ void Client::sendData(ifstream &temp, int size , int socket)
 		char* buffDelta = (char*) malloc(needToSend);
 		bzero(buffDelta, needToSend);
 		temp.read(buffDelta, needToSend); // read what was left
-		cerr<< (int)buff <<endl;
+		int i;
+		for (i = 0; i < BUFF_SIZE; ++i)
+		{
+			cerr<< (int)(buff[i]);
+		}
+		cerr<<endl;
 		cout<<"The delta is: "<<needToSend<<endl;
 		sendBaffer(buffDelta , needToSend, socket); // send to socket
 		cout<<"Sending to server: "<<(buffDelta)<<endl;

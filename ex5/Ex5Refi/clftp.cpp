@@ -54,6 +54,10 @@ void Client::sendBaffer(char* buff, int buffSize, int socket)
 		cout<<"buff size is"<<buffSize - numByte<<endl;
 		wasSent = send(socket, buff + numByte, buffSize - numByte, 0);
 		// TODO - error incase wasSent < 0 , no need to end program
+		if (wasSent < 0)
+		{
+			exit(1);
+		}
 		numByte += wasSent;
 	}
 }

@@ -55,23 +55,23 @@ Packet* initPacket()
  * @return -1 if packet not allocated or malloc failed;
  *		   0 otherwise
  */
-int packetToBytes(Packet* packet, char* buffer)
+int packetToBytes(Packet* packet, char** buffer)
 {
 	if (packet == nullptr)
 	{
 		return -1;
 	}
 
-	buffer = (char*) realloc(buffer, sizeof(short) + sizeof(char) * (1 + packet->dataSize));
-	if (buffer == nullptr)
+	*buffer = (char*) realloc(buffer, sizeof(short) + sizeof(char) * (1 + packet->dataSize));
+	if (*buffer == nullptr)
 	{
 		cerr << SYSCALL_ERROR("malloc");
 		return -1;
 	}
 
-	memcpy(buffer, &(packet->dataSize), FIELD_LEN_DATASIZE);
-	memcpy(buffer + FIELD_LEN_DATASIZE, &(packet->status), FIELD_LEN_STATUS);
-	memcpy(buffer + FIELD_LEN_DATASIZE + FIELD_LEN_STATUS, packet->data, packet->dataSize);
+	memcpy(*buffer, &(packet->dataSize), FIELD_LEN_DATASIZE);
+	memcpy(*buffer + FIELD_LEN_DATASIZE, &(packet->status), FIELD_LEN_STATUS);
+	memcpy(*buffer + FIELD_LEN_DATASIZE + FIELD_LEN_STATUS, packet->data, packet->dataSize);
 	
 	// // Pad with zeros
 	// memset(buffer + FIELD_LEN_DATASIZE + FIELD_LEN_STATUS + packet->dataSize, '\0', 

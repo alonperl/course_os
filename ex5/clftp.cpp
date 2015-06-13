@@ -248,7 +248,7 @@ int main(int argc, char** argv){
 
 	// Initalize packet and check args
 	Packet workPacket;
-	packet->data = (char*) malloc(FIELD_LEN_DATA * sizeof(char)); //TODO could be shortened
+	workPacket.data = (char*) malloc(FIELD_LEN_DATA * sizeof(char)); //TODO could be shortened
 	bytesToPacket(&workPacket, serverDetailsBuffer);
 
 	if (workPacket.status != SERVER_RESPONSE)

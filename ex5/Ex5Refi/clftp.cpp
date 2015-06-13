@@ -90,7 +90,7 @@ void Client::sendData(ifstream &temp, int size , int socket)
 		char* buffDelta = (char*) malloc(needToSend);
 		bzero(buffDelta, needToSend);
 		temp.read(buffDelta, needToSend); // read what was left
-		int i;
+
 		for (i = 0; i < BUFF_SIZE; ++i)
 		{
 			cerr<< (int)(buff[i]);

@@ -325,7 +325,7 @@ int main(int argc, char** argv){
 		free (workPacket.data); //Free allocated memory from before
 		allocPacketData(&workPacket, FIELD_LEN_DATA);
 		ifs.read(dataBuffer, FIELD_LEN_DATA);
-		memcpy(workPacket.data, buffer, FIELD_LEN_DATA);
+		memcpy(workPacket.data, dataBuffer, FIELD_LEN_DATA);
 		packetToBytes(&workPacket, buffer);
 		sendBuffer(workPacket.data, PACKET_SIZE, serverSocket); //Send data packet
 		toSend -= FIELD_LEN_DATA;
@@ -335,7 +335,7 @@ int main(int argc, char** argv){
 	{
 		workPacket.dataSize = toSend;
 		ifs.read(dataBuffer, toSend);
-		memcpy(workPacket.data, buffer, toSend);
+		memcpy(workPacket.data, dataBuffer, toSend);
 		packetToBytes(&workPacket, buffer);
 		sendBuffer(workPacket.data, toSend + HEADER_LNEGTH, serverSocket);
 	}

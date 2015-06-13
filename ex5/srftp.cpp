@@ -188,19 +188,19 @@ void* clientHandler(void* pClient)
 	// Construct welcome packet: tell client how much data server can accept
 	Packet welcomePacket;
 	welcomePacket.status = SERVER_RESPONSE;
-	welcomePacket.dataSize = sizeof(unsigned int);
+	welcomePacket.dataSize = sizeof(unsigned long long);
 	welcomePacket.data = (char*) malloc(sizeof(char) * welcomePacket.dataSize);
 
 	memcpy(welcomePacket.data, &(client->maxFileSize), sizeof(client->maxFileSize));
 	// TODO dynamic getPacketSize
-	char* buffer = (char*) malloc(sizeof(char) * FIELD_LEN_DATASIZE + FIELD_LEN_DATASIZE + welcomePacket.dataSize);
+	char* buffer = (char*) malloc(sizeof(char) * WELCOME_PACKET_SIZE);
 
 	packetToBytes(&welcomePacket, buffer);
 	
 	dataSent = 0;
 
 	// Send welcome packet with size. Client should disconnect if its file exceeds
-	while (dataSent < PACKET_SIZE)
+	while (dataSent < WELCOME_PACKET_SIZE)
 	{
 		sent = send(client->clientSocket, buffer + dataSent, PACKET_SIZE, 0);
 	

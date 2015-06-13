@@ -123,7 +123,7 @@ bool checkArgs(int argc, char** argv)
 	string transferFileName = argv[TRANSFER_FILE_NAME_PARA_INDX];
 	char* fileToTransfer = (char*)malloc(transferFileName.size()+1);
 	memcpy (fileToTransfer, transferFileName.c_str(), transferFileName.size()+1);
-	ifstream ifs(fileToTransfer, ios::in);
+	ifstream ifs(fileToTransfer, ios::in | ios::binary);
 	if (ifs == NULL)
 	{
 		cout << "can't open \n";

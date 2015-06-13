@@ -337,7 +337,7 @@ void* clientHandler(void* pClient)
 	free(buffer);
 	free(filename);
 	free(filedata);
-	free(recvPacket);
+	free(recvPacket.data);
 
 	pthread_exit(nullptr);
 }

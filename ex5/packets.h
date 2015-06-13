@@ -63,7 +63,7 @@ Packet* initPacket();
  * @return -1 if packet not allocated or malloc failed;
  *		   0 otherwise
  */
-int packetToBytes(Packet* packet, char** buffer);
+int packetToBytes(Packet* packet, char* buffer);
 
 /**
  * Create packet from buffer.

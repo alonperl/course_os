@@ -277,6 +277,7 @@ int main(int argc, char** argv){
 	//Intialize first packet to send containning file size
 	workPacket.dataSize = CLIENT_FILESIZE_DATASIZE;
 	workPacket.status = CLIENT_FILESIZE;
+	workPacket.data = nullptr;
 	allocPacketData(&workPacket, CLIENT_FILESIZE_DATASIZE);
 	memcpy(workPacket.data, &fileSize, CLIENT_FILESIZE_DATASIZE);
 	//Send first packet

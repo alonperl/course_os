@@ -270,7 +270,7 @@ int main(int argc, char** argv){
 		close(serverSocket);
 		error ("ERROR: Server Doesn't support files of desired Size.");
 	}
-
+cerr<<"server said it can accept up to "<<serverMaxSizeOfFile <<" bytes"<<endl;
 	cerr << "Send First Packet" << endl;
 
 	//Intialize first packet to send containning file size

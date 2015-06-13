@@ -288,7 +288,6 @@ int main(int argc, char** argv){
 	//Intialize second packet to send containning file name
 	workPacket.dataSize = nameSize;
 	workPacket.status = CLIENT_FILENAME;
-	free (workPacket.data); //Free allocated memory from before
 	allocPacketData(&workPacket, nameSize);
 	memcpy(workPacket.data, fileNameInServer.c_str(), nameSize + 1);
 	//Send second packet

@@ -187,6 +187,7 @@ void* clientHandler(void* pClient)
 	Packet welcomePacket;
 	welcomePacket.status = SERVER_RESPONSE;
 	welcomePacket.dataSize = sizeof(unsigned int);
+	welcomePacket.data = nullptr;
 
 	allocPacketData(&welcomePacket, welcomePacket.dataSize);
 	memcpy(welcomePacket.data, &(client->maxFileSize), sizeof(client->maxFileSize));

@@ -290,7 +290,7 @@ int main(int argc, char** argv){
 	workPacket.status = CLIENT_FILENAME;
 	free (workPacket.data); //Free allocated memory from before
 	workPacket.data = allocPacketData(nameSize);
-	memcpy(workPacket.data, argv[DESIRED_FILE_NAME_IN_SERVER_PARA_INDX], nameSize + 1);
+	memcpy(workPacket.data, fileNameInServer.c_str(), nameSize + 1);
 	//Send second packet
 	sendBuffer(packetToBytes(&workPacket), nameSize + HEADER_LNEGTH, serverSocket);
 

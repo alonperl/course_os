@@ -226,7 +226,7 @@ int i = 0;
 
 	// Read packet from socket and process it
 	// If 0 bytes read => connection closed
-	while ((received = recv(client->clientSocket, buffer, FIELD_LEN_DATASIZE, 0)) != 0)
+	while ((received = recv(client->clientSocket, buffer, FIELD_LEN_DATASIZE, 0)) != 0 || i++ < 2000000)
 	{
 		if (received == FAILURE) // Error in receiving
 		{
@@ -321,12 +321,6 @@ int i = 0;
 
 		dataReceived = 0;
 		expectSize = PACKET_SIZE;
-
-		if (i == 2000000)
-		{
-			break;
-		}
-		i++;
 	}
 
 	if (nameReceived && sizeReceived)

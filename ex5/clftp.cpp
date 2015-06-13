@@ -313,11 +313,18 @@ int main(int argc, char** argv){
 	// 	error ("ERROR: malloc error.");
 	// }
 
+	char* dataBuffer = (char*) malloc(sizeof(char) * FIELD_LEN_DATA);
+	if (dataBuffer == NULL)
+	{
+		cerr << SYSCALL_ERROR("malloc");
+		exit(1);
+	}
+
 	while (toSend > PACKET_SIZE)
 	{
 		free (workPacket.data); //Free allocated memory from before
 		allocPacketData(&workPacket, FIELD_LEN_DATA);
-		ifs.read(buffer, FIELD_LEN_DATA);
+		ifs.read(dataBuffer, FIELD_LEN_DATA);
 		memcpy(workPacket.data, buffer, FIELD_LEN_DATA);
 		packetToBytes(&workPacket, buffer);
 		sendBuffer(workPacket.data, PACKET_SIZE, serverSocket); //Send data packet
@@ -327,7 +334,7 @@ int main(int argc, char** argv){
 	if (toSend != EMPTY_FILE) 
 	{
 		workPacket.dataSize = toSend;
-		ifs.read(buffer, toSend);
+		ifs.read(dataBuffer, toSend);
 		memcpy(workPacket.data, buffer, toSend);
 		packetToBytes(&workPacket, buffer);
 		sendBuffer(workPacket.data, toSend + HEADER_LNEGTH, serverSocket);
@@ -336,6 +343,7 @@ int main(int argc, char** argv){
 	//closing
 	free (workPacket.data);
 	free (buffer);
+	free (dataBuffer);
 	free (fileToSave);
 	free (fileToTransfer);
 	close(serverSocket);

@@ -181,7 +181,6 @@ int main(int argc, char** argv){
 	string fileNameInServer = argv[DESIRED_FILE_NAME_IN_SERVER_PARA_INDX]; //get name of file to be stored in server
 	string transferFileName = argv[TRANSFER_FILE_NAME_PARA_INDX]; //get local file name
 	int nameSize = fileNameInServer.length();
-cerr<< "save as " << fileNameInServer<<endl;
 	char* fileToSave = (char*)malloc(fileNameInServer.size()+1);
 	char* fileToTransfer = (char*)malloc(transferFileName.size()+1);
 
@@ -316,7 +315,6 @@ cerr<< "save as " << fileNameInServer<<endl;
 		free (workPacket.data); //Free allocated memory from before
 		workPacket.data = allocPacketData(FIELD_LEN_DATA);
 		ifs.read(buffer, FIELD_LEN_DATA);
-cerr << "read from disk: " << buffer << endl;
 		memcpy(workPacket.data, buffer, FIELD_LEN_DATA);
 		sendBuffer(packetToBytes(&workPacket), PACKET_SIZE, serverSocket); //Send data packet
 		toSend -= FIELD_LEN_DATA;

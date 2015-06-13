@@ -122,16 +122,19 @@ void freePacket(Packet* packet)
 /**
  * Allocate memory for Packet data
  *
- * @return nullptr if malloc failed, pointer to data block otherwise
+ * @param packet: pointer to packet with data
+ * @param buffer: pointer to buffer for data
+ * 
+ * @return -1 if malloc failed, 0 otherwise
  */
-char* allocPacketData(int dataSize)
+int allocPacketData(Packet* packet, int dataSize)
 {
-	char* pData = (char*) malloc(sizeof(char) * dataSize);
-	if (pData == nullptr)
+	packet->data = (char*) realloc(sizeof(char) * dataSize);
+	if (packet->data == nullptr)
 	{
 		cerr << SYSCALL_ERROR("malloc");
-		return nullptr;
+		return -1;
 	}
 
-	return pData;
+	return 0;
 }

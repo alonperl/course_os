@@ -38,7 +38,7 @@ using namespace std;
  */
 int packetToBytes(Packet* packet, char* buffer)
 {
-	if (packet == nullptr || buffer == nullptr)
+	if (buffer == nullptr || packet == nullptr || packet->data == nullptr)
 	{
 		return -1;
 	}

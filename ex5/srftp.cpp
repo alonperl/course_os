@@ -231,7 +231,7 @@ void* clientHandler(void* pClient)
 		if (received == FAILURE) // Error in receiving
 		{
 			cerr << SYSCALL_ERROR("recv");
-			pthread_exit(nullptr);
+			return nullptr;
 		}
 
 		dataReceived += received;
@@ -243,7 +243,7 @@ void* clientHandler(void* pClient)
 			if (received == FAILURE) // Error in receiving
 			{ // TODO check errno
 				cerr << SYSCALL_ERROR("recv");
-				pthread_exit(nullptr);
+				return nullptr;
 			}
 
 			dataReceived += received;
@@ -260,7 +260,7 @@ void* clientHandler(void* pClient)
 			if (received == FAILURE) // Error in receiving
 			{ // TODO check errno
 				cerr << SYSCALL_ERROR("recv");
-				pthread_exit(nullptr);
+				return nullptr;
 			}
 			else if (received == 0) // client closed connection
 			{
@@ -271,7 +271,7 @@ void* clientHandler(void* pClient)
 		}
 
 		// Convert buffer to packet
-		recvPacket.data = (char*) malloc(sizeof(char) * PACKET_SIZE); //TODO smaller
+		recvPacket.data = (char*) realloc(recvPacket.data, sizeof(char) * PACKET_SIZE); //TODO smaller
 		bytesToPacket(&recvPacket, buffer);
 
 		if (recvPacket.status == CLIENT_FILENAME) // Filename packet type
@@ -286,7 +286,7 @@ void* clientHandler(void* pClient)
 				if (filename == nullptr)
 				{
 					cerr << SYSCALL_ERROR("malloc");
-					pthread_exit(nullptr);
+					return nullptr;
 				}
 				
 				memcpy(filename, recvPacket.data, recvPacket.dataSize);
@@ -341,8 +341,9 @@ void* clientHandler(void* pClient)
 	free(filename);
 	free(filedata);
 	free(recvPacket.data);
+	free(pClient);
 
-	pthread_exit(nullptr);
+	return nullptr;
 }
 
 /**

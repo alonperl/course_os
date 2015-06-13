@@ -276,7 +276,7 @@ void* clientHandler(void* pClient)
 			}
 			else // Save filename
 			{
-				filename = (char*) relloc(filename, sizeof(char) * (recvPacket.dataSize));
+				filename = (char*) realloc(filename, sizeof(char) * (recvPacket.dataSize));
 				if (filename == nullptr)
 				{
 					cerr << SYSCALL_ERROR("malloc");

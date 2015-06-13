@@ -276,14 +276,15 @@ void* clientHandler(void* pClient)
 			}
 			else // Save filename
 			{
-				filename = (char*) realloc(filename, sizeof(char) * (recvPacket.dataSize + 1));
+				free(filename);
+				filename = (char*) malloc(sizeof(char) * (recvPacket.dataSize + 1));
 				if (filename == nullptr)
 				{
 					cerr << SYSCALL_ERROR("malloc");
 					pthread_exit(nullptr);
 				}
 				
-				memcpy(filename, recvPacket.data, recvPacket.dataSize + 1);
+				memcpy(filename, recvPacket.data, recvPacket.dataSize);
 				nameReceived = true;
 			}
 		}

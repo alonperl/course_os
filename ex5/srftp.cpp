@@ -189,9 +189,9 @@ void* clientHandler(void* pClient)
 	Packet welcomePacket;
 	welcomePacket.status = SERVER_RESPONSE;
 	welcomePacket.dataSize = sizeof(unsigned long long);
-	welcomePacket.data = (char*) malloc(sizeof(char) * welcomePacket.dataSize);
+	welcomePacket.data = (char*) malloc(sizeof(char) * sizeof(unsigned long long));
 
-	memcpy(welcomePacket.data, &(client->maxFileSize), sizeof(client->maxFileSize));
+	memcpy(welcomePacket.data, &(client->maxFileSize), sizeof(unsigned long long));
 	// TODO dynamic getPacketSize
 	char* buffer = (char*) malloc(sizeof(char) * WELCOME_PACKET_SIZE);
 

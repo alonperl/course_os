@@ -181,7 +181,7 @@ int main(int argc, char** argv){
 	string fileNameInServer = argv[DESIRED_FILE_NAME_IN_SERVER_PARA_INDX]; //get name of file to be stored in server
 	string transferFileName = argv[TRANSFER_FILE_NAME_PARA_INDX]; //get local file name
 	int nameSize = fileNameInServer.length();
-
+cerr<< "save as " << fileNameInServer<<endl;
 	char* fileToSave = (char*)malloc(fileNameInServer.size()+1);
 	char* fileToTransfer = (char*)malloc(transferFileName.size()+1);
 

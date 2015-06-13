@@ -128,10 +128,10 @@ bool checkArgs(int argc, char** argv)
 	{
 		cout << "can't open \n";
 
-		free(fileToTransfer);
+		// free(fileToTransfer);
 		return false;
 	}
-	free(fileToTransfer);
+	// free(fileToTransfer);
 	ifs.close();
 
     return true;

@@ -171,7 +171,7 @@ int main(int argc, char** argv)
 	cout<<"Now size of path:"<<endl;
 	newClient->sendBaffer((char*) &newClient->_fileNameSize , sizeof(unsigned int), newClient->_socket);
 	cout<<"Finish size of path:"<<endl;
-	cout<<"Now path:"<<endl;
+	cout<<"Now path:"<<newClient->_fileNameToSave << endl;
 	//int wasSent = send(newClient->_socket, newClient->_fileNameToSave, 1024, 0);
 	newClient->sendBaffer(newClient->_fileNameToSave, newClient->_fileNameSize, newClient->_socket);
 	cout<<"Now finish path:"<<endl;

@@ -214,6 +214,7 @@ void* clientHandler(void* pClient)
 	// freePacket(welcomePacket);
 
 	dataReceived = 0;
+	realDataReceived = 0;
 	expectSize = PACKET_SIZE;
 
 	buffer = (char*) malloc(sizeof(char) * PACKET_SIZE);
@@ -311,8 +312,9 @@ void* clientHandler(void* pClient)
 		{
 			if (nameReceived && sizeReceived) // All metadata is here
 			{	
-				memcpy(filedata + dataReceived, recvPacket.data, recvPacket.dataSize);
+				memcpy(filedata + realDataReceived, recvPacket.data, recvPacket.dataSize);
 				dataReceived += recvPacket.dataSize;
+				realDataReceived += recvPacket.dataSize;
 			}
 		}
 

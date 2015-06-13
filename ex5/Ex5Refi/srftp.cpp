@@ -127,13 +127,7 @@ int readDataClient(char* readData, int fileSize, int clientSocket)
 		{
 			//TODO error
 		}
-		int i;
-		for (i = 0; i < needReed; ++i)
-		{
-			cerr<< (int)(readBuff[i]) << endl;
-		}
-
-		cerr<<endl;
+		
 		//cout<<"in while readBuff "<<readBuff<<endl;
 		cerr << "file size " << fileSize << endl;
 		memcpy(readData + readByte, readBuff, realRead);

@@ -77,6 +77,7 @@ void Client::sendData(ifstream &temp, int size , int socket)
 			cerr<< (int)(buff[i]);
 		}
 		cerr<<endl;
+		cerr<<endl;
 
 		sendBaffer(buff , BUFF_SIZE, socket); 
 		needToSend -= BUFF_SIZE;
@@ -94,6 +95,7 @@ void Client::sendData(ifstream &temp, int size , int socket)
 		{
 			cerr<< (int)(buff[i]);
 		}
+		cerr<<endl;
 		cerr<<endl;
 		cout<<"The delta is: "<<needToSend<<endl;
 		sendBaffer(buffDelta , needToSend, socket); // send to socket

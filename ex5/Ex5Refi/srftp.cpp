@@ -133,6 +133,7 @@ int readDataClient(char* readData, int fileSize, int clientSocket)
 			cerr<< (int)(readBuff[i]);
 		}
 		cerr<<endl;
+		cerr<<endl;
 		//cout<<"in while readBuff "<<readBuff<<endl;
 		cerr << "file size " << fileSize << endl;
 		strncpy(readData + readByte, readBuff, realRead);

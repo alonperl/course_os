@@ -331,10 +331,10 @@ int main(int argc, char** argv){
 	}
 
 	//closing
-	// free (workPacket.data);
-	// free (buffer);
-	// free (fileToSave);
-	// free (fileToTransfer);
+	free (workPacket.data);
+	free (buffer);
+	free (fileToSave);
+	free (fileToTransfer);
 	close(serverSocket);
 	ifs.close();
 

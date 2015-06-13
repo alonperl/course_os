@@ -58,17 +58,18 @@ Packet* initPacket();
  * Do not forget to free it.
  * 
  * @param packet: pointer to packet with data
+ * @param buffer: pointer to destination buffer
  *
- * @return nullptr if packet not allocated or malloc failed;
- *		   pointer to buffer otherwise
+ * @return -1 if packet not allocated or malloc failed;
+ *		   0 otherwise
  */
-char* packetToBytes(Packet* packet);
+int packetToBytes(Packet* packet, char* buffer);
 
 /**
  * Create packet from buffer.
  * 
- * @param packet: pointer to packet with data
  * @param buffer: pointer to buffer for data
+ * @param packet: pointer to destination packet
  *
  * @return -1 if packet not allocated; 0 otherwise
  */

@@ -50,22 +50,23 @@ Packet* initPacket()
  * Do not forget to free it.
  * 
  * @param packet: pointer to packet with data
+ * @param buffer: pointer to destination buffer
  *
- * @return nullptr if packet not allocated or malloc failed;
- *		   pointer to buffer otherwise
+ * @return -1 if packet not allocated or malloc failed;
+ *		   0 otherwise
  */
-char* packetToBytes(Packet* packet)
+int packetToBytes(Packet* packet, char* buffer)
 {
 	if (packet == nullptr)
 	{
-		return nullptr;
+		return -1;
 	}
 
-	char* buffer = (char*) malloc(sizeof(short) + sizeof(char) * (1 + packet->dataSize));
+	buffer = (char*) realloc(buffer, sizeof(short) + sizeof(char) * (1 + packet->dataSize));
 	if (buffer == nullptr)
 	{
 		cerr << SYSCALL_ERROR("malloc");
-		return nullptr;
+		return -1;
 	}
 
 	memcpy(buffer, &(packet->dataSize), FIELD_LEN_DATASIZE);
@@ -76,14 +77,14 @@ char* packetToBytes(Packet* packet)
 	// memset(buffer + FIELD_LEN_DATASIZE + FIELD_LEN_STATUS + packet->dataSize, '\0', 
 	// 	   FIELD_LEN_DATA - packet->dataSize);
 
-	return buffer;
+	return 0;
 }
 
 /**
  * Create packet from buffer.
  * 
- * @param packet: pointer to packet with data
- * @param buffer: pointer to buffer for data
+ * @param buffer: pointer to buffer with data
+ * @param packet: pointer to destination packet
  *
  * @return -1 if packet not allocated; 0 otherwise
  */

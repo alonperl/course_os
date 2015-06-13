@@ -280,8 +280,8 @@ int main(int argc, char** argv){
 	allocPacketData(&workPacket, CLIENT_FILESIZE_DATASIZE);
 	memcpy(workPacket.data, &fileSize, CLIENT_FILESIZE_DATASIZE);
 	//Send first packet
-	sendBuffer(packetToBytes(&workPacket), CLIENT_FILESIZE_DATASIZE + HEADER_LNEGTH, serverSocket);
-	// sendBuffer(packetToBytes(&workPacket), FIELD_LEN_DATASIZE + FIELD_LEN_STATUS + CLIENT_FILESIZE_DATASIZE, serverSocket);
+	char* buffer = nullptr;
+	sendBuffer(packetToBytes(&workPacket, buffer), CLIENT_FILESIZE_DATASIZE + HEADER_LNEGTH, serverSocket);
 
 	cerr << "Send File name packet Packet" << endl;
 
@@ -291,7 +291,7 @@ int main(int argc, char** argv){
 	allocPacketData(&workPacket, nameSize);
 	memcpy(workPacket.data, fileNameInServer.c_str(), nameSize + 1);
 	//Send second packet
-	sendBuffer(packetToBytes(&workPacket), nameSize + HEADER_LNEGTH, serverSocket);
+	sendBuffer(packetToBytes(&workPacket, buffer), nameSize + HEADER_LNEGTH, serverSocket);
 
 	//Intialize packet to send containning data
 	workPacket.status = CLIENT_DATA;
@@ -305,11 +305,11 @@ int main(int argc, char** argv){
 
 	//Send all data using packets
 	unsigned long long toSend = fileSize;
-	char* buffer = (char*) malloc(FIELD_LEN_DATA);
-	if (buffer == NULL)
-	{
-		error ("ERROR: malloc error.");
-	}
+	// char* buffer = (char*) malloc(FIELD_LEN_DATA);
+	// if (buffer == NULL)
+	// {
+	// 	error ("ERROR: malloc error.");
+	// }
 
 	while (toSend > PACKET_SIZE)
 	{
@@ -317,7 +317,7 @@ int main(int argc, char** argv){
 		allocPacketData(&workPacket, FIELD_LEN_DATA);
 		ifs.read(buffer, FIELD_LEN_DATA);
 		memcpy(workPacket.data, buffer, FIELD_LEN_DATA);
-		sendBuffer(packetToBytes(&workPacket), PACKET_SIZE, serverSocket); //Send data packet
+		sendBuffer(packetToBytes(&workPacket, buffer), PACKET_SIZE, serverSocket); //Send data packet
 		toSend -= FIELD_LEN_DATA;
 	}
 	//In case there is still data with smaller size than max size of packet
@@ -326,7 +326,7 @@ int main(int argc, char** argv){
 		workPacket.dataSize = toSend;
 		ifs.read(buffer, toSend);
 		memcpy(workPacket.data, buffer, toSend);
-		sendBuffer(packetToBytes(&workPacket), toSend + HEADER_LNEGTH, serverSocket);
+		sendBuffer(packetToBytes(&workPacket, buffer), toSend + HEADER_LNEGTH, serverSocket);
 	}
 
 	//closing

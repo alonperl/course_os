@@ -91,7 +91,7 @@ bool checkArgs(int argc, char** argv)
 
 	//Check host name is valid
 	struct hostent *serverName = gethostbyname(argv[HOST_NAME_PARA_INDX]);
-	if (serverName == NULL)
+	if (serverName == NULL || strlen(serverName->h_name) > HOST_NAME_MAX)
 	{
 		cout << "bad host name\n";
 		return false;

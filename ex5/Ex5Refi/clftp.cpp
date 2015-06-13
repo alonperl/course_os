@@ -74,7 +74,7 @@ void Client::sendData(ifstream &temp, int size , int socket)
 		
 		for (i = 0; i < BUFF_SIZE; ++i)
 		{
-			cerr<< (int)(buff[i]);
+			cerr<< (int)(buff[i]) << endl;
 		}
 		cerr<<endl;
 		cerr<<endl;
@@ -92,9 +92,8 @@ void Client::sendData(ifstream &temp, int size , int socket)
 		temp.read(buffDelta, needToSend); // read what was left
 		for (i = 0; i < BUFF_SIZE; ++i)
 		{
-			cerr<< (int)(buff[i]);
+			cerr<< (int)(buff[i]) << endl;
 		}
-		cerr<<endl;
 		cerr<<endl;
 		cout<<"The delta is: "<<needToSend<<endl;
 		sendBaffer(buffDelta , needToSend, socket); // send to socket

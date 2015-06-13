@@ -246,14 +246,14 @@ void* clientHandler(void* pClient)
 
 		// Datasize field got, update expected size
 		memcpy(&currentPacketDataSize, buffer, FIELD_LEN_DATASIZE);
-		cerr << currentPacketDataSize << endl;;
+		cerr << currentPacketDataSize << endl;
 		expectSize = FIELD_LEN_DATASIZE + FIELD_LEN_STATUS + currentPacketDataSize;
 		cerr << expectSize << endl;;
 
 		// Get full packet
 		while (dataReceived < expectSize)
 		{
-			received = recv(client->clientSocket, buffer + dataReceived, PACKET_SIZE - dataReceived, 0);
+			received = recv(client->clientSocket, buffer + dataReceived, expectSize - dataReceived, 0);
 			if (received == FAILURE) // Error in receiving
 			{ // TODO check errno
 				cerr << SYSCALL_ERROR("recv");

@@ -59,10 +59,10 @@ using namespace std;
 #define CORRECT_ARGS_NUM 5
 #define IS_DIRECTORY 0
 #ifndef SYSCALL_ERROR
-#define SYSCALL_ERROR(syscall) "Error: function: " << syscall << " errno: " << errno << "\n"
+#define SYSCALL_ERROR(syscall) cerr << "Error: function: " << syscall << " errno: " << errno << "\n"; exit(1)
 #endif
 
-int error = 0;
+int gError = 0;
 
 void error(string errorMessage)
 {
@@ -75,7 +75,6 @@ bool checkArgs(int argc, char** argv)
 	//Checks num of args is valid
 	if (argc != CORRECT_ARGS_NUM)
 	{
-		cout << "num of args invalid\n";
 		return false;
 	}
 
@@ -83,7 +82,6 @@ bool checkArgs(int argc, char** argv)
 	int port = atoi(argv[PORT_PARA_INDX]);
 	if (port == 0 || port > MAX_PORT_NUM || port < MIN_PORT_NUM)
 	{
-		cout << "bad port num\n";
 		return false;
 	}
 
@@ -93,7 +91,6 @@ bool checkArgs(int argc, char** argv)
 	if (transferFileNameSize == 0 || desiredNameSize == 0 || 
 		transferFileNameSize > PATH_MAX || desiredNameSize > PATH_MAX)
 	{
-		cout << "bad names\n";
 		return false;
 	}
 
@@ -101,7 +98,6 @@ bool checkArgs(int argc, char** argv)
 	struct hostent *serverName = gethostbyname(argv[HOST_NAME_PARA_INDX]);
 	if (serverName == NULL || strlen(serverName->h_name) > HOST_NAME_MAX)
 	{
-		cout << "bad host name\n";
 		return false;
 	}
 
@@ -109,7 +105,6 @@ bool checkArgs(int argc, char** argv)
 	char* path = realpath(argv[TRANSFER_FILE_NAME_PARA_INDX], NULL);
 	if (path == NULL)
 	{
-		cout << "doesn't exist\n";
 		free(path);
 		return false;
 	}
@@ -121,7 +116,6 @@ bool checkArgs(int argc, char** argv)
 	stat(path, &fileStatBuf);
 	if (S_ISDIR(fileStatBuf.st_mode))
 	{
-		cout << "is directory \n";
 		free(path);
 		return false;
 	}
@@ -157,7 +151,7 @@ unsigned long long getFileSize(ifstream &ifs)
 	ifs.seekg(ios::beg);
 	if (begin == ERROR || end == ERROR)
 	{
-		error = ERROR;
+		gError = ERROR;
 	}
 	return end - begin;
 }
@@ -247,7 +241,6 @@ int main(int argc, char** argv){
 		// cout << "serverAddres.sin_addr.s_addr is: " <<serverAddres.sin_addr.s_addr <<endl;
 		free(fileToSave);
 		free(fileToTransfer);
-		close(serverSocket);
 		ifs.close();
 		SYSCALL_ERROR("connect");
 	}
@@ -317,7 +310,7 @@ int main(int argc, char** argv){
 
 	//Check size of files server can recieve
 	unsigned long long fileSize = getFileSize(ifs);
-	if (fileSize < 0l || error = ERROR)
+	if (fileSize < 0l || gError == ERROR)
 	{
 		free(workPacket.data);
 		free(fileToSave);
@@ -331,7 +324,7 @@ int main(int argc, char** argv){
 	unsigned long long serverMaxSizeOfFile = 0l;
 	memcpy(&serverMaxSizeOfFile, workPacket.data, workPacket.dataSize);
 
-	if (serverMaxSizeOfFile <= fileSize)
+	if (serverMaxSizeOfFile < fileSize)
 	{
 		//Close connection and exit
 		free(workPacket.data);

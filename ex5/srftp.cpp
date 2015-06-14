@@ -43,7 +43,7 @@
 #define USAGE "Usage: srftp server-port max-file-size\n"
 
 #ifndef SYSCALL_ERROR
-#define SYSCALL_ERROR(syscall) "Error: function: " << syscall << "errno: " << errno << "\n"
+#define SYSCALL_ERROR(syscall) "Error: function: " << syscall << " errno: " << errno << endl
 #endif
 
 #define SUCCESS 0
@@ -100,7 +100,7 @@ int validateArgs(int argc, char const *argv[], struct args_struct *args)
 	}
 
 	args->maxFileSize = (int)strtol(argv[ARGS_MAX_FILE_SIZE], NULL, DECIMAL);
-	if (args->maxFileSize <= 0L || args->maxFileSize > ULLONG_MAX)
+	if (args->maxFileSize < 0L || args->maxFileSize > ULLONG_MAX)
 	{
 		return FAILURE;
 	}
@@ -161,6 +161,58 @@ int serverUp(int port)
 
 
 /**
+ * Send welcome packet: Tell client what size of files server can accept
+ *
+ * @param pClient: client_data struct with client parameters
+ *
+ * @return nullptr
+ */
+int sendWelcomePacket(struct client_data* client)
+{
+	Packet welcomePacket;
+	welcomePacket.status = SERVER_RESPONSE;
+	welcomePacket.dataSize = sizeof(unsigned long long);
+	welcomePacket.data = (char*) malloc(sizeof(char) * sizeof(unsigned long long));
+
+	memcpy(welcomePacket.data, &(client->maxFileSize), sizeof(unsigned long long));
+	if (welcomePacket.data == nullptr)
+	{
+		cerr << SYSCALL_ERROR("memcpy");
+		return FAILURE;
+	}
+
+	char* buffer = (char*) malloc(sizeof(char) * WELCOME_PACKET_SIZE);
+	if (buffer == nullptr)
+	{
+		cerr << SYSCALL_ERROR("malloc");
+		return FAILURE;
+	}
+
+	packetToBytes(&welcomePacket, buffer);
+	
+	unsigned int dataSent = 0;
+	int sent = FAILURE; // Default
+
+	// Send welcome packet with size. Client should disconnect if its file exceeds
+	while (dataSent < WELCOME_PACKET_SIZE)
+	{
+		sent = send(client->clientSocket, buffer + dataSent, PACKET_SIZE, 0);
+		if (sent == FAILURE)
+		{
+			cerr << SYSCALL_ERROR("send");
+			return FAILURE;
+		}
+	
+		dataSent += sent;
+	}
+
+	free(buffer);
+	free(welcomePacket.data);
+
+	return SUCCESS;
+}
+
+/**
  * Client handle routine: Tell client what size of files server can accept,
  *		receive its file if sent and store on disk.
  * @param pClient: client_data struct with client parameters
@@ -171,58 +223,44 @@ void* clientHandler(void* pClient)
 {
 	// Exchange vars
 	bool nameReceived, sizeReceived; // Indicators
-	unsigned int dataSent, dataReceived, realDataReceived, expectSize; // Net Counters
-	int sent, received; // Temp Net vars
+	
+	struct client_data* client = (struct client_data*) pClient; // Client parameters
+
+	unsigned int dataReceived, expectSize; // Net Counters
+	int received; // Temp Net vars
 	int currentPacketDataSize;
 	
 	Packet recvPacket;
-
-	char* filename = nullptr; // Filename holder
-	char* filedata = nullptr; // Data holder
-	unsigned int filesize;
-	
-	fstream outputStream; //
-
-	struct client_data* client = (struct client_data*) pClient; // Client parameters
-
-	// Construct welcome packet: tell client how much data server can accept
-	Packet welcomePacket;
-	welcomePacket.status = SERVER_RESPONSE;
-	welcomePacket.dataSize = sizeof(unsigned long long);
-	welcomePacket.data = (char*) malloc(sizeof(char) * sizeof(unsigned long long));
-
-	memcpy(welcomePacket.data, &(client->maxFileSize), sizeof(unsigned long long));
-	// TODO dynamic getPacketSize
-	char* buffer = (char*) malloc(sizeof(char) * WELCOME_PACKET_SIZE);
-
-	packetToBytes(&welcomePacket, buffer);
-	
-	dataSent = 0;
-
-	// Send welcome packet with size. Client should disconnect if its file exceeds
-	while (dataSent < WELCOME_PACKET_SIZE)
+	recvPacket.data = (char*) malloc(sizeof(char) * PACKET_SIZE);
+	if (recvPacket.data == nullptr)
 	{
-		sent = send(client->clientSocket, buffer + dataSent, PACKET_SIZE, 0);
-	
-		if (sent == FAILURE)
-		{
-			cerr << SYSCALL_ERROR("send");
-			pthread_exit(NULL);
-		}
-	
-		dataSent += sent;
+		cerr << SYSCALL_ERROR("malloc");
+		close(client->clientSocket);
+		return nullptr;
 	}
 
+	char* filename = nullptr; // Filename holder
+	unsigned int filesize;
+	
+	fstream outputStream; // File stream
 
-	free(buffer);
-	free(welcomePacket.data);
+	// Send welcome packet: tell client how much data server can accept
+	if (sendWelcomePacket(client) == FAILURE)
+	{
+		pthread_exit(NULL); // Close client thread
+	}
 
 	// Prepare for receiving data
 	dataReceived = 0;
-	realDataReceived = 0;
 	expectSize = PACKET_SIZE;
 
-	buffer = (char*) malloc(sizeof(char) * PACKET_SIZE); // Maximal packet possible
+	char* buffer = (char*) malloc(sizeof(char) * PACKET_SIZE); // Maximal packet possible
+	if (buffer == nullptr)
+	{
+		cerr << SYSCALL_ERROR("malloc");
+		close(client->clientSocket);
+		return nullptr;
+	}
 
 	// Read packet from socket and process it
 	// If 0 bytes read => connection closed
@@ -231,6 +269,7 @@ void* clientHandler(void* pClient)
 		if (received == FAILURE) // Error in receiving
 		{
 			cerr << SYSCALL_ERROR("recv");
+			close(client->clientSocket);
 			return nullptr;
 		}
 
@@ -243,6 +282,7 @@ void* clientHandler(void* pClient)
 			if (received == FAILURE) // Error in receiving
 			{ // TODO check errno
 				cerr << SYSCALL_ERROR("recv");
+				close(client->clientSocket);
 				return nullptr;
 			}
 
@@ -251,6 +291,7 @@ void* clientHandler(void* pClient)
 
 		// Datasize field got, update expected size
 		memcpy(&currentPacketDataSize, buffer, FIELD_LEN_DATASIZE);
+
 		expectSize = FIELD_LEN_DATASIZE + FIELD_LEN_STATUS + currentPacketDataSize;
 
 		// Get full packet
@@ -260,6 +301,7 @@ void* clientHandler(void* pClient)
 			if (received == FAILURE) // Error in receiving
 			{ // TODO check errno
 				cerr << SYSCALL_ERROR("recv");
+				close(client->clientSocket);
 				return nullptr;
 			}
 			else if (received == 0) // client closed connection
@@ -272,6 +314,13 @@ void* clientHandler(void* pClient)
 
 		// Convert buffer to packet
 		recvPacket.data = (char*) realloc(recvPacket.data, sizeof(char) * PACKET_SIZE); //TODO smaller
+		if (&recvPacket.data == nullptr)
+		{
+			cerr << SYSCALL_ERROR("realloc");
+			close(client->clientSocket);
+			return nullptr;
+		}
+
 		bytesToPacket(&recvPacket, buffer);
 
 		if (recvPacket.status == CLIENT_FILENAME) // Filename packet type
@@ -282,14 +331,32 @@ void* clientHandler(void* pClient)
 			}
 			else // Save filename
 			{
-				filename = (char*) malloc(sizeof(char) * (recvPacket.dataSize));
+				filename = (char*) malloc(sizeof(char) * (recvPacket.dataSize + 1)); // For NULL byte
 				if (filename == nullptr)
 				{
 					cerr << SYSCALL_ERROR("malloc");
+					close(client->clientSocket);
 					return nullptr;
 				}
 				
 				memcpy(filename, recvPacket.data, recvPacket.dataSize);
+				if (filename == nullptr)
+				{
+					cerr << SYSCALL_ERROR("memcpy");
+					close(client->clientSocket);
+					return nullptr;
+				}
+
+				filename[recvPacket.dataSize] = '\0';
+
+				// Open file
+				outputStream.open(filename, ofstream::out | ofstream::binary);
+				if (!outputStream.good())				{
+					cerr << SYSCALL_ERROR("open");
+					close(client->clientSocket);
+					return nullptr;
+				}
+				
 				nameReceived = true;
 			}
 		}
@@ -303,19 +370,33 @@ void* clientHandler(void* pClient)
 			else // Save filesize
 			{
 				memcpy(&filesize, recvPacket.data, recvPacket.dataSize);
+
+				if (filesize > client->maxFileSize)
+				{
+					cerr << "Transmission failed: too big file." << endl;
+					close(client->clientSocket);
+					return nullptr;
+				}
+
 				sizeReceived = true;
-				
-				filedata = (char*) malloc(sizeof(char) * filesize); // Allocate data
 			}
 		}
 
 		else if (recvPacket.status == CLIENT_DATA)
 		{
-			if (nameReceived && sizeReceived) // All metadata is here
+			if (nameReceived && sizeReceived && 
+				outputStream.is_open() && outputStream.good()) // All metadata is here
 			{	
-				memcpy(filedata + realDataReceived, recvPacket.data, recvPacket.dataSize);
+				// Write chunk to file
+				outputStream.write(recvPacket.data, recvPacket.dataSize);
+				if (!outputStream.good())
+				{
+					cerr << SYSCALL_ERROR("write");
+					close(client->clientSocket);
+					return nullptr;
+				}
+				
 				dataReceived += recvPacket.dataSize;
-				realDataReceived += recvPacket.dataSize;
 			}
 		}
 
@@ -323,25 +404,17 @@ void* clientHandler(void* pClient)
 		expectSize = PACKET_SIZE;
 	}
 
-	if (nameReceived && sizeReceived)
+	if (outputStream.is_open())
 	{
-		// Write to file
-		outputStream.open(filename, ofstream::out | ofstream::binary);
-		
-		if (!outputStream.good())
-		{
-			// File already open TODO WHAT TO DO?
-		}
-
-		outputStream.write(filedata, filesize);
 		outputStream.close();
 	}
 
 	free(buffer);
 	free(filename);
-	free(filedata);
 	free(recvPacket.data);
 	free(pClient);
+
+	sleep(8);
 
 	return nullptr;
 }
@@ -406,9 +479,6 @@ int main(int argc, char const *argv[])
  		return FAILURE;
  	}
 
- 	// Client threads collection
-// 	vector<pthread_t> clients;
-
  	// Client socket data
  	int clientSocket;
 	struct sockaddr clientSocketAddress;
@@ -419,6 +489,12 @@ int main(int argc, char const *argv[])
  	{
  		// Accept client
  		clientSocket = accept(welcomeSocket, &clientSocketAddress, &sockaddr_len);
+ 		if (clientSocket == FAILURE)
+ 		{
+ 			cerr << SYSCALL_ERROR("accept");
+ 			return FAILURE;
+ 		}
+
  		createClientThread(clientSocket, &clientSocketAddress, args.maxFileSize);//, &clients);
  	}
 

@@ -43,6 +43,7 @@
 using namespace std;
 
 //Variables
+#define MIN_POSSIBLE_SOCKET 0
 #define EMPTY_FILE 0
 #define HEADER_LNEGTH 3
 #define SUCCESS 0
@@ -61,6 +62,13 @@ using namespace std;
 #define SYSCALL_ERROR(syscall) "Error: function: " << syscall << " errno: " << errno << "\n"
 #endif
 
+int error = 0;
+
+void error(string errorMessage)
+{
+	cerr << errorMessage;
+	exit(EXIT_CODE);
+}
 
 bool checkArgs(int argc, char** argv)
 {
@@ -122,12 +130,15 @@ bool checkArgs(int argc, char** argv)
 	//Check if we can open file
 	string transferFileName = argv[TRANSFER_FILE_NAME_PARA_INDX];
 	char* fileToTransfer = (char*)malloc(transferFileName.size()+1);
+	if (fileToTransfer == NULL)
+	{
+		SYSCALL_ERROR("malloc");
+	}
 	memcpy (fileToTransfer, transferFileName.c_str(), transferFileName.size()+1);
 	ifstream ifs(fileToTransfer, ios::in | ios::binary);
 	if (ifs == NULL)
 	{
-		cout << "can't open \n";
-
+		cout << "ERROR: can't open file.\n";
 		free(fileToTransfer);
 		return false;
 	}
@@ -137,12 +148,6 @@ bool checkArgs(int argc, char** argv)
     return true;
 }
 
-void error(string errorMessage)
-{
-	cerr << errorMessage;
-	exit(EXIT_CODE);
-}
-
 unsigned long long getFileSize(ifstream &ifs) 
 {
 	long begin, end;
@@ -150,6 +155,10 @@ unsigned long long getFileSize(ifstream &ifs)
 	ifs.seekg(0, ios::end);
 	end = ifs.tellg();
 	ifs.seekg(ios::beg);
+	if (begin == ERROR || end == ERROR)
+	{
+		error = ERROR;
+	}
 	return end - begin;
 }
 
@@ -163,7 +172,7 @@ void sendBuffer (char* buffer, int bufferSize, int serverSocket)
 		sent = send(serverSocket, buffer + bytesSent, bufferSize - bytesSent, 0);
 		if (sent == ERROR)
 		{
-			error ("ERROR: reciving data");
+			SYSCALL_ERROR("send");
 		}
 		bytesSent += sent;
 	}
@@ -184,12 +193,15 @@ int main(int argc, char** argv){
 	string fileNameInServer = argv[DESIRED_FILE_NAME_IN_SERVER_PARA_INDX]; //get name of file to be stored in server
 	string transferFileName = argv[TRANSFER_FILE_NAME_PARA_INDX]; //get local file name
 	int nameSize = fileNameInServer.length();
+	cerr<< "nameSize is: "<< nameSize<<endl;
 	char* fileToSave = (char*)malloc(fileNameInServer.size()+1);
 	char* fileToTransfer = (char*)malloc(transferFileName.size()+1);
 
 	if (fileToTransfer == NULL || fileToSave == NULL)
 	{
-		error ("ERROR: malloc error.");
+		free(fileToSave);
+		free(fileToTransfer);
+		SYSCALL_ERROR("malloc");
 	}
 
 	memcpy (fileToTransfer, transferFileName.c_str(), transferFileName.size()+1);
@@ -200,6 +212,12 @@ int main(int argc, char** argv){
 
 	//Create a socket:
 	int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+	if (serverSocket < MIN_POSSIBLE_SOCKET)
+	{
+		free(fileToSave);
+		free(fileToTransfer);
+		SYSCALL_ERROR("socket");
+	}
 	struct sockaddr_in serverAddres;
 	bzero((char *) &serverAddres, sizeof(serverAddres)); //puds with 0 for some reason?
 	serverAddres.sin_family = AF_INET;
@@ -212,36 +230,61 @@ int main(int argc, char** argv){
 	ifstream ifs(fileToTransfer, ios::in | ios::binary);
 	if (ifs == NULL)
 	{
-		error("ERROR: open file.");	
+		free(fileToSave);
+		free(fileToTransfer);
+		close(serverSocket);
+		SYSCALL_ERROR("open");
 	}
 
 	cerr << "CONNECT TO SOCKET" << endl;
 	//Connect to server.
 	if (connect(serverSocket,((struct sockaddr*)&serverAddres),sizeof(serverAddres)) < 0)
 	{
-		cout << errno << endl;
-		cout << "serverSocket is: " << serverSocket << "\n";
-		cout << "server h_addr is: " << server->h_addr << endl;
-		cout << "server h_name is: " << server->h_name << endl;
-		cout << "serverAddres.sin_addr.s_addr is: " <<serverAddres.sin_addr.s_addr <<endl;
-		error("ERROR connecting.");
+		// cout << errno << endl;
+		// cout << "serverSocket is: " << serverSocket << "\n";
+		// cout << "server h_addr is: " << server->h_addr << endl;
+		// cout << "server h_name is: " << server->h_name << endl;
+		// cout << "serverAddres.sin_addr.s_addr is: " <<serverAddres.sin_addr.s_addr <<endl;
+		free(fileToSave);
+		free(fileToTransfer);
+		close(serverSocket);
+		ifs.close();
+		SYSCALL_ERROR("connect");
 	}
 
 	cerr << "Recieved Details From Server" << endl;
 
 	//Receive from Server Deatils
 	char* serverDetailsBuffer = (char*)malloc(FIELD_LEN_DATASIZE + FIELD_LEN_DATA + sizeof(int));
+	if (serverDetailsBuffer == NULL)
+	{
+		free(fileToSave);
+		free(fileToTransfer);
+		close(serverSocket);
+		ifs.close();
+		SYSCALL_ERROR("malloc");
+	}
+
 	int serverDetails = recv(serverSocket, serverDetailsBuffer, PACKET_SIZE, 0);
 	if (serverDetails == ERROR)
 	{
-		cerr << SYSCALL_ERROR("recv");
-		exit(1);
+		free(fileToSave);
+		free(fileToTransfer);
+		free(serverDetailsBuffer);
+		close(serverSocket);
+		ifs.close();
+		SYSCALL_ERROR("recv");
 		//TODO or maybe keep waiting and now exit?
 	}
 	else if (serverDetails == 0)
 	{
+		free(fileToSave);
+		free(fileToTransfer);
+		free(serverDetailsBuffer);
+		close(serverSocket);
+		ifs.close();
 		error ("ERROR: Server is Down.");
-		//TODO or maybe keep waiting and not exit?
+		//TODO what to print??
 	}
 
 	cerr << "Turn INFO From Server To Packet" << endl;
@@ -249,19 +292,40 @@ int main(int argc, char** argv){
 	// Initalize packet and check args
 	Packet workPacket;
 	workPacket.data = (char*) malloc(FIELD_LEN_DATA * sizeof(char)); //TODO could be shortened
+	if (workPacket.data == NULL)
+	{
+		free(fileToSave);
+		free(fileToTransfer);
+		free(serverDetailsBuffer);
+		close(serverSocket);
+		ifs.close();
+		SYSCALL_ERROR("malloc");
+	}
 	bytesToPacket(&workPacket, serverDetailsBuffer);
 
 	if (workPacket.status != SERVER_RESPONSE)
 	{
+		free(workPacket.data);
+		free(fileToSave);
+		free(fileToTransfer);
+		free(serverDetailsBuffer);
+		close(serverSocket);
+		ifs.close();
 		error ("ERROR: Recieved Unknown Packet Type.");
 		//TODO or maybe keep waiting and not exit?
 	}
 
 	//Check size of files server can recieve
 	unsigned long long fileSize = getFileSize(ifs);
-	if (fileSize < 0l)
+	if (fileSize < 0l || error = ERROR)
 	{
-		error("ERROR: Size of file is negative");
+		free(workPacket.data);
+		free(fileToSave);
+		free(fileToTransfer);
+		free(serverDetailsBuffer);
+		close(serverSocket);
+		ifs.close();
+		SYSCALL_ERROR("tellg");
 	}
 
 	unsigned long long serverMaxSizeOfFile = 0l;
@@ -270,8 +334,13 @@ int main(int argc, char** argv){
 	if (serverMaxSizeOfFile <= fileSize)
 	{
 		//Close connection and exit
+		free(workPacket.data);
+		free(fileToSave);
+		free(fileToTransfer);
+		free(serverDetailsBuffer);
 		close(serverSocket);
-		error ("ERROR: Server Doesn't support files of desired Size.");
+		ifs.close();
+		error ("Transmission failed: too big file");
 	}
 
 	cerr << "Send File size Packet" << endl;
@@ -280,10 +349,31 @@ int main(int argc, char** argv){
 	workPacket.dataSize = CLIENT_FILESIZE_DATASIZE;
 	workPacket.status = CLIENT_FILESIZE;
 	workPacket.data = (char*) realloc(workPacket.data, FIELD_LEN_DATA * sizeof(char));
+	if (workPacket.data == NULL)
+	{
+		free(workPacket.data);
+		free(fileToSave);
+		free(fileToTransfer);
+		free(serverDetailsBuffer);
+		close(serverSocket);
+		ifs.close();
+		SYSCALL_ERROR("realloc");
+	}
 
 	memcpy(workPacket.data, &fileSize, CLIENT_FILESIZE_DATASIZE);
 	//Send first packet
 	char* buffer = (char*) malloc(sizeof(char) * PACKET_SIZE);
+	if (buffer == NULL)
+	{
+		free(workPacket.data);
+		free(fileToSave);
+		free(fileToTransfer);
+		free(serverDetailsBuffer);
+		close(serverSocket);
+		ifs.close();
+		SYSCALL_ERROR("malloc");
+	}
+
 	packetToBytes(&workPacket, buffer);
 	sendBuffer(buffer, CLIENT_FILESIZE_DATASIZE + HEADER_LNEGTH, serverSocket);
 
@@ -292,8 +382,21 @@ int main(int argc, char** argv){
 	//Intialize second packet to send containning file name
 	workPacket.dataSize = nameSize;
 	workPacket.status = CLIENT_FILENAME;
+	workPacket.data = (char*) realloc(workPacket.data, (nameSize) * sizeof(char));
+	if (workPacket.data == NULL)
+	{
+		free(buffer);
+		free(workPacket.data);
+		free(fileToSave);
+		free(fileToTransfer);
+		free(serverDetailsBuffer);
+		close(serverSocket);
+		ifs.close();
+		SYSCALL_ERROR("realloc");
+	}
 
-	memcpy(workPacket.data, fileNameInServer.c_str(), nameSize + 1);
+	cerr<<"workPacket.dataSize is: " << workPacket.dataSize << endl;
+	memcpy(workPacket.data, fileNameInServer.c_str(), nameSize);
 	//Send second packet
 	packetToBytes(&workPacket, buffer);
 	sendBuffer(buffer, nameSize + HEADER_LNEGTH, serverSocket);
@@ -319,15 +422,33 @@ int main(int argc, char** argv){
 	char* dataBuffer = (char*) malloc(sizeof(char) * FIELD_LEN_DATA);
 	if (dataBuffer == NULL)
 	{
-		cerr << SYSCALL_ERROR("malloc");
-		exit(1);
+		free(buffer);
+		free(workPacket.data);
+		free(fileToSave);
+		free(fileToTransfer);
+		free(serverDetailsBuffer);
+		close(serverSocket);
+		ifs.close();
+		SYSCALL_ERROR("malloc");
 	}
 
 	cerr<<"Strating to actually send file to Server"<<endl;
 	while (toSend > PACKET_SIZE)
 	{
 		//free (workPacket.data); //Free allocated memory from before
-		workPacket.data = (char*) realloc(workPacket.data ,FIELD_LEN_DATA * sizeof(char)); 
+		workPacket.data = (char*) realloc(workPacket.data ,FIELD_LEN_DATA * sizeof(char));
+		if (workPacket.data == NULL)
+		{
+			free(workPacket.data);
+			free(buffer);
+			free(dataBuffer);
+			free(fileToSave);
+			free(fileToTransfer);
+			free(serverDetailsBuffer);
+			close(serverSocket);
+			ifs.close();
+			SYSCALL_ERROR("realloc");
+		}
 		ifs.read(dataBuffer, FIELD_LEN_DATA);
 		memcpy(workPacket.data, dataBuffer, FIELD_LEN_DATA);
 		packetToBytes(&workPacket, buffer);
@@ -337,7 +458,19 @@ int main(int argc, char** argv){
 	//In case there is still data with smaller size than max size of packet
 	if (toSend != EMPTY_FILE) 
 	{
-		workPacket.data = (char*) realloc(workPacket.data ,toSend * sizeof(char)); 
+		workPacket.data = (char*) realloc(workPacket.data ,toSend * sizeof(char));
+		if (workPacket.data == NULL)
+		{
+			free(workPacket.data);
+			free(buffer);
+			free(dataBuffer);
+			free(fileToSave);
+			free(fileToTransfer);
+			free(serverDetailsBuffer);
+			close(serverSocket);
+			ifs.close();
+			SYSCALL_ERROR("realloc");
+		}
 		workPacket.dataSize = toSend;
 		ifs.read(dataBuffer, toSend);
 		memcpy(workPacket.data, dataBuffer, toSend);
@@ -346,11 +479,11 @@ int main(int argc, char** argv){
 	}
 
 	//closing
-	free (workPacket.data);
-	free (buffer);
-	free (dataBuffer);
-	free (fileToSave);
-	free (fileToTransfer);
+	free(workPacket.data);
+	free(buffer);
+	free(dataBuffer);
+	free(fileToSave);
+	free(fileToTransfer);
 	free(serverDetailsBuffer);
 	close(serverSocket);
 	ifs.close();
